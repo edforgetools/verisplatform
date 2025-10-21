@@ -4,7 +4,12 @@ import React, { useState } from 'react';
 export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
   const [id, setId] = useState('');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    verified: boolean;
+    timestamp: string;
+    expected: string;
+    got: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -46,7 +51,7 @@ export default function VerifyPage() {
           'error',
         );
       }
-    } catch (error) {
+    } catch {
       showToast('Network error occurred', 'error');
     } finally {
       setLoading(false);
