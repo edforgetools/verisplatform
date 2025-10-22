@@ -26,18 +26,18 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 let redisClient: any = null;
 
 // Initialize Redis if enabled (only in server environment)
-if (process.env.REDIS_URL && typeof window === 'undefined') {
+// This is done lazily to avoid build-time module resolution issues
+let redisInitialized = false;
+
+async function initializeRedis() {
+  if (redisInitialized || !process.env.REDIS_URL || typeof window !== 'undefined') {
+    return;
+  }
+  
   try {
-    // Dynamic import to avoid bundling Redis in client-side code
-    import('ioredis')
-      .then(({ default: Redis }) => {
-        redisClient = new Redis(process.env.REDIS_URL!);
-      })
-      .catch(() => {
-        console.warn(
-          'Redis not available, falling back to in-memory rate limiting',
-        );
-      });
+    const { default: Redis } = await import('ioredis');
+    redisClient = new Redis(process.env.REDIS_URL!);
+    redisInitialized = true;
   } catch {
     console.warn(
       'Redis not available, falling back to in-memory rate limiting',
@@ -126,6 +126,8 @@ async function checkRedisRateLimit(
   key: string,
   config: RateLimitConfig,
 ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  await initializeRedis();
+  
   if (!redisClient) {
     throw new Error('Redis client not initialized');
   }
