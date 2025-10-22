@@ -7,6 +7,12 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID }}
+      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID }}
+      CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+      VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,6 +62,12 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID }}
+      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID }}
+      CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+      VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
