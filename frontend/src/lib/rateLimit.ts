@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type RedisClass from "ioredis";
 
 interface TokenBucket {
   tokens: number;
@@ -11,7 +12,7 @@ interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
 }
 
-// In-memory storage for token buckets
+// In-memory storage for token buckets (fallback when Redis unavailable)
 const buckets = new Map<string, TokenBucket>();
 
 // Default rate limit configuration
@@ -22,39 +23,15 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 };
 
 // Redis client (optional, behind env flag)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let Redis: any;
-try { 
-  Redis = require('ioredis'); 
-} catch { 
-  /* disable limiter in CI */ 
-}
+let redisClient: InstanceType<typeof (await import("ioredis")).default> | null = null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let redisClient: any = null;
-
-// Initialize Redis if enabled (only in server environment)
-// This is done lazily to avoid build-time module resolution issues
-let redisInitialized = false;
-
-async function initializeRedis() {
-  if (
-    redisInitialized ||
-    !process.env.REDIS_URL ||
-    typeof window !== 'undefined' ||
-    !Redis
-  ) {
-    return;
-  }
-
-  try {
-    redisClient = new Redis(process.env.REDIS_URL!);
-    redisInitialized = true;
-  } catch {
-    console.warn(
-      'Redis not available, falling back to in-memory rate limiting',
-    );
-  }
+async function getRedis() {
+  if (redisClient) return redisClient;
+  const url = process.env.UPSTASH_REDIS_URL || process.env.REDIS_URL;
+  if (!url) return null; // disable limiter if no Redis in env/CI
+  const { default: Redis }: { default: typeof RedisClass } = await import("ioredis");
+  redisClient = new Redis(url);
+  return redisClient;
 }
 
 /**
@@ -138,17 +115,16 @@ async function checkRedisRateLimit(
   key: string,
   config: RateLimitConfig,
 ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
-  await initializeRedis();
-
-  if (!redisClient) {
-    throw new Error('Redis client not initialized');
+  const redis = await getRedis();
+  if (!redis) {
+    return checkInMemoryRateLimit(key, config);
   }
 
   const now = Date.now();
   const windowStart = now - config.windowMs;
 
   // Use Redis sorted set to track requests
-  const pipeline = redisClient.pipeline();
+  const pipeline = redis.pipeline();
 
   // Remove old entries
   pipeline.zremrangebyscore(key, 0, windowStart);
@@ -194,7 +170,8 @@ export async function rateLimit(
 
     let result: { allowed: boolean; remaining: number; resetTime: number };
 
-    if (redisClient) {
+    const redis = await getRedis();
+    if (redis) {
       result = await checkRedisRateLimit(key, config);
     } else {
       result = await checkInMemoryRateLimit(key, config);
