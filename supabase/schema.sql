@@ -160,6 +160,13 @@ create trigger on_auth_user_updated
 after update of email on auth.users
 for each row execute procedure public.handle_user_updated();
 
+-- Additional telemetry_daily table for job tracking
+create table if not exists public.telemetry_daily_jobs (
+  id bigserial primary key,
+  ran_at_utc timestamptz not null default now(),
+  ok boolean not null default true
+);
+
 commit;
 
 -- ---------- VERIFY ----------
