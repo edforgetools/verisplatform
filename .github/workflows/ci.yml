@@ -9,9 +9,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
       - run: corepack enable
-      - uses: pnpm/action-setup@v4        # NOTE: no "version" here
+      - uses: pnpm/action-setup@v4 # NOTE: no "version" here
       - run: pnpm -v
       - run: pnpm -C frontend install --frozen-lockfile
       - run: pnpm -C frontend lint
@@ -52,9 +51,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
       - run: corepack enable
-      - uses: pnpm/action-setup@v4        # NOTE: no "version" here
+      - uses: pnpm/action-setup@v4 # NOTE: no "version" here
       - run: pnpm -C frontend install --frozen-lockfile
       - name: Deploy to Vercel
         uses: vercel/action@v1
