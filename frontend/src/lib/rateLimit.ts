@@ -30,10 +30,14 @@ let redisClient: any = null;
 let redisInitialized = false;
 
 async function initializeRedis() {
-  if (redisInitialized || !process.env.REDIS_URL || typeof window !== 'undefined') {
+  if (
+    redisInitialized ||
+    !process.env.REDIS_URL ||
+    typeof window !== 'undefined'
+  ) {
     return;
   }
-  
+
   try {
     const { default: Redis } = await import('ioredis');
     redisClient = new Redis(process.env.REDIS_URL!);
@@ -127,7 +131,7 @@ async function checkRedisRateLimit(
   config: RateLimitConfig,
 ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
   await initializeRedis();
-  
+
   if (!redisClient) {
     throw new Error('Redis client not initialized');
   }

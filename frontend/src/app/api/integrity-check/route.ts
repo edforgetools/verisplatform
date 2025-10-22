@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseService } from '@/lib/db';
 import { verifySignature } from '@/lib/crypto';
 
 export const runtime = 'nodejs';
@@ -11,6 +10,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Check if environment variables are available
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return NextResponse.json({ 
+      error: 'Supabase configuration not available' 
+    }, { status: 503 });
+  }
+
+  // Dynamically import supabase to avoid build-time issues
+  const { supabaseService } = await import('@/lib/db');
   const svc = supabaseService();
   const errors: string[] = [];
   let checked = 0;
