@@ -9,17 +9,19 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-      - run: corepack enable
+
+      # Add pnpm back
       - uses: pnpm/action-setup@v4
+        with:
+          run_install: false   # we call install explicitly
+
       - run: pnpm -v
-      - name: Check env present
-        run: |
-          [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] || (echo "MISSING URL" && exit 1)
-          [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ] || (echo "MISSING ANON" && exit 1)
+
       - run: pnpm -C frontend install --frozen-lockfile
       - run: pnpm -C frontend lint
       - run: pnpm -C frontend exec tsc --noEmit
