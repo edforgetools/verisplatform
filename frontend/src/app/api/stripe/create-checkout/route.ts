@@ -4,7 +4,13 @@ import { assertEntitled } from '@/lib/entitlements';
 
 export const runtime = 'nodejs';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is required');
+  }
+  return new Stripe(secretKey);
+}
 
 // Allowlist of valid price IDs
 const ALLOWED_PRICE_IDS = [
@@ -51,6 +57,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],

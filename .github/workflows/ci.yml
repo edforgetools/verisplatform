@@ -7,12 +7,14 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: "price_test_pro_monthly"
-      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: "price_test_team_monthly"
-      CRON_JOB_TOKEN: "89ca7e174af2cf99708f6a29a76e2cabbb76cf8019a18724da0115ed0d7c17f6"
-      CRON_SECRET: "test_cron_secret"
-      VERIS_SIGNING_PRIVATE_KEY: "test_private_key"
-      VERIS_SIGNING_PUBLIC_KEY: "test_public_key"
+      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: 'price_test_pro_monthly'
+      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: 'price_test_team_monthly'
+      CRON_JOB_TOKEN: '89ca7e174af2cf99708f6a29a76e2cabbb76cf8019a18724da0115ed0d7c17f6'
+      CRON_SECRET: 'test_cron_secret'
+      VERIS_SIGNING_PRIVATE_KEY: 'test_private_key'
+      VERIS_SIGNING_PUBLIC_KEY: 'test_public_key'
+      STRIPE_SECRET_KEY: 'sk_test_fake_key_for_ci'
+      STRIPE_WEBHOOK_SECRET: 'whsec_test_fake_secret_for_ci'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,12 +64,12 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: "price_test_pro_monthly"
-      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: "price_test_team_monthly"
-      CRON_JOB_TOKEN: "89ca7e174af2cf99708f6a29a76e2cabbb76cf8019a18724da0115ed0d7c17f6"
-      CRON_SECRET: "test_cron_secret"
-      VERIS_SIGNING_PRIVATE_KEY: "test_private_key"
-      VERIS_SIGNING_PUBLIC_KEY: "test_public_key"
+      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: 'price_test_pro_monthly'
+      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: 'price_test_team_monthly'
+      CRON_JOB_TOKEN: '89ca7e174af2cf99708f6a29a76e2cabbb76cf8019a18724da0115ed0d7c17f6'
+      CRON_SECRET: 'test_cron_secret'
+      VERIS_SIGNING_PRIVATE_KEY: 'test_private_key'
+      VERIS_SIGNING_PUBLIC_KEY: 'test_public_key'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
