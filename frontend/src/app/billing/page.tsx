@@ -43,11 +43,11 @@ export default function BillingPage() {
       try {
         const {
           data: { user },
-        } = await supabase.auth.getUser();
+        } = await supabase().auth.getUser();
         if (user) {
           setUser(user);
 
-          const { data: billing, error } = await supabase
+          const { data: billing, error } = await supabase()
             .from('billing')
             .select('tier, status, stripe_subscription_id')
             .eq('user_id', user.id)

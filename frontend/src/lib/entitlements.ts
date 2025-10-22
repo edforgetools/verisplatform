@@ -51,7 +51,7 @@ export async function isEntitled(
 ): Promise<boolean> {
   try {
     // Get user's billing information
-    const { data: billing, error } = await supabaseAdmin
+    const { data: billing, error } = await supabaseAdmin()
       .from('billing')
       .select('tier, status')
       .eq('user_id', userId)
@@ -106,7 +106,7 @@ export async function assertEntitled(
  */
 export async function getUserTier(userId: string): Promise<Tier> {
   try {
-    const { data: billing, error } = await supabaseAdmin
+    const { data: billing, error } = await supabaseAdmin()
       .from('billing')
       .select('tier, status')
       .eq('user_id', userId)
@@ -138,7 +138,7 @@ export async function getUserTier(userId: string): Promise<Tier> {
  */
 export async function getUserBilling(userId: string): Promise<Billing | null> {
   try {
-    const { data: billing, error } = await supabaseAdmin
+    const { data: billing, error } = await supabaseAdmin()
       .from('billing')
       .select('*')
       .eq('user_id', userId)

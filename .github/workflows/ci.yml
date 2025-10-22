@@ -16,6 +16,10 @@ jobs:
       - uses: pnpm/action-setup@v4 # NOTE: no "version" here
       - run: pnpm -v
       - run: pnpm -C frontend install --frozen-lockfile
+      - name: Check env present
+        run: |
+          [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] || (echo "MISSING URL" && exit 1)
+          [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ] || (echo "MISSING ANON" && exit 1)
       - run: pnpm -C frontend lint
       - run: pnpm -C frontend exec tsc --noEmit
       - run: pnpm -C frontend build

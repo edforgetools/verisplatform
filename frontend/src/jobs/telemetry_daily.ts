@@ -51,7 +51,7 @@ export async function runTelemetryDailyAggregation(
 
   try {
     // Get all unique events in the date range
-    const { data: eventsData, error: eventsError } = await supabaseAdmin
+    const { data: eventsData, error: eventsError } = await supabaseAdmin()
       .from('telemetry')
       .select('event')
       .gte('created_at', `${start}T00:00:00.000Z`)
@@ -85,7 +85,7 @@ export async function runTelemetryDailyAggregation(
       for (const event of uniqueEvents) {
         try {
           // Get aggregated data for this event on this date
-          const { data: aggData, error: aggError } = await supabaseAdmin
+          const { data: aggData, error: aggError } = await supabaseAdmin()
             .from('telemetry')
             .select('user_id, value, meta')
             .eq('event', event)
@@ -135,7 +135,7 @@ export async function runTelemetryDailyAggregation(
             );
           } else {
             // Upsert into telemetry_daily table
-            const { error: upsertError } = await supabaseAdmin
+            const { error: upsertError } = await supabaseAdmin()
               .from('telemetry_daily')
               .upsert(
                 {
