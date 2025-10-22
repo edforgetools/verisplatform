@@ -4,7 +4,7 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    const { data, error } = await supabase.from('proofs').select('id').limit(1);
+    const { error } = await supabase.from('proofs').select('id').limit(1);
     return new Response(JSON.stringify({ ok: !error }), {
       status: error ? 500 : 200,
       headers: { 'Content-Type': 'application/json' },

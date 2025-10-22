@@ -28,7 +28,7 @@ export async function GET(
   // Check entitlement for generating certificates
   try {
     await assertEntitled(proof.user_id, 'generate_certificate');
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Insufficient permissions to generate certificates' },
       { status: 403 },

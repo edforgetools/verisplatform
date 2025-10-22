@@ -22,6 +22,7 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 };
 
 // Redis client (optional, behind env flag)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redisClient: any = null;
 
 // Initialize Redis if enabled

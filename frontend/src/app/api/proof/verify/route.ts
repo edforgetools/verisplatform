@@ -15,7 +15,13 @@ interface VerifyBySignatureRequest {
 }
 
 function isVerifyByIdRequest(data: unknown): data is VerifyByIdRequest {
-  return typeof data === 'object' && data !== null && 'id' in data && typeof (data as { id: unknown }).id === 'string' && (data as { id: string }).id.length > 0;
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'id' in data &&
+    typeof (data as { id: unknown }).id === 'string' &&
+    (data as { id: string }).id.length > 0
+  );
 }
 
 function isVerifyBySignatureRequest(
