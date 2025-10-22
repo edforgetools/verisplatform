@@ -25,13 +25,13 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redisClient: any = null;
 
-// Initialize Redis if enabled
-if (process.env.REDIS_URL) {
+// Initialize Redis if enabled (only in server environment)
+if (process.env.REDIS_URL && typeof window === 'undefined') {
   try {
     // Dynamic import to avoid bundling Redis in client-side code
     import('ioredis')
       .then(({ default: Redis }) => {
-        redisClient = new Redis(process.env.REDIS_URL);
+        redisClient = new Redis(process.env.REDIS_URL!);
       })
       .catch(() => {
         console.warn(
