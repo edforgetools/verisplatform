@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     // Check entitlement for creating checkout sessions
     try {
       await assertEntitled(userId, 'create_checkout');
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { error: 'Insufficient permissions to create checkout sessions' },
         { status: 403 },

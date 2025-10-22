@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     if (userId) {
       try {
         await assertEntitled(userId, 'telemetry_tracking');
-      } catch (error) {
+      } catch {
         return NextResponse.json(
           { error: 'Insufficient permissions to track telemetry' },
           { status: 403 },

@@ -11,7 +11,7 @@ export interface TelemetryDailyResult {
   event: string;
   count: number;
   unique_users: number;
-  meta?: any;
+  meta?: Record<string, unknown>;
 }
 
 /**

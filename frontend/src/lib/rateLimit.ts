@@ -22,14 +22,19 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 };
 
 // Redis client (optional, behind env flag)
-let redisClient: any = null;
+let redisClient: unknown = null;
 
 // Initialize Redis if enabled
 if (process.env.REDIS_URL) {
   try {
     // Dynamic import to avoid bundling Redis in client-side code
-    const Redis = require('ioredis');
-    redisClient = new Redis(process.env.REDIS_URL);
+    import('ioredis').then(({ default: Redis }) => {
+      redisClient = new Redis(process.env.REDIS_URL);
+    }).catch(() => {
+      console.warn(
+        'Redis not available, falling back to in-memory rate limiting',
+      );
+    });
   } catch (error) {
     console.warn(
       'Redis not available, falling back to in-memory rate limiting',

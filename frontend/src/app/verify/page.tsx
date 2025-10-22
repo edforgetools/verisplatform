@@ -85,7 +85,7 @@ export default function VerifyPage() {
           } (${elapsed}ms)`,
         );
       }
-    } catch (error) {
+    } catch {
       const elapsed = Math.round(performance.now() - startTime);
       setElapsedMs(elapsed);
       toast.error(`Network error occurred (${elapsed}ms)`);
