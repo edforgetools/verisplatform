@@ -14,17 +14,13 @@ function getStripe() {
 
 // Allowlist of valid price IDs
 const ALLOWED_PRICE_IDS = [
-  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID ||
-    'price_1SKqkE2O9l5kYbcA5hZf9ZtD',
-  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID ||
-    'price_1SKqkj2O9l5kYbcAJzO0YOfB',
-];
+  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
+  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
+].filter(Boolean) as string[];
 
 export async function POST(req: NextRequest) {
-  if (req.method !== 'POST') {
-    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
-  }
-
+  const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL!;
+  
   try {
     const { priceId, userId, customerEmail } = await req.json();
 
@@ -61,8 +57,8 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.headers.get('origin')}/billing/success`,
-      cancel_url: `${req.headers.get('origin')}/billing/cancel`,
+      success_url: `${origin}/billing/success`,
+      cancel_url: `${origin}/billing/cancel`,
       client_reference_id: userId,
       customer_email: customerEmail,
     });
@@ -75,4 +71,8 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+export function GET() { 
+  return NextResponse.json({ ok: true }); 
 }

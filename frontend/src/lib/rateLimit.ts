@@ -23,6 +23,14 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 
 // Redis client (optional, behind env flag)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+let Redis: any;
+try { 
+  Redis = require('ioredis'); 
+} catch { 
+  /* disable limiter in CI */ 
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redisClient: any = null;
 
 // Initialize Redis if enabled (only in server environment)
@@ -33,13 +41,13 @@ async function initializeRedis() {
   if (
     redisInitialized ||
     !process.env.REDIS_URL ||
-    typeof window !== 'undefined'
+    typeof window !== 'undefined' ||
+    !Redis
   ) {
     return;
   }
 
   try {
-    const { default: Redis } = await import('ioredis');
     redisClient = new Redis(process.env.REDIS_URL!);
     redisInitialized = true;
   } catch {
