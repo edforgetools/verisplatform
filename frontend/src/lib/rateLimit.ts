@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // CI-safe rate limiter without require(), no top-level await
-let redisClient: any = null;
+let redisClient: unknown = null;
 
 async function getRedis() {
   if (redisClient) return redisClient;
@@ -9,7 +9,7 @@ async function getRedis() {
   const url = process.env.UPSTASH_REDIS_URL || process.env.REDIS_URL;
   if (!url) return null; // no Redis configured → limiter disabled
 
-  const { default: Redis } = await import("ioredis");
+  const { default: Redis } = await import('ioredis');
   redisClient = new Redis(url);
   return redisClient;
 }
@@ -32,7 +32,7 @@ export function clearAllBuckets(): void {
 export function withRateLimit(
   handler: (request: NextRequest) => Promise<NextResponse>,
   route: string,
-  config?: any,
+  config?: { capacity?: number; windowMs?: number },
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
     // Only apply rate limiting to POST requests
@@ -40,12 +40,17 @@ export function withRateLimit(
       return handler(request);
     }
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
     const key = `rate_limit:${ip}:${route}`;
-    
-    const { allowed, remaining } = await rateLimit(key, config?.capacity || 10, config?.windowMs ? config.windowMs / 1000 : 60);
+
+    const { allowed } = await rateLimit(
+      key,
+      config?.capacity || 10,
+      config?.windowMs ? config.windowMs / 1000 : 60,
+    );
 
     if (!allowed) {
       return NextResponse.json(
@@ -53,7 +58,7 @@ export function withRateLimit(
           error: 'Too Many Requests',
           message: 'Rate limit exceeded. Please try again later.',
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
