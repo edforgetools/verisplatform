@@ -1,0 +1,22 @@
+name: purge-demo-proofs
+on:
+  schedule: [{ cron: '0 18 * * *' }]
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge old proofs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          supabaseservicekey: ${{ secrets.supabaseservicekey }}
+        run: |
+          npm i -g supabase
+          node -e "
+          const { createClient } = require('@supabase/supabase-js');
+          const c = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.supabaseservicekey);
+          (async ()=>{
+            const cutoff = new Date(Date.now()-7*24*3600*1000).toISOString();
+            await c.from('proofs').delete().lt('created_at', cutoff);
+            console.log('Purged');
+          })();
+          "

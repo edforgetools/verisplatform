@@ -1,0 +1,18 @@
+import { supabase } from '@/lib/supabase';
+
+export const runtime = 'nodejs';
+
+export async function GET() {
+  try {
+    const { data, error } = await supabase.from('proofs').select('id').limit(1);
+    return new Response(JSON.stringify({ ok: !error }), {
+      status: error ? 500 : 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ ok: false, error: err }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}

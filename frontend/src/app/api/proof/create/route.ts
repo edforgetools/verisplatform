@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseService } from '@/lib/db';
 import { sha256, shortHash, signHash } from '@/lib/crypto';
+import { assertEntitled } from '@/lib/entitlements';
+import { withRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 
-export async function POST(req: NextRequest) {
+async function handleCreateProof(req: NextRequest) {
   const form = await req.formData();
   const file = form.get('file') as File | null;
   const userId = form.get('user_id') as string | null;
@@ -14,6 +16,16 @@ export async function POST(req: NextRequest) {
       { error: 'file and user_id required' },
       { status: 400 },
     );
+
+  // Check entitlement for creating proofs
+  try {
+    await assertEntitled(userId, 'create_proof');
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Insufficient permissions to create proofs' },
+      { status: 403 },
+    );
+  }
 
   const arrayBuffer = await file.arrayBuffer();
   const buf = Buffer.from(arrayBuffer);
@@ -48,3 +60,10 @@ export async function POST(req: NextRequest) {
     url: `/proof/${data.id}`,
   });
 }
+
+// Apply rate limiting to the POST handler
+export const POST = withRateLimit(handleCreateProof, '/api/proof/create', {
+  capacity: 5, // 5 requests
+  refillRate: 0.5, // 1 token every 2 seconds
+  windowMs: 60000, // 1 minute window
+});

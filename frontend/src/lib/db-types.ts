@@ -102,6 +102,63 @@ export type Database = {
         };
         Relationships: [];
       };
+      telemetry: {
+        Row: {
+          id: number;
+          user_id: string | null;
+          event: string;
+          value: number | null;
+          meta: Json | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: number;
+          user_id?: string | null;
+          event: string;
+          value?: number | null;
+          meta?: Json | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: number;
+          user_id?: string | null;
+          event?: string;
+          value?: number | null;
+          meta?: Json | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
+      telemetry_daily: {
+        Row: {
+          id: number;
+          date: string;
+          event: string;
+          count: number | null;
+          unique_users: number | null;
+          meta: Json | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: number;
+          date?: string;
+          event: string;
+          count?: number | null;
+          unique_users?: number | null;
+          meta?: Json | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: number;
+          date?: string;
+          event?: string;
+          count?: number | null;
+          unique_users?: number | null;
+          meta?: Json | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -212,3 +269,11 @@ export type BillingUpdate = TablesUpdate<'billing'>;
 export type Proof = Tables<'proofs'>;
 export type ProofInsert = TablesInsert<'proofs'>;
 export type ProofUpdate = TablesUpdate<'proofs'>;
+
+export type Telemetry = Tables<'telemetry'>;
+export type TelemetryInsert = TablesInsert<'telemetry'>;
+export type TelemetryUpdate = TablesUpdate<'telemetry'>;
+
+export type TelemetryDaily = Tables<'telemetry_daily'>;
+export type TelemetryDailyInsert = TablesInsert<'telemetry_daily'>;
+export type TelemetryDailyUpdate = TablesUpdate<'telemetry_daily'>;

@@ -1,0 +1,209 @@
+name: Integrity Audit
+on:
+  schedule: [{ cron: '0 2 * * 1' }] # Weekly on Monday at 2 AM UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  integrity-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run Integrity Audit
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          supabaseservicekey: ${{ secrets.supabaseservicekey }}
+          VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          cd frontend
+          node -e "
+          const { createClient } = require('@supabase/supabase-js');
+          const crypto = require('crypto');
+
+          // Configuration
+          const SAMPLE_SIZE = 50; // Sample N recent proofs
+          const RESULTS_FILE = 'integrity-audit-results.json';
+
+          async function sha256(buf) {
+            return crypto.createHash('sha256').update(buf).digest('hex');
+          }
+
+          async function verifySignature(hashHex, signatureB64) {
+            try {
+              const publicKey = process.env.VERIS_SIGNING_PUBLIC_KEY;
+              const verify = crypto.createVerify('RSA-SHA256');
+              verify.update(hashHex);
+              verify.end();
+              return verify.verify(publicKey, signatureB64, 'base64');
+            } catch (error) {
+              console.error('Signature verification error:', error.message);
+              return false;
+            }
+          }
+
+          async function runIntegrityAudit() {
+            console.log('Starting integrity audit...');
+            const supabase = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL,
+              process.env.supabaseservicekey
+            );
+            
+            const results = {
+              timestamp: new Date().toISOString(),
+              sample_size: SAMPLE_SIZE,
+              total_checked: 0,
+              mismatches: [],
+              errors: [],
+              summary: {}
+            };
+            
+            try {
+              // Get recent proofs to sample
+              const { data: proofs, error: fetchError } = await supabase
+                .from('proofs')
+                .select('id, hash_full, hash_prefix, signature, file_name, created_at')
+                .order('created_at', { ascending: false })
+                .limit(SAMPLE_SIZE);
+              
+              if (fetchError) {
+                throw new Error(\`Failed to fetch proofs: \${fetchError.message}\`);
+              }
+              
+              if (!proofs || proofs.length === 0) {
+                console.log('No proofs found to audit');
+                results.summary.status = 'no_proofs';
+                return results;
+              }
+              
+              console.log(\`Sampling \${proofs.length} recent proofs for integrity check...\`);
+              results.total_checked = proofs.length;
+              
+              // Verify each proof
+              for (const proof of proofs) {
+                try {
+                  // Verify hash format
+                  if (!proof.hash_full.match(/^[a-f0-9]{64}$/)) {
+                    results.mismatches.push({
+                      id: proof.id,
+                      type: 'hash_format_invalid',
+                      expected: '64-character hex string',
+                      actual: proof.hash_full,
+                      message: 'Hash format is invalid'
+                    });
+                    continue;
+                  }
+                  
+                  // Verify hash prefix matches full hash
+                  const expectedPrefix = (proof.hash_full.slice(0, 4) + '-' + proof.hash_full.slice(4, 8)).toUpperCase();
+                  if (proof.hash_prefix !== expectedPrefix) {
+                    results.mismatches.push({
+                      id: proof.id,
+                      type: 'hash_prefix_mismatch',
+                      expected: expectedPrefix,
+                      actual: proof.hash_prefix,
+                      message: 'Hash prefix does not match full hash'
+                    });
+                  }
+                  
+                  // Verify signature
+                  const signatureValid = await verifySignature(proof.hash_full, proof.signature);
+                  if (!signatureValid) {
+                    results.mismatches.push({
+                      id: proof.id,
+                      type: 'signature_invalid',
+                      expected: 'valid signature',
+                      actual: 'invalid signature',
+                      message: 'Signature verification failed'
+                    });
+                  }
+                  
+                } catch (error) {
+                  results.errors.push({
+                    id: proof.id,
+                    error: error.message,
+                    message: 'Error during verification'
+                  });
+                }
+              }
+              
+              // Generate summary
+              results.summary = {
+                status: results.mismatches.length > 0 ? 'failed' : 'passed',
+                total_checked: results.total_checked,
+                mismatches_found: results.mismatches.length,
+                errors_encountered: results.errors.length,
+                mismatch_types: [...new Set(results.mismatches.map(m => m.type))],
+                offending_ids: results.mismatches.map(m => m.id)
+              };
+              
+              console.log('Integrity audit completed:');
+              console.log(\`- Total proofs checked: \${results.total_checked}\`);
+              console.log(\`- Mismatches found: \${results.mismatches.length}\`);
+              console.log(\`- Errors encountered: \${results.errors.length}\`);
+              
+              if (results.mismatches.length > 0) {
+                console.log('OFFENDING PROOF IDs:');
+                results.mismatches.forEach(m => {
+                  console.log(\`  - \${m.id}: \${m.message}\`);
+                });
+              }
+              
+              // Write results to file for artifact
+              require('fs').writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2));
+              
+              return results;
+              
+            } catch (error) {
+              console.error('Integrity audit failed:', error.message);
+              results.errors.push({
+                error: error.message,
+                message: 'Critical error during audit'
+              });
+              results.summary.status = 'error';
+              require('fs').writeFileSync(RESULTS_FILE, JSON.stringify(results, null, 2));
+              return results;
+            }
+          }
+
+          // Run the audit
+          runIntegrityAudit().then(results => {
+            const exitCode = results.summary.status === 'passed' ? 0 : 1;
+            console.log(\`Audit completed with status: \${results.summary.status}\`);
+            process.exit(exitCode);
+          }).catch(error => {
+            console.error('Fatal error:', error);
+            process.exit(1);
+          });
+          "
+
+      - name: Upload Audit Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrity-audit-results
+          path: frontend/integrity-audit-results.json
+          retention-days: 30
+
+      - name: Log Audit Results
+        if: always()
+        run: |
+          if [ -f frontend/integrity-audit-results.json ]; then
+            echo "=== INTEGRITY AUDIT SUMMARY ==="
+            cat frontend/integrity-audit-results.json | jq '.summary'
+            echo ""
+            echo "=== MISMATCHES FOUND ==="
+            cat frontend/integrity-audit-results.json | jq '.mismatches[] | {id, type, message}'
+          fi

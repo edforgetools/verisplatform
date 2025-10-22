@@ -1,145 +1,193 @@
-'use client';
-
-import { useState } from 'react';
-import { Toaster, toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [userId, setUserId] = useState<string>('');
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!file || !userId.trim()) {
-      toast.error('Please select a file and enter a user ID');
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('user_id', userId.trim());
-
-      const response = await fetch('/api/proof/create', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success(
-          `Proof created successfully! Hash: ${result.hash_prefix}`,
-          {
-            duration: 5000,
-          },
-        );
-
-        // Reset form
-        setFile(null);
-        setUserId('');
-        const fileInput = document.getElementById('file') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
-      } else {
-        toast.error(`Error: ${result.error || 'Failed to create proof'}`);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload file. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Veris Proof Creator
-          </h1>
-          <p className="text-gray-600">
-            Upload a file to create a cryptographic proof
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Navigation */}
+      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link
+                href="/"
+                className="text-xl font-bold text-slate-900 dark:text-white"
+              >
+                Veris
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/demo"
+                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              >
+                Demo
+              </Link>
+              <Link
+                href="/verify"
+                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              >
+                Verify
+              </Link>
+              <Link
+                href="/billing"
+                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              >
+                Billing
+              </Link>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="file"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Select File
-            </label>
-            <input
-              id="file"
-              type="file"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              required
-            />
-            {file && (
-              <p className="mt-1 text-sm text-gray-600">
-                Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="userId"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              User ID
-            </label>
-            <input
-              id="userId"
-              type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Enter a UUID or user identifier"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isUploading || !file || !userId.trim()}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isUploading ? 'Creating Proof...' : 'Create Proof'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-xs text-gray-500 text-center">
-          <p>
-            Your file will be hashed and signed to create a cryptographic proof
-            of its existence and integrity.
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
+            Final Means Final
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
+            Cryptographic proof of file integrity for creative professionals.
+            Secure, verifiable, and tamper-proof.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/demo"
+              className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Try Demo
+            </Link>
+            <Link
+              href="/verify"
+              className="px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Verify File
+            </Link>
+          </div>
         </div>
       </div>
 
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-        }}
-      />
+      {/* Features Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              Cryptographic Security
+            </h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              SHA-256 hashing and RSA digital signatures ensure your files are
+              tamper-proof and verifiable.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              Instant Verification
+            </h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              Upload any file and instantly verify its integrity against our
+              cryptographic proofs.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              PDF Certificates
+            </h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              Download professional PDF certificates for legal and business
+              documentation.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="bg-slate-900 dark:bg-slate-800 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Secure Your Files?
+          </h2>
+          <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+            Join creative professionals who trust Veris to protect their work
+            with cryptographic proof.
+          </p>
+          <Link
+            href="/billing"
+            className="inline-flex items-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Get Started
+          </Link>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-slate-600 dark:text-slate-400">
+            <p>&copy; 2025 Veris. All rights reserved.</p>
+            <p className="mt-2">
+              <a
+                href="mailto:support@verisplatform.com"
+                className="hover:text-slate-900 dark:hover:text-white"
+              >
+                support@verisplatform.com
+              </a>
+              {' • '}
+              <a
+                href="mailto:billing@verisplatform.com"
+                className="hover:text-slate-900 dark:hover:text-white"
+              >
+                billing@verisplatform.com
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

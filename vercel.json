@@ -11,5 +11,18 @@
       "src": "/(.*)",
       "dest": "frontend/$1"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.verisplatform.com"
+        }
+      ],
+      "destination": "https://verisplatform.com/$1",
+      "permanent": true
+    }
   ]
 }

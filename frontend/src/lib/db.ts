@@ -12,6 +12,6 @@ export const supabaseService = () => {
   const { createClient: createService } = require('@supabase/supabase-js');
   return createService(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.supabaseservicekey!,
   );
 };
