@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseService } from '@/lib/db';
-import { sha256, verifySignature } from '@/lib/crypto';
+import { verifySignature } from '@/lib/crypto';
 import { withRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
@@ -14,20 +14,22 @@ interface VerifyBySignatureRequest {
   signatureB64: string;
 }
 
-type VerifyRequest = VerifyByIdRequest | VerifyBySignatureRequest;
-
-function isVerifyByIdRequest(data: any): data is VerifyByIdRequest {
-  return typeof data.id === 'string' && data.id.length > 0;
+function isVerifyByIdRequest(data: unknown): data is VerifyByIdRequest {
+  return typeof data === 'object' && data !== null && 'id' in data && typeof (data as { id: unknown }).id === 'string' && (data as { id: string }).id.length > 0;
 }
 
 function isVerifyBySignatureRequest(
-  data: any,
+  data: unknown,
 ): data is VerifyBySignatureRequest {
   return (
-    typeof data.hashHex === 'string' &&
-    typeof data.signatureB64 === 'string' &&
-    data.hashHex.length > 0 &&
-    data.signatureB64.length > 0
+    typeof data === 'object' &&
+    data !== null &&
+    'hashHex' in data &&
+    'signatureB64' in data &&
+    typeof (data as { hashHex: unknown }).hashHex === 'string' &&
+    typeof (data as { signatureB64: unknown }).signatureB64 === 'string' &&
+    (data as { hashHex: string }).hashHex.length > 0 &&
+    (data as { signatureB64: string }).signatureB64.length > 0
   );
 }
 
@@ -101,7 +103,7 @@ async function handleVerifyProof(req: NextRequest) {
       { error: 'Invalid request format' },
       { status: 400 },
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Malformed request body' },
       { status: 400 },

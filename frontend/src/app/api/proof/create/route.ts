@@ -20,7 +20,7 @@ async function handleCreateProof(req: NextRequest) {
   // Check entitlement for creating proofs
   try {
     await assertEntitled(userId, 'create_proof');
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Insufficient permissions to create proofs' },
       { status: 403 },
