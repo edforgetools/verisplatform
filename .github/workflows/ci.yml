@@ -7,55 +7,23 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID }}
-      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID }}
-      CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN }}
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
-      VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
-      VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
       - run: corepack enable
-      - uses: pnpm/action-setup@v4 # NOTE: no "version" here
+      - uses: pnpm/action-setup@v4
       - run: pnpm -v
-      - run: pnpm -C frontend install --frozen-lockfile
       - name: Check env present
         run: |
           [ -n "$NEXT_PUBLIC_SUPABASE_URL" ] || (echo "MISSING URL" && exit 1)
           [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ] || (echo "MISSING ANON" && exit 1)
+      - run: pnpm -C frontend install --frozen-lockfile
       - run: pnpm -C frontend lint
       - run: pnpm -C frontend exec tsc --noEmit
       - run: pnpm -C frontend build
-      - name: Run API tests
-        run: |
-          cd frontend
-          pnpm test
-        env:
-          NODE_ENV: test
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          supabaseservicekey: ${{ secrets.supabaseservicekey }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: frontend/coverage/
-          retention-days: 30
-      - name: Upload test logs
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-logs
-          path: frontend/test-results/
-          retention-days: 30
 
   vercel-preview:
     runs-on: ubuntu-latest

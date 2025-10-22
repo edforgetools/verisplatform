@@ -1,0 +1,7 @@
+.github
+docs
+**/*.test.*
+**/__tests__/**
+**/*.spec.*
+**/*.snap
+*.md

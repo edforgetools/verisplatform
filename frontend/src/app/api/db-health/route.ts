@@ -1,10 +1,10 @@
-import { getSupabase } from '@/lib/db';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    const supabase = getSupabase();
+    const supabase = supabaseAdmin();
     const { error } = await supabase.from('proofs').select('id').limit(1);
     return new Response(JSON.stringify({ ok: !error }), {
       status: error ? 500 : 200,

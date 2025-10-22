@@ -20,7 +20,7 @@ const ALLOWED_PRICE_IDS = [
 
 export async function POST(req: NextRequest) {
   const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL!;
-  
+
   try {
     const { priceId, userId, customerEmail } = await req.json();
 
@@ -73,6 +73,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export function GET() { 
-  return NextResponse.json({ ok: true }); 
+export function GET() {
+  return NextResponse.json({ ok: true });
 }
