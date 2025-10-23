@@ -1,7 +1,57 @@
-.github
-docs
-**/*.test.*
+# Test files and directories
 **/__tests__/**
-**/*.spec.*
-**/*.snap
-*.md
+**/fixtures/**
+
+# GitHub workflows and configs
+.github/
+
+# Seeding scripts (not needed at runtime)
+scripts/seed*
+
+# Development files
+*.log
+*.tmp
+*.temp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build artifacts that aren't needed
+*.tsbuildinfo
+coverage/
+.nyc_output/
+
+# Documentation that's not needed at runtime
+docs/
+README.md
+CHANGELOG.md
+
+# Development environment files
+.env.local
+.env.development
+.env.test
+
+# Package manager lockfiles (Vercel will install from package.json)
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Playwright test results
+test-results/
+playwright-report/
+
+# Jest test results
+jest-results/
