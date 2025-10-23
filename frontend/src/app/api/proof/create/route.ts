@@ -8,6 +8,7 @@ import { jsonOk, jsonErr } from "@/lib/http";
 import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { generateProofId } from "@/lib/ids";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,7 @@ async function handleCreateProof(req: NextRequest) {
     // Get authenticated user ID from request
     const authenticatedUserId = await getAuthenticatedUserId(req);
     if (!authenticatedUserId) {
+      logger.warn("Proof creation attempted without authentication");
       return jsonErr("Authentication required", 401);
     }
 
@@ -32,6 +34,10 @@ async function handleCreateProof(req: NextRequest) {
 
     // Validate user_id matches authenticated user
     if (userId !== authenticatedUserId) {
+      logger.warn({
+        authenticatedUserId,
+        providedUserId: userId,
+      }, "Proof creation attempted with mismatched user_id");
       return jsonErr("user_id must match authenticated user", 403);
     }
 
@@ -39,6 +45,9 @@ async function handleCreateProof(req: NextRequest) {
     try {
       await assertEntitled(userId, "create_proof");
     } catch {
+      logger.warn({
+        userId,
+      }, "Proof creation attempted without sufficient permissions");
       return jsonErr("Insufficient permissions to create proofs", 403);
     }
 
@@ -70,8 +79,20 @@ async function handleCreateProof(req: NextRequest) {
       .single();
 
     if (error) {
+      logger.error({
+        userId,
+        fileName: file.name,
+        error: error.message,
+      }, "Failed to create proof in database");
       return jsonErr(error.message, 500);
     }
+
+    logger.info({
+      proofId: data.id,
+      userId,
+      fileName: file.name,
+      project,
+    }, "Proof created successfully");
 
     return jsonOk({
       id: data.id,
