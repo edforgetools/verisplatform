@@ -1,19 +1,13 @@
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
-
-export const runtime = 'nodejs';
+import { ENV } from "@/lib/env";
+import { createClient } from "@supabase/supabase-js";
+export const runtime = "nodejs";
 
 export async function GET() {
-  try {
-    const supabase = supabaseAdmin();
-    const { error } = await supabase.from('proofs').select('id').limit(1);
-    return new Response(JSON.stringify({ ok: !error }), {
-      status: error ? 500 : 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: err }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  const supa = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    ENV.server.supabaseservicekey,
+  );
+  const { error } = await supa.from("app_users").select("count").limit(1);
+  if (error) return Response.json({ ok: false, error: error.message }, { status: 500 });
+  return Response.json({ ok: true });
 }
