@@ -21,3 +21,39 @@ export function validateCronAuth(request: Request): boolean {
   const CRON_KEY = getCronKey();
   return request.headers.get("x-cron-key") === CRON_KEY;
 }
+
+/**
+ * Get authenticated user ID from request headers
+ * Returns null if not authenticated
+ */
+export async function getAuthenticatedUserId(request: Request): Promise<string | null> {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.substring(7);
+  
+  try {
+    // Create a Supabase client to verify the JWT
+    const { createClient } = await import("@supabase/supabase-js");
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!url || !key) {
+      return null;
+    }
+
+    const supabase = createClient(url, key);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return null;
+    }
+    
+    return user.id;
+  } catch (error) {
+    console.error("Error verifying auth token:", error);
+    return null;
+  }
+}
