@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { supabaseClient } from '@/lib/supabase';
+import { ENV } from '@/lib/env';
 
 interface BillingStatus {
   tier: string | null;
@@ -149,7 +150,7 @@ export default function BillingPage() {
             <button
               onClick={() =>
                 checkout(
-                  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID ||
+                  ENV.client.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID ||
                     'price_1SKqkE2O9l5kYbcA5hZf9ZtD',
                 )
               }
@@ -250,7 +251,7 @@ export default function BillingPage() {
             <button
               onClick={() =>
                 checkout(
-                  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID ||
+                  ENV.client.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID ||
                     'price_1SKqkj2O9l5kYbcAJzO0YOfB',
                 )
               }

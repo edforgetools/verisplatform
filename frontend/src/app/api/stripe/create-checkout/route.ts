@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { assertEntitled } from '@/lib/entitlements';
+import { ENV } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
 function getStripe() {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const secretKey = ENV.server.STRIPE_SECRET_KEY;
   if (!secretKey) {
     throw new Error('STRIPE_SECRET_KEY environment variable is required');
   }
@@ -14,12 +15,12 @@ function getStripe() {
 
 // Allowlist of valid price IDs
 const ALLOWED_PRICE_IDS = [
-  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
-  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
+  ENV.client.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
+  ENV.client.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
 ].filter(Boolean) as string[];
 
 export async function POST(req: NextRequest) {
-  const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL!;
+  const origin = req.headers.get('origin') ?? ENV.client.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
   try {
     const { priceId, userId, customerEmail } = await req.json();

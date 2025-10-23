@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import { ENV } from './env';
 
 export function supabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const url = ENV.client.NEXT_PUBLIC_SUPABASE_URL;
   const key =
-    process.env.supabaseservicekey ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    ENV.server.supabaseservicekey ||
+    ENV.client.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   return createClient(url, key, { auth: { persistSession: false } });
 }

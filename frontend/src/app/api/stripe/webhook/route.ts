@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { supabaseService } from '@/lib/db';
 import { BillingInsert } from '@/lib/db-types';
 import { withRateLimit } from '@/lib/rateLimit';
+import { ENV } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
@@ -21,7 +22,7 @@ async function handleStripeWebhook(req: NextRequest) {
   }
 
   const buf = Buffer.from(await req.arrayBuffer());
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  const stripe = new Stripe(ENV.server.STRIPE_SECRET_KEY, {
     apiVersion: STRIPE_API_VERSION,
   });
 
@@ -31,7 +32,7 @@ async function handleStripeWebhook(req: NextRequest) {
     event = stripe.webhooks.constructEvent(
       buf,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!,
+      ENV.server.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err: unknown) {
     const errorMessage =

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { ENV } from './env';
 
 export function sha256(buf: Buffer) {
   return crypto.createHash('sha256').update(buf).digest('hex');
@@ -9,7 +10,7 @@ export function shortHash(hex: string) {
 }
 
 export function signHash(hashHex: string) {
-  const privateKey = process.env.VERIS_SIGNING_PRIVATE_KEY!;
+  const privateKey = ENV.server.VERIS_SIGNING_PRIVATE_KEY;
   const sign = crypto.createSign('RSA-SHA256'); // ECDSA optional later
   sign.update(hashHex);
   sign.end();
@@ -18,7 +19,7 @@ export function signHash(hashHex: string) {
 
 export function verifySignature(hashHex: string, signatureB64: string) {
   try {
-    const publicKey = process.env.VERIS_SIGNING_PUBLIC_KEY!;
+    const publicKey = ENV.server.VERIS_SIGNING_PUBLIC_KEY;
     const verify = crypto.createVerify('RSA-SHA256');
     verify.update(hashHex);
     verify.end();
@@ -30,7 +31,7 @@ export function verifySignature(hashHex: string, signatureB64: string) {
 
 export function getKeyFingerprint() {
   try {
-    const publicKey = process.env.VERIS_SIGNING_PUBLIC_KEY!;
+    const publicKey = ENV.server.VERIS_SIGNING_PUBLIC_KEY;
     // Convert PEM to DER format
     const derKey = publicKey
       .replace(/-----BEGIN PUBLIC KEY-----/g, '')
