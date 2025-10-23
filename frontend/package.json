@@ -13,7 +13,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:debug": "playwright test --debug"
+    "test:e2e:debug": "playwright test --debug",
+    "seed:stripe": "tsx ../scripts/seed.stripe.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.76.0",
@@ -51,6 +52,7 @@
     "node-mocks-http": "^1.17.2",
     "tailwindcss": "^4",
     "ts-jest": "^29.1.2",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }
