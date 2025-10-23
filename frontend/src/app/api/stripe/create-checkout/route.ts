@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { assertEntitled } from "@/lib/entitlements";
+import { capture } from "@/lib/observability";
 
 export const runtime = "nodejs";
 
@@ -19,10 +20,10 @@ const PRICE_IDS = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
-  const origin =
-    req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
   try {
+    const origin =
+      req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
     const { priceId, userId, customerEmail } = await req.json();
 
     if (!priceId) {
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    capture(error, { route: "/api/stripe/create-checkout" });
     return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
   }
 }

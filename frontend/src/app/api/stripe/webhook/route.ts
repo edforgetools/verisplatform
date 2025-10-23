@@ -3,11 +3,18 @@ import Stripe from "stripe";
 import { supabaseService } from "@/lib/db";
 import { BillingInsert } from "@/lib/db-types";
 import { withRateLimit } from "@/lib/rateLimit";
+import { verifyWebhook } from "@/lib/stripe";
+import { capture } from "@/lib/observability";
 
 export const runtime = "nodejs";
 
-// Pin to a stable Stripe API version for webhook reliability
-const STRIPE_API_VERSION = "2025-09-30.clover" as const;
+// Allowed webhook events for security
+const ALLOWED_EVENTS = new Set([
+  "checkout.session.completed",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.payment_failed",
+]);
 
 async function handleStripeWebhook(req: NextRequest) {
   // Verify webhook signature first
@@ -17,15 +24,15 @@ async function handleStripeWebhook(req: NextRequest) {
     return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
   }
 
-  const buf = Buffer.from(await req.arrayBuffer());
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: STRIPE_API_VERSION,
-  });
+  // Read raw body using Next 15 App Router method
+  const text = await req.text();
+  const buf = Buffer.from(text);
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    // Use verifyWebhook function from stripe.ts
+    event = verifyWebhook(buf, sig);
   } catch (err: unknown) {
     const errorMessage =
       err instanceof Error ? err.message : "Unknown signature verification error";
@@ -39,7 +46,31 @@ async function handleStripeWebhook(req: NextRequest) {
     );
   }
 
+  // Filter allowed events for security
+  if (!ALLOWED_EVENTS.has(event.type)) {
+    console.warn("Received disallowed webhook event:", {
+      eventId: event.id,
+      eventType: event.type,
+    });
+    return NextResponse.json({ received: true });
+  }
+
   const svc = supabaseService();
+
+  // Check for idempotency - prevent duplicate processing
+  const { data: existingEvent } = await svc
+    .from("billing_event_logs")
+    .select("event_id")
+    .eq("event_id", event.id)
+    .single();
+
+  if (existingEvent) {
+    console.log("Event already processed, skipping:", {
+      eventId: event.id,
+      eventType: event.type,
+    });
+    return NextResponse.json({ received: true, alreadyProcessed: true });
+  }
 
   try {
     // Handle checkout.session.completed
@@ -67,6 +98,14 @@ async function handleStripeWebhook(req: NextRequest) {
       await svc.from("billing").upsert(billingRecord, {
         onConflict: "user_id",
         ignoreDuplicates: false,
+      });
+
+      // Log successful event processing
+      await svc.from("billing_event_logs").insert({
+        event_id: event.id,
+        event_type: event.type,
+        stripe_subscription_id: session.subscription as string,
+        user_id: session.client_reference_id,
       });
 
       console.log("Processed checkout.session.completed:", {
@@ -105,6 +144,13 @@ async function handleStripeWebhook(req: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
+      // Log successful event processing
+      await svc.from("billing_event_logs").insert({
+        event_id: event.id,
+        event_type: event.type,
+        stripe_subscription_id: subscription.id,
+      });
+
       console.log("Processed customer.subscription.updated:", {
         eventId: event.id,
         subscriptionId: subscription.id,
@@ -141,9 +187,67 @@ async function handleStripeWebhook(req: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
+      // Log successful event processing
+      await svc.from("billing_event_logs").insert({
+        event_id: event.id,
+        event_type: event.type,
+        stripe_subscription_id: subscription.id,
+      });
+
       console.log("Processed customer.subscription.deleted:", {
         eventId: event.id,
         subscriptionId: subscription.id,
+      });
+    }
+
+    // Handle invoice.payment_failed
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+
+      // For invoice.payment_failed, we need to get the subscription from the invoice
+      // Access subscription property with proper type assertion
+      const subscriptionId = (
+        invoice as Stripe.Invoice & { subscription?: string | Stripe.Subscription }
+      ).subscription;
+
+      if (!subscriptionId) {
+        console.warn("invoice.payment_failed missing subscription:", {
+          eventId: event.id,
+        });
+        return NextResponse.json({ received: true });
+      }
+
+      const subscriptionIdString =
+        typeof subscriptionId === "string" ? subscriptionId : subscriptionId.id;
+
+      // Update billing record to indicate payment failure
+      const { error } = await svc
+        .from("billing")
+        .update({
+          status: "past_due",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("stripe_subscription_id", subscriptionIdString);
+
+      if (error) {
+        console.error("Failed to update billing for invoice.payment_failed:", {
+          eventId: event.id,
+          subscriptionId: subscriptionIdString,
+          error: error.message,
+        });
+        return NextResponse.json({ received: true });
+      }
+
+      // Log successful event processing
+      await svc.from("billing_event_logs").insert({
+        event_id: event.id,
+        event_type: event.type,
+        stripe_subscription_id: subscriptionIdString,
+      });
+
+      console.log("Processed invoice.payment_failed:", {
+        eventId: event.id,
+        subscriptionId: subscriptionIdString,
       });
     }
 
@@ -154,12 +258,10 @@ async function handleStripeWebhook(req: NextRequest) {
       eventType: event.type,
     });
   } catch (error) {
-    // Structured error logging
-    console.error("Webhook processing error:", {
+    capture(error, { 
+      route: "/api/stripe/webhook",
       eventId: event.id,
-      eventType: event.type,
-      error: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
+      eventType: event.type
     });
 
     // Return 200 to prevent Stripe retries for processing errors

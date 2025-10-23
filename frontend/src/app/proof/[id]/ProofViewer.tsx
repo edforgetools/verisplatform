@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { formatKeyFingerprint } from '@/lib/crypto-client';
+import React, { useEffect, useState } from "react";
+import { formatKeyFingerprint } from "@/lib/crypto-client";
 
 interface Proof {
   id: string;
@@ -20,9 +20,9 @@ interface Proof {
 
 interface VerificationStatus {
   verified: boolean;
-  status: 'verified' | 'invalid' | 'pending';
+  status: "verified" | "invalid" | "pending";
   proofId: string;
-  verified_by?: 'signature' | 'hash';
+  verified_by?: "signature" | "hash";
 }
 
 interface ProofViewerProps {
@@ -31,8 +31,7 @@ interface ProofViewerProps {
 
 export function ProofViewer({ proofId }: ProofViewerProps) {
   const [proof, setProof] = useState<Proof | null>(null);
-  const [verificationStatus, setVerificationStatus] =
-    useState<VerificationStatus | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [keyFingerprint, setKeyFingerprint] = useState<string | null>(null);
@@ -46,15 +45,15 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
         // Fetch proof data
         const proofRes = await fetch(`/api/proof/${proofId}`);
         if (!proofRes.ok) {
-          throw new Error('Proof not found');
+          throw new Error("Proof not found");
         }
         const proofData = await proofRes.json();
         setProof(proofData);
 
         // Fetch verification status
-        const verifyRes = await fetch('/api/proof/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const verifyRes = await fetch("/api/proof/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ proofId }),
         });
 
@@ -64,14 +63,14 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
         } else {
           setVerificationStatus({
             verified: false,
-            status: 'pending',
+            status: "pending",
             proofId,
           });
         }
 
         // Fetch key fingerprint from API
         try {
-          const fingerprintRes = await fetch('/api/key-fingerprint');
+          const fingerprintRes = await fetch("/api/key-fingerprint");
           if (fingerprintRes.ok) {
             const { fingerprint } = await fingerprintRes.json();
             if (fingerprint) {
@@ -79,10 +78,10 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
             }
           }
         } catch (error) {
-          console.error('Failed to fetch key fingerprint:', error);
+          console.error("Failed to fetch key fingerprint:", error);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load proof');
+        setError(err instanceof Error ? err.message : "Failed to load proof");
       } finally {
         setLoading(false);
       }
@@ -97,7 +96,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
       setCopySuccess(label);
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -120,28 +119,26 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
         <div className="text-red-500 text-lg font-medium mb-2">Error</div>
-        <div className="text-slate-600 dark:text-slate-400">
-          {error || 'Proof not found'}
-        </div>
+        <div className="text-slate-600 dark:text-slate-400">{error || "Proof not found"}</div>
       </div>
     );
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'verified':
-        return 'text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800';
-      case 'invalid':
-        return 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800';
-      case 'pending':
+      case "verified":
+        return "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800";
+      case "invalid":
+        return "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800";
+      case "pending":
       default:
-        return 'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800';
+        return "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'verified':
+      case "verified":
         return (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -151,7 +148,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
             />
           </svg>
         );
-      case 'invalid':
+      case "invalid":
         return (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -161,7 +158,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
             />
           </svg>
         );
-      case 'pending':
+      case "pending":
       default:
         return (
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -175,31 +172,19 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
     }
   };
 
-  const status = verificationStatus?.status || 'pending';
+  const status = verificationStatus?.status || "pending";
   const statusText = status.charAt(0).toUpperCase() + status.slice(1);
-  const verificationMethod = verificationStatus?.verified_by || 'hash';
+  const verificationMethod = verificationStatus?.verified_by || "hash";
   const verificationBadgeText =
-    verificationMethod === 'signature'
-      ? 'Verified by signature'
-      : 'Hash-match only';
+    verificationMethod === "signature" ? "Verified by signature" : "Hash-match only";
 
   return (
     <div className="relative">
       {/* Copy Success Notification */}
       {copySuccess && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span className="text-sm font-medium">Copied {copySuccess}!</span>
         </div>
@@ -256,18 +241,14 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                       Version
                     </span>
-                    <span className="text-slate-900 dark:text-white">
-                      {proof.version || '1'}
-                    </span>
+                    <span className="text-slate-900 dark:text-white">{proof.version || "1"}</span>
                   </div>
 
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                       Project
                     </span>
-                    <span className="text-slate-900 dark:text-white">
-                      {proof.project || '—'}
-                    </span>
+                    <span className="text-slate-900 dark:text-white">{proof.project || "—"}</span>
                   </div>
 
                   <div className="flex flex-col">
@@ -298,9 +279,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                         {proof.hash_prefix}…
                       </code>
                       <button
-                        onClick={() =>
-                          copyToClipboard(proof.hash_full, 'Full hash')
-                        }
+                        onClick={() => copyToClipboard(proof.hash_full, "Full hash")}
                         className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
                         title="Copy full hash"
                       >
@@ -319,9 +298,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                         </svg>
                       </button>
                       <button
-                        onClick={() =>
-                          copyToClipboard(proof.hash_prefix, 'Short hash')
-                        }
+                        onClick={() => copyToClipboard(proof.hash_prefix, "Short hash")}
                         className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
                         title="Copy short hash"
                       >
@@ -348,20 +325,18 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-slate-900 dark:text-white flex-1">
-                        {new Date(proof.timestamp).toLocaleString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit',
-                          timeZoneName: 'short',
+                        {new Date(proof.timestamp).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          timeZoneName: "short",
                         })}
                       </span>
                       <button
-                        onClick={() =>
-                          copyToClipboard(proof.timestamp, 'Timestamp')
-                        }
+                        onClick={() => copyToClipboard(proof.timestamp, "Timestamp")}
                         className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
                         title="Copy timestamp"
                       >
@@ -417,16 +392,11 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                   {proof.signature}
                 </code>
                 <button
-                  onClick={() => copyToClipboard(proof.signature, 'Signature')}
+                  onClick={() => copyToClipboard(proof.signature, "Signature")}
                   className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors shrink-0"
                   title="Copy signature"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -451,18 +421,11 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
                     {keyFingerprint}
                   </code>
                   <button
-                    onClick={() =>
-                      copyToClipboard(keyFingerprint, 'Key fingerprint')
-                    }
+                    onClick={() => copyToClipboard(keyFingerprint, "Key fingerprint")}
                     className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
                     title="Copy key fingerprint"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -485,12 +448,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
               href={`/api/proof/${proof.id}/certificate`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -505,12 +463,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
               href={`/verify?id=${proof.id}`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -525,12 +478,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
               href={`/history/${proof.id}`}
               className="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -545,8 +493,7 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
           {/* Footer */}
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Verified by Veris • Proof #{proof.id} • Generated on{' '}
-              {new Date().toLocaleDateString()}
+              Verified by Veris • Proof #{proof.id} • Generated on {new Date().toLocaleDateString()}
             </p>
           </div>
         </div>

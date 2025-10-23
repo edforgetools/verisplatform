@@ -8,6 +8,7 @@ import {
   verifySignature,
 } from '@/lib/crypto';
 import QRCode from 'qrcode';
+import { capture } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 
@@ -15,25 +16,26 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const svc = supabaseService();
-  const { data: proof, error } = await svc
-    .from('proofs')
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 404 });
-
-  // Check entitlement for generating certificates
   try {
-    await assertEntitled(proof.user_id, 'generate_certificate');
-  } catch {
-    return NextResponse.json(
-      { error: 'Insufficient permissions to generate certificates' },
-      { status: 403 },
-    );
-  }
+    const { id } = await params;
+    const svc = supabaseService();
+    const { data: proof, error } = await svc
+      .from('proofs')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 404 });
+
+    // Check entitlement for generating certificates
+    try {
+      await assertEntitled(proof.user_id, 'generate_certificate');
+    } catch {
+      return NextResponse.json(
+        { error: 'Insufficient permissions to generate certificates' },
+        { status: 403 },
+      );
+    }
 
   // Generate verification result
   const verificationResult = verifySignature(proof.hash_full, proof.signature);
@@ -177,4 +179,8 @@ export async function GET(
     status: 200,
     headers: { 'Content-Type': 'application/pdf' },
   });
+  } catch (error) {
+    capture(error, { route: "/api/proof/[id]/certificate" });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySignature } from "@/lib/crypto-server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { validateCronAuth } from "@/lib/auth-server";
+import { capture } from "@/lib/observability";
 
 export const runtime = "nodejs";
 
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
       error_details: errors,
     });
   } catch (error) {
+    capture(error, { route: "/api/integrity-check" });
     return NextResponse.json({ error: "Integrity check failed", details: error }, { status: 500 });
   }
 }

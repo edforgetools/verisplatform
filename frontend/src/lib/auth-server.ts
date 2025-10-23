@@ -2,7 +2,6 @@
  * Server-only authentication utilities
  */
 
-
 /**
  * Get the CRON key from environment variables.
  * Supports both CRON_JOB_TOKEN and CRON_SECRET for backward compatibility.

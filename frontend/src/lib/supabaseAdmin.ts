@@ -7,7 +7,9 @@ export function supabaseAdmin() {
   }
   const key = process.env.supabaseservicekey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!key) {
-    throw new Error("supabaseservicekey or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable is required");
+    throw new Error(
+      "supabaseservicekey or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable is required",
+    );
   }
   return createClient(url, key, { auth: { persistSession: false } });
 }

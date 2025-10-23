@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseService } from '@/lib/db';
 import { assertEntitled } from '@/lib/entitlements';
+import { capture } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Telemetry API error:', error);
+    capture(error, { route: "/api/telemetry" });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

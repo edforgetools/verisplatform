@@ -8,10 +8,4 @@
 export { formatKeyFingerprint } from "./crypto-client";
 
 // Re-export server functions with warning
-export { 
-  sha256, 
-  shortHash, 
-  signHash, 
-  verifySignature, 
-  getKeyFingerprint 
-} from "./crypto-server";
+export { sha256, shortHash, signHash, verifySignature, getKeyFingerprint } from "./crypto-server";
