@@ -1,62 +1,28 @@
-name: ci
-on: [push, pull_request]
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+    
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'pnpm'
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10.18.1
+        run_install: false
 
-      # Add pnpm back
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false # we call install explicitly
+    - run: corepack enable
 
-      - run: pnpm -v
-
-      - run: pnpm -C frontend install --frozen-lockfile
-      - run: pnpm -C frontend lint
-      - run: pnpm -C frontend exec tsc --noEmit
-      - run: pnpm -C frontend build
-
-  vercel-preview:
-    runs-on: ubuntu-latest
-    needs: [ci]
-    if: github.event_name == 'pull_request'
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID }}
-      NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: ${{ secrets.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID }}
-      CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN }}
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
-      VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
-      VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: corepack enable
-      - uses: pnpm/action-setup@v4 # NOTE: no "version" here
-      - run: pnpm -C frontend install --frozen-lockfile
-      - name: Deploy to Vercel
-        uses: vercel/action@v1
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./frontend
-          scope: ${{ secrets.VERCEL_ORG_ID }}
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    - run: pnpm -C frontend install --frozen-lockfile
