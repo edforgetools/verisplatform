@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { supabaseClient } from "@/lib/supabase";
 import { ENV_CLIENT } from "@/lib/env-client";
+import toast, { Toaster } from "react-hot-toast";
 
 interface BillingStatus {
   tier: string | null;
@@ -26,12 +27,21 @@ export default function BillingPage() {
           customerEmail: user?.email,
         }),
       });
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
       console.error("Error creating checkout session:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to start checkout process");
     } finally {
       setLoading(false);
     }
@@ -69,10 +79,31 @@ export default function BillingPage() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#1f2937",
+            color: "#f9fafb",
+            border: "1px solid #374151",
+          },
+        }}
+      />
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-serif mb-4">Billing & Subscriptions</h1>
           <p className="text-neutral-400">Choose the plan that works for your studio</p>
+          {ENV_CLIENT.NEXT_PUBLIC_STRIPE_MODE === "test" && (
+            <div className="mt-4">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                Test Mode
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
