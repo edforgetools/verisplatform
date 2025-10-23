@@ -13,10 +13,10 @@ function getStripe() {
 }
 
 // Allowlist of valid price IDs
-const ALLOWED_PRICE_IDS = [
-  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
-  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
-].filter(Boolean) as string[];
+const PRICE_IDS = new Set([
+  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID!,
+  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID!,
+]);
 
 export async function POST(req: NextRequest) {
   const origin =
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate priceId against allowlist
-    if (!ALLOWED_PRICE_IDS.includes(priceId)) {
+    if (!PRICE_IDS.has(priceId)) {
       return NextResponse.json({ error: "Invalid priceId" }, { status: 400 });
     }
 
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${origin}/billing/cancel`,
       client_reference_id: userId,
       customer_email: customerEmail,
+      metadata: { user_id: userId },
     });
 
     return NextResponse.json({ url: session.url });
