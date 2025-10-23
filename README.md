@@ -128,6 +128,185 @@ The repository includes automated workflows:
 - **Integrity Check**: Weekly hash verification (Mondays at 5 PM UTC)
 - **Retention Policy**: Daily cleanup of demo proofs older than 7 days (6 PM UTC)
 
+## Operational Documentation
+
+### Environment Matrix
+
+| Variable | Development | Production | Required |
+|----------|-------------|------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✓ | ✓ | ✓ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✓ | ✓ | ✓ |
+| `supabaseservicekey` | ✓ | ✓ | ✓ |
+| `STRIPE_SECRET_KEY` | Test key | Live key | ✓ |
+| `STRIPE_WEBHOOK_SECRET` | Test webhook | Live webhook | ✓ |
+| `NEXT_PUBLIC_STRIPE_MODE` | `test` | `live` | ✓ |
+| `VERIS_SIGNING_PRIVATE_KEY` | ✓ | ✓ | ✓ |
+| `VERIS_SIGNING_PUBLIC_KEY` | ✓ | ✓ | ✓ |
+| `CRON_JOB_TOKEN` | ✓ | ✓ | ✓ |
+| `UPSTASH_REDIS_URL` | Optional | ✓ | Optional |
+| `REDIS_URL` | Optional | ✓ | Optional |
+
+### Running Locally
+
+1. **Prerequisites:**
+   - Node.js 20+
+   - pnpm
+   - Supabase CLI (optional)
+   - Stripe CLI (for webhooks)
+
+2. **Setup:**
+   ```bash
+   # Install dependencies
+   pnpm install
+   
+   # Copy environment template
+   cp frontend/.env.local.example frontend/.env.local
+   
+   # Edit environment variables
+   nano frontend/.env.local
+   ```
+
+3. **Start development server:**
+   ```bash
+   cd frontend
+   pnpm dev
+   ```
+
+4. **Run tests:**
+   ```bash
+   # Unit tests
+   pnpm test
+   
+   # E2E tests
+   pnpm test:e2e
+   
+   # Watch mode
+   pnpm test:watch
+   ```
+
+### Stripe CLI Testing
+
+1. **Install Stripe CLI:**
+   ```bash
+   brew install stripe/stripe-cli/stripe
+   ```
+
+2. **Login to Stripe:**
+   ```bash
+   stripe login
+   ```
+
+3. **Forward webhooks to local development:**
+   ```bash
+   stripe listen --forward-to localhost:3000/api/stripe/webhook
+   ```
+
+4. **Test webhook events:**
+   ```bash
+   stripe trigger payment_intent.succeeded
+   stripe trigger customer.subscription.created
+   ```
+
+5. **Seed test data (if needed):**
+   ```bash
+   pnpm run seed:stripe
+   ```
+
+### Cron Jobs
+
+The application includes automated cron jobs:
+
+- **Integrity Check**: Weekly hash verification (Mondays at 5 PM UTC)
+- **Proof Cleanup**: Daily cleanup of demo proofs older than 7 days (6 PM UTC)
+- **Telemetry**: Daily usage metrics collection (Midnight UTC)
+
+**Manual execution:**
+```bash
+# Test integrity check
+curl -X POST https://your-domain.com/api/jobs/proof-gc \
+  -H "x-cron-key: YOUR_CRON_TOKEN"
+
+# Test telemetry
+curl -X POST https://your-domain.com/api/jobs/telemetry-daily \
+  -H "x-cron-key: YOUR_CRON_TOKEN"
+```
+
+### Release Checklist
+
+Before releasing a new version:
+
+- [ ] All tests pass (`pnpm test:ci`)
+- [ ] E2E tests pass (`pnpm test:e2e`)
+- [ ] Environment variables updated in production
+- [ ] Database migrations applied (if any)
+- [ ] Stripe webhooks configured for new endpoints
+- [ ] Version bumped in `package.json`
+- [ ] CHANGELOG.md updated
+- [ ] Release notes prepared
+- [ ] Deploy to staging environment first
+- [ ] Smoke test on staging
+- [ ] Deploy to production
+- [ ] Monitor error logs for 24 hours
+
+**Automated release:**
+```bash
+pnpm run release
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **Environment Variable Errors:**
+   - Verify all required variables are set
+   - Check for typos in variable names
+   - Ensure Stripe keys match the correct mode (test/live)
+
+2. **Database Connection Issues:**
+   - Verify Supabase URL and service key
+   - Check network connectivity
+   - Ensure database is not paused
+
+3. **Stripe Webhook Failures:**
+   - Verify webhook secret matches
+   - Check webhook endpoint URL
+   - Review Stripe dashboard for failed events
+
+4. **Cryptographic Key Issues:**
+   - Ensure signing keys are properly formatted
+   - Verify keys are 2048-bit RSA keys
+   - Check file permissions on key files
+
+5. **Rate Limiting:**
+   - Check Redis connection
+   - Verify rate limit configuration
+   - Monitor API usage patterns
+
+#### Debug Commands
+
+```bash
+# Check environment variables
+pnpm run env:check
+
+# Test database connection
+curl https://your-domain.com/api/db-health
+
+# Verify Stripe connection
+curl https://your-domain.com/api/admin/stripe/prices \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
+
+# Check application logs
+vercel logs --follow
+```
+
+#### Performance Monitoring
+
+- Monitor API response times
+- Check database query performance
+- Track memory usage
+- Monitor error rates
+- Review Stripe webhook success rates
+
 ## License
 
 Private - All rights reserved.
