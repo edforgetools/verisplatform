@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { ProofViewer } from './ProofViewer';
 import { ProofSkeleton } from './ProofSkeleton';
+import { Navigation } from '@/components/Navigation';
 
 // Removed unused functions - they're now handled in the ProofViewer component
 
@@ -11,12 +12,15 @@ export default async function ProofPage({
 }) {
   const { id } = await params;
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
-      <div className="max-w-4xl mx-auto">
-        <Suspense fallback={<ProofSkeleton />}>
-          <ProofViewer proofId={id} />
-        </Suspense>
-      </div>
-    </main>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Navigation />
+      <main className="p-6">
+        <div className="max-w-4xl mx-auto">
+          <Suspense fallback={<ProofSkeleton />}>
+            <ProofViewer proofId={id} />
+          </Suspense>
+        </div>
+      </main>
+    </div>
   );
 }

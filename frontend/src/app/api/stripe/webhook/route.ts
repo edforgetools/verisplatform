@@ -38,19 +38,25 @@ async function handleStripeWebhook(req: NextRequest) {
   } catch (err: unknown) {
     const errorMessage =
       err instanceof Error ? err.message : "Unknown signature verification error";
-    logger.error({
-      error: errorMessage,
-      signature: sig,
-    }, "Webhook signature verification failed");
+    logger.error(
+      {
+        error: errorMessage,
+        signature: sig,
+      },
+      "Webhook signature verification failed",
+    );
     return jsonErr(`Webhook signature verification failed: ${errorMessage}`, 400);
   }
 
   // Filter allowed events for security
   if (!ALLOWED_EVENTS.has(event.type)) {
-    logger.warn({
-      eventId: event.id,
-      eventType: event.type,
-    }, "Received disallowed webhook event");
+    logger.warn(
+      {
+        eventId: event.id,
+        eventType: event.type,
+      },
+      "Received disallowed webhook event",
+    );
     return jsonOk({ received: true });
   }
 
@@ -64,10 +70,13 @@ async function handleStripeWebhook(req: NextRequest) {
     .single();
 
   if (existingEvent) {
-    logger.info({
-      eventId: event.id,
-      eventType: event.type,
-    }, "Event already processed, skipping");
+    logger.info(
+      {
+        eventId: event.id,
+        eventType: event.type,
+      },
+      "Event already processed, skipping",
+    );
     return jsonOk({ received: true, alreadyProcessed: true });
   }
 
@@ -77,11 +86,14 @@ async function handleStripeWebhook(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       if (!session.client_reference_id || !session.subscription) {
-        logger.warn({
-          eventId: event.id,
-          clientReferenceId: session.client_reference_id,
-          subscription: session.subscription,
-        }, "checkout.session.completed missing required fields");
+        logger.warn(
+          {
+            eventId: event.id,
+            clientReferenceId: session.client_reference_id,
+            subscription: session.subscription,
+          },
+          "checkout.session.completed missing required fields",
+        );
         return jsonOk({ received: true });
       }
 
@@ -107,11 +119,14 @@ async function handleStripeWebhook(req: NextRequest) {
         user_id: session.client_reference_id,
       });
 
-      logger.info({
-        eventId: event.id,
-        userId: session.client_reference_id,
-        subscriptionId: session.subscription,
-      }, "Processed checkout.session.completed");
+      logger.info(
+        {
+          eventId: event.id,
+          userId: session.client_reference_id,
+          subscriptionId: session.subscription,
+        },
+        "Processed checkout.session.completed",
+      );
     }
 
     // Handle customer.subscription.updated
@@ -119,9 +134,12 @@ async function handleStripeWebhook(req: NextRequest) {
       const subscription = event.data.object as Stripe.Subscription;
 
       if (!subscription.id) {
-        logger.warn({
-          eventId: event.id,
-        }, "customer.subscription.updated missing subscription id");
+        logger.warn(
+          {
+            eventId: event.id,
+          },
+          "customer.subscription.updated missing subscription id",
+        );
         return jsonOk({ received: true });
       }
 
@@ -135,11 +153,14 @@ async function handleStripeWebhook(req: NextRequest) {
         .eq("stripe_subscription_id", subscription.id);
 
       if (error) {
-        logger.error({
-          eventId: event.id,
-          subscriptionId: subscription.id,
-          error: error.message,
-        }, "Failed to update billing for subscription.updated");
+        logger.error(
+          {
+            eventId: event.id,
+            subscriptionId: subscription.id,
+            error: error.message,
+          },
+          "Failed to update billing for subscription.updated",
+        );
         return jsonOk({ received: true });
       }
 
@@ -150,11 +171,14 @@ async function handleStripeWebhook(req: NextRequest) {
         stripe_subscription_id: subscription.id,
       });
 
-      logger.info({
-        eventId: event.id,
-        subscriptionId: subscription.id,
-        status: subscription.status,
-      }, "Processed customer.subscription.updated");
+      logger.info(
+        {
+          eventId: event.id,
+          subscriptionId: subscription.id,
+          status: subscription.status,
+        },
+        "Processed customer.subscription.updated",
+      );
     }
 
     // Handle customer.subscription.deleted
@@ -162,9 +186,12 @@ async function handleStripeWebhook(req: NextRequest) {
       const subscription = event.data.object as Stripe.Subscription;
 
       if (!subscription.id) {
-        logger.warn({
-          eventId: event.id,
-        }, "customer.subscription.deleted missing subscription id");
+        logger.warn(
+          {
+            eventId: event.id,
+          },
+          "customer.subscription.deleted missing subscription id",
+        );
         return jsonOk({ received: true });
       }
 
@@ -178,11 +205,14 @@ async function handleStripeWebhook(req: NextRequest) {
         .eq("stripe_subscription_id", subscription.id);
 
       if (error) {
-        logger.error({
-          eventId: event.id,
-          subscriptionId: subscription.id,
-          error: error.message,
-        }, "Failed to update billing for subscription.deleted");
+        logger.error(
+          {
+            eventId: event.id,
+            subscriptionId: subscription.id,
+            error: error.message,
+          },
+          "Failed to update billing for subscription.deleted",
+        );
         return jsonOk({ received: true });
       }
 
@@ -193,10 +223,13 @@ async function handleStripeWebhook(req: NextRequest) {
         stripe_subscription_id: subscription.id,
       });
 
-      logger.info({
-        eventId: event.id,
-        subscriptionId: subscription.id,
-      }, "Processed customer.subscription.deleted");
+      logger.info(
+        {
+          eventId: event.id,
+          subscriptionId: subscription.id,
+        },
+        "Processed customer.subscription.deleted",
+      );
     }
 
     // Handle invoice.payment_failed
@@ -210,9 +243,12 @@ async function handleStripeWebhook(req: NextRequest) {
       ).subscription;
 
       if (!subscriptionId) {
-        logger.warn({
-          eventId: event.id,
-        }, "invoice.payment_failed missing subscription");
+        logger.warn(
+          {
+            eventId: event.id,
+          },
+          "invoice.payment_failed missing subscription",
+        );
         return jsonOk({ received: true });
       }
 
@@ -229,11 +265,14 @@ async function handleStripeWebhook(req: NextRequest) {
         .eq("stripe_subscription_id", subscriptionIdString);
 
       if (error) {
-        logger.error({
-          eventId: event.id,
-          subscriptionId: subscriptionIdString,
-          error: error.message,
-        }, "Failed to update billing for invoice.payment_failed");
+        logger.error(
+          {
+            eventId: event.id,
+            subscriptionId: subscriptionIdString,
+            error: error.message,
+          },
+          "Failed to update billing for invoice.payment_failed",
+        );
         return jsonOk({ received: true });
       }
 
@@ -244,10 +283,13 @@ async function handleStripeWebhook(req: NextRequest) {
         stripe_subscription_id: subscriptionIdString,
       });
 
-      logger.info({
-        eventId: event.id,
-        subscriptionId: subscriptionIdString,
-      }, "Processed invoice.payment_failed");
+      logger.info(
+        {
+          eventId: event.id,
+          subscriptionId: subscriptionIdString,
+        },
+        "Processed invoice.payment_failed",
+      );
     }
 
     // Fast 200 response for handled events

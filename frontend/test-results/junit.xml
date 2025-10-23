@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="11" failures="0" errors="0" time="0.296">
-  <testsuite name="Telemetry Daily Aggregation" errors="0" failures="0" skipped="0" timestamp="2025-10-22T04:04:26" time="0.186" tests="2">
+<testsuites name="jest tests" tests="11" failures="0" errors="0" time="0.279">
+  <testsuite name="Rate Limiting Middleware" errors="0" failures="0" skipped="0" timestamp="2025-10-23T01:18:23" time="0.114" tests="7">
+    <testcase classname="Rate Limiting Middleware should allow non-API requests to pass through" name="Rate Limiting Middleware should allow non-API requests to pass through" time="0.003">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should allow API requests within rate limit" name="Rate Limiting Middleware should allow API requests within rate limit" time="0.001">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should block API requests exceeding rate limit" name="Rate Limiting Middleware should block API requests exceeding rate limit" time="0.003">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should bypass rate limiting for authenticated cron jobs" name="Rate Limiting Middleware should bypass rate limiting for authenticated cron jobs" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should bypass rate limiting for CRON_SECRET environment variable" name="Rate Limiting Middleware should bypass rate limiting for CRON_SECRET environment variable" time="0.001">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should use default IP when x-forwarded-for is not present" name="Rate Limiting Middleware should use default IP when x-forwarded-for is not present" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting Middleware should handle different IPs separately" name="Rate Limiting Middleware should handle different IPs separately" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Telemetry Daily Aggregation" errors="0" failures="0" skipped="0" timestamp="2025-10-23T01:18:23" time="0.103" tests="2">
     <testcase classname="Telemetry Daily Aggregation should have basic functionality" name="Telemetry Daily Aggregation should have basic functionality" time="0">
     </testcase>
-    <testcase classname="Telemetry Daily Aggregation should handle dry run mode" name="Telemetry Daily Aggregation should handle dry run mode" time="0.06">
+    <testcase classname="Telemetry Daily Aggregation should handle dry run mode" name="Telemetry Daily Aggregation should handle dry run mode" time="0.056">
     </testcase>
   </testsuite>
-  <testsuite name="Rate Limiting" errors="0" failures="0" skipped="0" timestamp="2025-10-22T04:04:26" time="0.043" tests="7">
-    <testcase classname="Rate Limiting should allow requests within rate limit" name="Rate Limiting should allow requests within rate limit" time="0">
-    </testcase>
-    <testcase classname="Rate Limiting should block requests exceeding rate limit" name="Rate Limiting should block requests exceeding rate limit" time="0.002">
-    </testcase>
-    <testcase classname="Rate Limiting should return proper error response when rate limited" name="Rate Limiting should return proper error response when rate limited" time="0.002">
-    </testcase>
-    <testcase classname="Rate Limiting should handle different IPs separately" name="Rate Limiting should handle different IPs separately" time="0">
-    </testcase>
-    <testcase classname="Rate Limiting should handle different routes separately" name="Rate Limiting should handle different routes separately" time="0">
-    </testcase>
-    <testcase classname="Rate Limiting should extract IP from x-forwarded-for header" name="Rate Limiting should extract IP from x-forwarded-for header" time="0">
-    </testcase>
-    <testcase classname="Rate Limiting should extract IP from x-real-ip header" name="Rate Limiting should extract IP from x-real-ip header" time="0">
-    </testcase>
-  </testsuite>
-  <testsuite name="API Routes" errors="0" failures="0" skipped="0" timestamp="2025-10-22T04:04:26" time="0.016" tests="2">
-    <testcase classname="API Routes should have basic functionality" name="API Routes should have basic functionality" time="0">
+  <testsuite name="API Routes" errors="0" failures="0" skipped="0" timestamp="2025-10-23T01:18:23" time="0.016" tests="2">
+    <testcase classname="API Routes should have basic functionality" name="API Routes should have basic functionality" time="0.001">
     </testcase>
     <testcase classname="API Routes should have required API routes" name="API Routes should have required API routes" time="0">
     </testcase>

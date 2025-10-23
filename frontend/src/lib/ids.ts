@@ -1,6 +1,6 @@
 /**
  * ID generation utilities using ULID (Universally Unique Lexicographically Sortable Identifier)
- * 
+ *
  * ULIDs are:
  * - 26 characters long (vs UUID's 36)
  * - Lexicographically sortable (timestamp-based)
@@ -9,7 +9,7 @@
  * - Monotonic (can be generated in sequence)
  */
 
-import { ulid } from 'ulidx';
+import { ulid } from "ulidx";
 
 /**
  * Generate a new ULID
@@ -33,7 +33,7 @@ export function generateIdWithTimestamp(timestamp: number): string {
  * @param prefix - Optional prefix for the filename
  * @returns A filename-safe ULID string
  */
-export function generateTempId(prefix: string = 'temp'): string {
+export function generateTempId(prefix: string = "temp"): string {
   return `${prefix}-${ulid()}`;
 }
 

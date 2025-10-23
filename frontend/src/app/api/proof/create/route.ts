@@ -34,10 +34,13 @@ async function handleCreateProof(req: NextRequest) {
 
     // Validate user_id matches authenticated user
     if (userId !== authenticatedUserId) {
-      logger.warn({
-        authenticatedUserId,
-        providedUserId: userId,
-      }, "Proof creation attempted with mismatched user_id");
+      logger.warn(
+        {
+          authenticatedUserId,
+          providedUserId: userId,
+        },
+        "Proof creation attempted with mismatched user_id",
+      );
       return jsonErr("user_id must match authenticated user", 403);
     }
 
@@ -45,9 +48,12 @@ async function handleCreateProof(req: NextRequest) {
     try {
       await assertEntitled(userId, "create_proof");
     } catch {
-      logger.warn({
-        userId,
-      }, "Proof creation attempted without sufficient permissions");
+      logger.warn(
+        {
+          userId,
+        },
+        "Proof creation attempted without sufficient permissions",
+      );
       return jsonErr("Insufficient permissions to create proofs", 403);
     }
 
@@ -79,20 +85,26 @@ async function handleCreateProof(req: NextRequest) {
       .single();
 
     if (error) {
-      logger.error({
-        userId,
-        fileName: file.name,
-        error: error.message,
-      }, "Failed to create proof in database");
+      logger.error(
+        {
+          userId,
+          fileName: file.name,
+          error: error.message,
+        },
+        "Failed to create proof in database",
+      );
       return jsonErr(error.message, 500);
     }
 
-    logger.info({
-      proofId: data.id,
-      userId,
-      fileName: file.name,
-      project,
-    }, "Proof created successfully");
+    logger.info(
+      {
+        proofId: data.id,
+        userId,
+        fileName: file.name,
+        project,
+      },
+      "Proof created successfully",
+    );
 
     return jsonOk({
       id: data.id,

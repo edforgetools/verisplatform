@@ -1,43 +1,10 @@
 import Link from 'next/link';
+import { Navigation } from '@/components/Navigation';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      {/* Navigation */}
-      <nav className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link
-                href="/"
-                className="text-xl font-bold text-slate-900 dark:text-white"
-              >
-                Veris
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/demo"
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-              >
-                Demo
-              </Link>
-              <Link
-                href="/verify"
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-              >
-                Verify
-              </Link>
-              <Link
-                href="/billing"
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-              >
-                Billing
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

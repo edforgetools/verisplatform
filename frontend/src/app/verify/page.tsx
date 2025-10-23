@@ -1,6 +1,7 @@
-'use client';
-import React, { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+"use client";
+import React, { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { Navigation } from "@/components/Navigation";
 
 interface VerificationResult {
   verified: boolean;
@@ -21,7 +22,7 @@ interface VerificationResult {
 
 export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [proofId, setProofId] = useState('');
+  const [proofId, setProofId] = useState("");
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
@@ -31,10 +32,10 @@ export default function VerifyPage() {
     if (!input.trim()) return null;
 
     // If it looks like a URL, try to extract ID from path
-    if (input.includes('/')) {
+    if (input.includes("/")) {
       try {
         const url = new URL(input);
-        const pathParts = url.pathname.split('/');
+        const pathParts = url.pathname.split("/");
         const proofId = pathParts[pathParts.length - 1];
         return proofId || null;
       } catch {
@@ -52,7 +53,7 @@ export default function VerifyPage() {
 
     // Validate that at least one input is provided
     if (!file && !proofId.trim()) {
-      toast.error('Please provide either a file or proof ID');
+      toast.error("Please provide either a file or proof ID");
       return;
     }
 
@@ -66,31 +67,31 @@ export default function VerifyPage() {
       if (file) {
         // File-based verification
         const formData = new FormData();
-        formData.append('file', file);
-        
+        formData.append("file", file);
+
         if (proofId.trim()) {
           const extractedId = extractProofId(proofId);
           if (extractedId) {
-            formData.append('proof_id', extractedId);
+            formData.append("proof_id", extractedId);
           }
         }
 
-        res = await fetch('/api/proof/verify', {
-          method: 'POST',
+        res = await fetch("/api/proof/verify", {
+          method: "POST",
           body: formData,
         });
       } else {
         // Proof ID only verification
         const extractedId = extractProofId(proofId);
         if (!extractedId) {
-          toast.error('Please enter a valid proof ID or URL');
+          toast.error("Please enter a valid proof ID or URL");
           return;
         }
 
-        res = await fetch('/api/proof/verify', {
-          method: 'POST',
+        res = await fetch("/api/proof/verify", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ id: extractedId }),
         });
@@ -102,7 +103,7 @@ export default function VerifyPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || 'Verification failed');
+        toast.error(data.error || "Verification failed");
         return;
       }
 
@@ -123,36 +124,38 @@ export default function VerifyPage() {
   };
 
   const getCheckIcon = (check: boolean | null) => {
-    if (check === null) return '⚪'; // Not applicable
-    return check ? '✅' : '❌';
+    if (check === null) return "⚪"; // Not applicable
+    return check ? "✅" : "❌";
   };
 
   const getCheckText = (check: boolean | null, label: string) => {
     if (check === null) return `${label}: Not applicable`;
-    return `${label}: ${check ? 'Pass' : 'Fail'}`;
+    return `${label}: ${check ? "Pass" : "Fail"}`;
   };
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
-      <Toaster
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Navigation />
+      <main className="p-6">
+        <Toaster
         position="top-right"
         toastOptions={{
           duration: 5000,
           style: {
-            background: '#1f2937',
-            color: '#f9fafb',
-            border: '1px solid #374151',
+            background: "#1f2937",
+            color: "#f9fafb",
+            border: "1px solid #374151",
           },
           success: {
             iconTheme: {
-              primary: '#10b981',
-              secondary: '#f9fafb',
+              primary: "#10b981",
+              secondary: "#f9fafb",
             },
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#f9fafb',
+              primary: "#ef4444",
+              secondary: "#f9fafb",
             },
           },
         }}
@@ -170,10 +173,7 @@ export default function VerifyPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* File Input */}
             <div>
-              <label
-                htmlFor="file-input"
-                className="block text-sm font-medium mb-2"
-              >
+              <label htmlFor="file-input" className="block text-sm font-medium mb-2">
                 File to Verify (Optional)
               </label>
               <input
@@ -190,10 +190,7 @@ export default function VerifyPage() {
 
             {/* Proof ID Input */}
             <div>
-              <label
-                htmlFor="proof-input"
-                className="block text-sm font-medium mb-2"
-              >
+              <label htmlFor="proof-input" className="block text-sm font-medium mb-2">
                 Proof ID or URL (Optional)
               </label>
               <input
@@ -244,14 +241,11 @@ export default function VerifyPage() {
                 Verifying...
               </span>
             ) : (
-              'Verify'
+              "Verify"
             )}
           </button>
           {elapsedMs !== null && (
-            <p
-              id="submit-help"
-              className="text-xs text-neutral-400 text-center"
-            >
+            <p id="submit-help" className="text-xs text-neutral-400 text-center">
               Last verification took {elapsedMs}ms
             </p>
           )}
@@ -262,8 +256,8 @@ export default function VerifyPage() {
           <div
             className={`mt-8 p-6 rounded-lg border ${
               result.verified
-                ? 'bg-emerald-900/20 border-emerald-600 text-emerald-100'
-                : 'bg-red-900/20 border-red-600 text-red-100'
+                ? "bg-emerald-900/20 border-emerald-600 text-emerald-100"
+                : "bg-red-900/20 border-red-600 text-red-100"
             }`}
             role="region"
             aria-live="polite"
@@ -271,17 +265,19 @@ export default function VerifyPage() {
           >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl" aria-hidden="true">
-                {result.verified ? '✅' : '❌'}
+                {result.verified ? "✅" : "❌"}
               </span>
               <div>
                 <h2 className="text-xl font-semibold">
-                  {result.verified
-                    ? 'Verification Successful'
-                    : 'Verification Failed'}
+                  {result.verified ? "Verification Successful" : "Verification Failed"}
                 </h2>
                 <p className="text-sm opacity-80">
-                  Verified by: {result.verified_by === 'signature' ? 'Digital Signature' : 
-                               result.verified_by === 'hash' ? 'Hash Only' : 'None'}
+                  Verified by:{" "}
+                  {result.verified_by === "signature"
+                    ? "Digital Signature"
+                    : result.verified_by === "hash"
+                    ? "Hash Only"
+                    : "None"}
                 </p>
               </div>
             </div>
@@ -292,19 +288,26 @@ export default function VerifyPage() {
               <div className="grid gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{getCheckIcon(result.checks.hash_match)}</span>
-                  <span>{getCheckText(result.checks.hash_match, 'Hash Match')}</span>
+                  <span>{getCheckText(result.checks.hash_match, "Hash Match")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{getCheckIcon(result.checks.signature_valid)}</span>
-                  <span>{getCheckText(result.checks.signature_valid, 'Signature Valid')}</span>
+                  <span>{getCheckText(result.checks.signature_valid, "Signature Valid")}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{getCheckIcon(result.checks.timestamp_within_tolerance)}</span>
-                  <span>{getCheckText(result.checks.timestamp_within_tolerance, 'Timestamp Within Tolerance')}</span>
+                  <span className="text-lg">
+                    {getCheckIcon(result.checks.timestamp_within_tolerance)}
+                  </span>
+                  <span>
+                    {getCheckText(
+                      result.checks.timestamp_within_tolerance,
+                      "Timestamp Within Tolerance",
+                    )}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{getCheckIcon(result.checks.anchor_exists)}</span>
-                  <span>{getCheckText(result.checks.anchor_exists, 'Anchor Exists')}</span>
+                  <span>{getCheckText(result.checks.anchor_exists, "Anchor Exists")}</span>
                 </div>
               </div>
             </div>
@@ -316,7 +319,7 @@ export default function VerifyPage() {
                   <span className="font-medium">File Name:</span> {result.file_name}
                 </div>
               )}
-              
+
               <div>
                 <span className="font-medium">Proof Hash:</span>
                 <div className="font-mono text-xs break-all mt-1 p-3 bg-neutral-800 rounded">
@@ -335,7 +338,8 @@ export default function VerifyPage() {
 
               {result.timestamp && (
                 <div>
-                  <span className="font-medium">Timestamp:</span> {new Date(result.timestamp).toLocaleString()}
+                  <span className="font-medium">Timestamp:</span>{" "}
+                  {new Date(result.timestamp).toLocaleString()}
                 </div>
               )}
 
@@ -350,13 +354,15 @@ export default function VerifyPage() {
 
               {result.created_at && (
                 <div>
-                  <span className="font-medium">Created:</span> {new Date(result.created_at).toLocaleString()}
+                  <span className="font-medium">Created:</span>{" "}
+                  {new Date(result.created_at).toLocaleString()}
                 </div>
               )}
             </div>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }

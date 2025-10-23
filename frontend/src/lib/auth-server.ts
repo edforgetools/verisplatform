@@ -33,24 +33,27 @@ export async function getAuthenticatedUserId(request: Request): Promise<string |
   }
 
   const token = authHeader.substring(7);
-  
+
   try {
     // Create a Supabase client to verify the JWT
     const { createClient } = await import("@supabase/supabase-js");
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
+
     if (!url || !key) {
       return null;
     }
 
     const supabase = createClient(url, key);
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
+
     if (error || !user) {
       return null;
     }
-    
+
     return user.id;
   } catch (error) {
     console.error("Error verifying auth token:", error);

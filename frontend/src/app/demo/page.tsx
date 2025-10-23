@@ -1,12 +1,13 @@
-'use client';
-import React, { useState } from 'react';
-import { generateUserId } from '@/lib/ids';
+"use client";
+import React, { useState } from "react";
+import { generateUserId } from "@/lib/ids";
+import { Navigation } from "@/components/Navigation";
 
 export default function DemoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [res, setRes] = useState<{ url: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
   // Generate a consistent demo user ID for this session
   const demoUserId = generateUserId();
 
@@ -17,29 +18,30 @@ export default function DemoPage() {
     setLoading(true);
     try {
       const fd = new FormData();
-      fd.append('file', file);
-      fd.append('user_id', demoUserId);
-      const r = await fetch('/api/proof/create', {
-        method: 'POST',
+      fd.append("file", file);
+      fd.append("user_id", demoUserId);
+      const r = await fetch("/api/proof/create", {
+        method: "POST",
         body: fd,
-        headers: { 'x-user-id': demoUserId },
+        headers: { "x-user-id": demoUserId },
       });
       const data = await r.json();
       setRes(data);
     } catch (error) {
-      console.error('Error creating proof:', error);
+      console.error("Error creating proof:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
-      <div className="max-w-xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Navigation />
+      <main className="p-6">
+        <div className="max-w-xl mx-auto space-y-4">
         <h1 className="text-2xl font-serif">Veris Demo</h1>
         <p className="text-sm text-neutral-400">
-          Evaluation only. Records may be purged after 7 days as per build plan
-          Phase 2.
+          Evaluation only. Records may be purged after 7 days as per build plan Phase 2.
         </p>
         <form onSubmit={submit} className="space-y-4">
           <input
@@ -52,7 +54,7 @@ export default function DemoPage() {
             disabled={loading}
             className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded font-medium transition-colors"
           >
-            {loading ? 'Creating Proof...' : 'Create Proof'}
+            {loading ? "Creating Proof..." : "Create Proof"}
           </button>
         </form>
         {res && (
@@ -63,7 +65,8 @@ export default function DemoPage() {
             </a>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </div>
   );
 }

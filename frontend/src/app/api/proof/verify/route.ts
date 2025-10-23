@@ -79,10 +79,13 @@ async function handleVerifyProof(req: NextRequest) {
           .single();
 
         if (error || !proof) {
-          logger.warn({
-            proofId,
-            fileName: file.name,
-          }, "Proof verification failed - proof not found");
+          logger.warn(
+            {
+              proofId,
+              fileName: file.name,
+            },
+            "Proof verification failed - proof not found",
+          );
           return jsonErr("Proof not found", 404);
         }
 
@@ -96,14 +99,17 @@ async function handleVerifyProof(req: NextRequest) {
         const timeDiffHours = Math.abs(now.getTime() - proofTime.getTime()) / (1000 * 60 * 60);
         const timestampWithinTolerance = timeDiffHours <= 24;
 
-        logger.info({
-          proofId,
-          fileName: file.name,
-          hashMatch,
-          signatureVerified,
-          timestampWithinTolerance,
-          anchorExists: !!proof.anchor_txid,
-        }, "Proof verification completed");
+        logger.info(
+          {
+            proofId,
+            fileName: file.name,
+            hashMatch,
+            signatureVerified,
+            timestampWithinTolerance,
+            anchorExists: !!proof.anchor_txid,
+          },
+          "Proof verification completed",
+        );
 
         return jsonOk({
           verified: hashMatch && signatureVerified !== false,
@@ -160,9 +166,12 @@ async function handleVerifyProof(req: NextRequest) {
         .single();
 
       if (error || !proof) {
-        logger.warn({
-          proofId: body.id,
-        }, "Proof verification failed - proof not found");
+        logger.warn(
+          {
+            proofId: body.id,
+          },
+          "Proof verification failed - proof not found",
+        );
         return jsonErr("Proof not found", 404);
       }
 
@@ -177,13 +186,16 @@ async function handleVerifyProof(req: NextRequest) {
       const timeDiffHours = Math.abs(now.getTime() - proofTime.getTime()) / (1000 * 60 * 60);
       const timestampWithinTolerance = timeDiffHours <= 24;
 
-      logger.info({
-        proofId: body.id,
-        fileName: proof.file_name,
-        signatureVerified,
-        timestampWithinTolerance,
-        anchorExists: !!proof.anchor_txid,
-      }, "Proof verification completed");
+      logger.info(
+        {
+          proofId: body.id,
+          fileName: proof.file_name,
+          signatureVerified,
+          timestampWithinTolerance,
+          anchorExists: !!proof.anchor_txid,
+        },
+        "Proof verification completed",
+      );
 
       return jsonOk({
         verified: signatureVerified !== false,
@@ -206,10 +218,13 @@ async function handleVerifyProof(req: NextRequest) {
     // Handle signature-based verification
     if (isVerifyBySignatureRequest(body)) {
       const signatureVerified = verifySignature(body.hashHex, body.signatureB64);
-      
-      logger.info({
-        signatureVerified,
-      }, "Signature-based proof verification completed");
+
+      logger.info(
+        {
+          signatureVerified,
+        },
+        "Signature-based proof verification completed",
+      );
 
       return jsonOk({
         verified: signatureVerified,

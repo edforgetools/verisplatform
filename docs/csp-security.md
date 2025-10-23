@@ -19,11 +19,13 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
 ## CSP Directives Breakdown
 
 ### default-src 'self'
+
 - **Purpose**: Default policy for all resource types
 - **Allow**: Only same-origin resources
 - **Security Impact**: Prevents loading of arbitrary external resources
 
 ### script-src
+
 - **Allowed Sources**:
   - `'self'` - Same-origin scripts
   - `'unsafe-inline'` - Inline scripts (required for Next.js)
@@ -33,11 +35,13 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
   - `https://vitals.vercel-insights.com` - Vercel Analytics
 
 ### style-src
+
 - **Allowed Sources**:
   - `'self'` - Same-origin stylesheets
   - `'unsafe-inline'` - Inline styles (required for CSS-in-JS frameworks)
 
 ### img-src
+
 - **Allowed Sources**:
   - `'self'` - Same-origin images
   - `data:` - Data URIs (for embedded images)
@@ -45,6 +49,7 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
   - `https:` - All HTTPS images
 
 ### connect-src
+
 - **Allowed Sources**:
   - `'self'` - Same-origin connections
   - `https://*.stripe.com` - Stripe API endpoints
@@ -55,6 +60,7 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
   - `https://vitals.vercel-insights.com` - Vercel Vitals
 
 ### frame-src
+
 - **Allowed Sources**:
   - `'self'` - Same-origin frames
   - `https://js.stripe.com` - Stripe payment forms
@@ -63,6 +69,7 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
 ## Security Exceptions and Justifications
 
 ### Unsafe Inline Scripts (`'unsafe-inline'`)
+
 - **Reason**: Next.js requires inline scripts for:
   - Runtime JavaScript
   - Development hot reloading
@@ -71,11 +78,13 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
 - **Mitigation**: Code review, input sanitization, and proper authentication
 
 ### Unsafe Eval (`'unsafe-eval'`)
+
 - **Reason**: Next.js development mode requires dynamic code evaluation
 - **Risk**: Code injection attacks
 - **Mitigation**: This should be disabled in production builds
 
 ### External Domains
+
 - **Stripe Domains**: Required for payment processing functionality
 - **Supabase Domains**: Required for database and authentication services
 - **Upstash Domains**: Required for Redis rate limiting
@@ -84,6 +93,7 @@ The CSP is configured in `frontend/next.config.ts` and applies to all pages of t
 ## Production Considerations
 
 ### Recommended Production CSP
+
 For production deployment, consider tightening the CSP by:
 
 1. **Removing `'unsafe-eval'`** - Not needed in production builds
@@ -92,6 +102,7 @@ For production deployment, consider tightening the CSP by:
 4. **Report-Only Mode** - Use CSP reporting to monitor violations
 
 ### Example Production CSP
+
 ```javascript
 // Production CSP (more restrictive)
 "script-src 'self' 'nonce-{RANDOM}' https://js.stripe.com https://vitals.vercel-insights.com",
@@ -101,12 +112,15 @@ For production deployment, consider tightening the CSP by:
 ## Monitoring and Maintenance
 
 ### CSP Violation Reporting
+
 Consider implementing CSP violation reporting to monitor for:
+
 - Blocked resource loads
 - Potential security issues
 - Policy effectiveness
 
 ### Regular Review
+
 - Review CSP policy quarterly
 - Update when adding new third-party services
 - Test CSP changes in staging environment
@@ -115,12 +129,14 @@ Consider implementing CSP violation reporting to monitor for:
 ## Testing CSP
 
 ### Browser Developer Tools
+
 1. Open browser developer tools
 2. Check console for CSP violation reports
 3. Test all application functionality
 4. Verify external resources load correctly
 
 ### Automated Testing
+
 Consider adding CSP validation to your CI/CD pipeline to catch policy issues early.
 
 ## References
