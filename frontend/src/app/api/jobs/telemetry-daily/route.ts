@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/src/lib/supabaseAdmin';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { validateCronAuth } from '@/lib/env';
 
 export async function GET() {
   return new NextResponse('ok', { status: 200 });
 }
 
 export async function POST(req: Request) {
-  const ok =
-    req.headers.get('authorization') === `Bearer ${process.env.CRON_JOB_TOKEN}`;
-  if (!ok) return new NextResponse('unauthorized', { status: 401 });
+  if (!validateCronAuth(req)) return new Response('Forbidden', { status: 403 });
 
   const supabase = supabaseAdmin();
   const { error } = await supabase.from('telemetry_daily').insert({

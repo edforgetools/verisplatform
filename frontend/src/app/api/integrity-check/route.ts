@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySignature } from '@/lib/crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { validateCronAuth } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   // Verify this is a scheduled job request (in production, you'd verify the cron secret)
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  if (!validateCronAuth(req)) return new Response('Forbidden', { status: 403 });
 
   const svc = supabaseAdmin();
   const errors: string[] = [];
