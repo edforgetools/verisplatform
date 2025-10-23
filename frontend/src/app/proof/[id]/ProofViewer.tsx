@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getKeyFingerprint, formatKeyFingerprint } from '@/lib/crypto';
+import { formatKeyFingerprint } from '@/lib/crypto-client';
 
 interface Proof {
   id: string;
@@ -69,10 +69,17 @@ export function ProofViewer({ proofId }: ProofViewerProps) {
           });
         }
 
-        // Generate key fingerprint
-        const fingerprint = getKeyFingerprint();
-        if (fingerprint) {
-          setKeyFingerprint(formatKeyFingerprint(fingerprint));
+        // Fetch key fingerprint from API
+        try {
+          const fingerprintRes = await fetch('/api/key-fingerprint');
+          if (fingerprintRes.ok) {
+            const { fingerprint } = await fingerprintRes.json();
+            if (fingerprint) {
+              setKeyFingerprint(formatKeyFingerprint(fingerprint));
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch key fingerprint:', error);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load proof');

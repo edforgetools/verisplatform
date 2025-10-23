@@ -1,19 +1,19 @@
-import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { validateCronAuth } from '@/lib/env';
+import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { validateCronAuth } from "@/lib/auth-server";
 
 export async function GET() {
-  return new NextResponse('ok', { status: 200 });
+  return new NextResponse("ok", { status: 200 });
 }
 
 export async function POST(req: Request) {
-  if (!validateCronAuth(req)) return new Response('Forbidden', { status: 403 });
+  if (!validateCronAuth(req)) return new Response("Forbidden", { status: 403 });
 
   const supabase = supabaseAdmin();
-  const { error } = await supabase.from('telemetry_daily').insert({
+  const { error } = await supabase.from("telemetry_daily").insert({
     ran_at_utc: new Date().toISOString(),
     ok: true,
   });
-  if (error) return new NextResponse('db error', { status: 500 });
-  return NextResponse.json({ status: 'ok' });
+  if (error) return new NextResponse("db error", { status: 500 });
+  return NextResponse.json({ status: "ok" });
 }

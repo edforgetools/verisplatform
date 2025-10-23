@@ -18,7 +18,7 @@ jobs:
       # Add pnpm back
       - uses: pnpm/action-setup@v4
         with:
-          run_install: false   # we call install explicitly
+          run_install: false # we call install explicitly
 
       - run: pnpm -v
 

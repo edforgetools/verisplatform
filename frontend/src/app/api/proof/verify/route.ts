@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseService } from '@/lib/db';
-import { verifySignature } from '@/lib/crypto';
+import { verifySignature } from '@/lib/crypto-server';
 import { withRateLimit } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';

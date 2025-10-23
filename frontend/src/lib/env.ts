@@ -1,24 +1,26 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const clientSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(10),
-  NEXT_PUBLIC_STRIPE_MODE: z.enum(['test','live']).optional(),
+  NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
   NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
 });
 
-const serverSchema = z.object({
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
-  supabaseservicekey: z.string().min(10),
-  CRON_JOB_TOKEN: z.string().min(16).or(z.undefined()),
-  UPSTASH_REDIS_URL: z.string().url().optional(),
-  REDIS_URL: z.string().url().optional(),
-  VERIS_SIGNING_PRIVATE_KEY: z.string().min(100),
-  VERIS_SIGNING_PUBLIC_KEY: z.string().min(100),
-}).refine((v)=> !!(v.CRON_JOB_TOKEN ?? process.env.CRON_SECRET), { message:'CRON key missing' });
+const serverSchema = z
+  .object({
+    STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
+    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
+    supabaseservicekey: z.string().min(10),
+    CRON_JOB_TOKEN: z.string().min(16).or(z.undefined()),
+    UPSTASH_REDIS_URL: z.string().url().optional(),
+    REDIS_URL: z.string().url().optional(),
+    VERIS_SIGNING_PRIVATE_KEY: z.string().min(100),
+    VERIS_SIGNING_PUBLIC_KEY: z.string().min(100),
+  })
+  .refine((v) => !!(v.CRON_JOB_TOKEN ?? process.env.CRON_SECRET), { message: "CRON key missing" });
 
 export const ENV = {
   client: clientSchema.parse({

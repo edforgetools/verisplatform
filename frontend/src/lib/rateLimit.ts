@@ -1,14 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ENV } from './env';
+import { NextRequest, NextResponse } from "next/server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redisClient: any = null;
 
 async function getRedis() {
   if (redisClient) return redisClient;
-  const url = ENV.server.UPSTASH_REDIS_URL || ENV.server.REDIS_URL;
+  const url = process.env.UPSTASH_REDIS_URL || process.env.REDIS_URL;
   if (!url) return null;
-  const { default: Redis } = await import('ioredis');
+  const { default: Redis } = await import("ioredis");
   redisClient = new Redis(url);
   return redisClient;
 }
@@ -34,25 +33,22 @@ interface RateLimitConfig {
 export function withRateLimit(
   handler: (req: NextRequest) => Promise<NextResponse>,
   route: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ) {
   return async (req: NextRequest): Promise<NextResponse> => {
-    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
     const key = `${route}:${ip}`;
-    
+
     // Convert config to rateLimit parameters
     const limit = config.capacity;
     const windowSec = Math.ceil(config.windowMs / 1000);
-    
+
     const result = await rateLimit(key, limit, windowSec);
-    
+
     if (!result.allowed) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
-    
+
     return handler(req);
   };
 }

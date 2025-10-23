@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifySignature } from '@/lib/crypto';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { validateCronAuth } from '@/lib/env';
+import { NextRequest, NextResponse } from "next/server";
+import { verifySignature } from "@/lib/crypto-server";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { validateCronAuth } from "@/lib/auth-server";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   // Verify this is a scheduled job request (in production, you'd verify the cron secret)
-  if (!validateCronAuth(req)) return new Response('Forbidden', { status: 403 });
+  if (!validateCronAuth(req)) return new Response("Forbidden", { status: 403 });
 
   const svc = supabaseAdmin();
   const errors: string[] = [];
@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
   try {
     // Get all proofs that need integrity checking
     const { data: proofs, error: fetchError } = await svc
-      .from('proofs')
-      .select('id, hash_full, signature, file_name, created_at')
+      .from("proofs")
+      .select("id, hash_full, signature, file_name, created_at")
       .limit(1000); // Process in batches
 
     if (fetchError) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!proofs) {
-      return NextResponse.json({ error: 'No proofs found' }, { status: 404 });
+      return NextResponse.json({ error: "No proofs found" }, { status: 404 });
     }
 
     // Check each proof's signature integrity
@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Log telemetry about the integrity check
-    await svc.from('telemetry').insert({
+    await svc.from("telemetry").insert({
       user_id: null, // System event
-      event: 'integrity_check_completed',
+      event: "integrity_check_completed",
       value: checked,
       meta: {
         errors_count: errors.length,
@@ -51,10 +51,10 @@ export async function POST(req: NextRequest) {
     });
 
     // Update daily telemetry
-    const today = new Date().toISOString().split('T')[0];
-    await svc.from('telemetry_daily').upsert({
+    const today = new Date().toISOString().split("T")[0];
+    await svc.from("telemetry_daily").upsert({
       date: today,
-      event: 'integrity_checks',
+      event: "integrity_checks",
       count: checked,
       unique_users: 1, // System user
       meta: { errors_count: errors.length },
@@ -67,9 +67,6 @@ export async function POST(req: NextRequest) {
       error_details: errors,
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Integrity check failed', details: error },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Integrity check failed", details: error }, { status: 500 });
   }
 }

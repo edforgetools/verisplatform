@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseService } from '@/lib/db';
-import { sha256, shortHash, signHash } from '@/lib/crypto';
+import { sha256, shortHash, signHash } from '@/lib/crypto-server';
 import { assertEntitled } from '@/lib/entitlements';
 import { withRateLimit } from '@/lib/rateLimit';
 

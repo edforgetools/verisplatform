@@ -1,62 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { assertEntitled } from '@/lib/entitlements';
-import { ENV } from '@/lib/env';
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { assertEntitled } from "@/lib/entitlements";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 function getStripe() {
-  const secretKey = ENV.server.STRIPE_SECRET_KEY;
+  const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    throw new Error('STRIPE_SECRET_KEY environment variable is required');
+    throw new Error("STRIPE_SECRET_KEY environment variable is required");
   }
   return new Stripe(secretKey);
 }
 
 // Allowlist of valid price IDs
 const ALLOWED_PRICE_IDS = [
-  ENV.client.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
-  ENV.client.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
+  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
+  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
 ].filter(Boolean) as string[];
 
 export async function POST(req: NextRequest) {
-  const origin = req.headers.get('origin') ?? ENV.client.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const origin =
+    req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   try {
     const { priceId, userId, customerEmail } = await req.json();
 
     if (!priceId) {
-      return NextResponse.json(
-        { error: 'priceId is required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "priceId is required" }, { status: 400 });
     }
 
     // Validate priceId against allowlist
     if (!ALLOWED_PRICE_IDS.includes(priceId)) {
-      return NextResponse.json({ error: 'Invalid priceId' }, { status: 400 });
+      return NextResponse.json({ error: "Invalid priceId" }, { status: 400 });
     }
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "userId is required" }, { status: 400 });
     }
 
     // Check entitlement for creating checkout sessions
     try {
-      await assertEntitled(userId, 'create_checkout');
+      await assertEntitled(userId, "create_checkout");
     } catch {
       return NextResponse.json(
-        { error: 'Insufficient permissions to create checkout sessions' },
+        { error: "Insufficient permissions to create checkout sessions" },
         { status: 403 },
       );
     }
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/billing/success`,
       cancel_url: `${origin}/billing/cancel`,
@@ -66,11 +60,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error('Error creating checkout session:', error);
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 },
-    );
+    console.error("Error creating checkout session:", error);
+    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
   }
 }
 
