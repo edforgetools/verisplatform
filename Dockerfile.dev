@@ -1,0 +1,68 @@
+# Multi-stage Dockerfile for local API development
+# This is a minimal Node 20 image for running the API locally if needed
+
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY frontend/package.json ./frontend/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
+
+# Copy source code
+COPY . .
+
+# Set working directory to frontend
+WORKDIR /app/frontend
+
+# Build the application
+RUN pnpm build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy built application
+COPY --from=builder /app/frontend/public ./frontend/public
+
+# Set the correct permission for prerender cache
+RUN mkdir ./frontend/.next
+RUN chown nextjs:nodejs ./frontend/.next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./frontend/.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Start the application
+CMD ["node", "frontend/server.js"]
