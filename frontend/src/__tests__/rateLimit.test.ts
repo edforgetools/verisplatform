@@ -1,146 +1,151 @@
-import { NextRequest } from 'next/server';
-import { rateLimit, clearAllBuckets } from '@/lib/rateLimit';
+import { NextResponse } from 'next/server';
 
-// Mock NextRequest for testing
-function createMockRequest(ip: string = '127.0.0.1'): NextRequest {
-  const headers = new Headers();
-  headers.set('x-forwarded-for', ip);
+// Mock the Upstash Redis and Ratelimit
+const mockLimit = jest.fn();
+const mockSlidingWindow = jest.fn();
 
+jest.mock('@upstash/redis', () => ({
+  Redis: jest.fn().mockImplementation(() => ({})),
+}));
+
+// Mock the static slidingWindow method
+jest.mock('@upstash/ratelimit', () => {
+  const RatelimitConstructor = jest.fn().mockImplementation(() => ({
+    limit: mockLimit,
+  }));
+  
+  (RatelimitConstructor as any).slidingWindow = mockSlidingWindow;
+  
   return {
-    headers,
-    method: 'POST',
-  } as NextRequest;
-}
+    Ratelimit: RatelimitConstructor,
+  };
+});
 
-describe('Rate Limiting', () => {
-  beforeEach(() => {
-    // Clear any existing buckets before each test
-    clearAllBuckets();
+// Mock environment variables
+const originalEnv = process.env;
+
+describe('Rate Limiting Middleware', () => {
+  let middleware: any;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    process.env = {
+      ...originalEnv,
+      UPSTASH_REDIS_REST_URL: 'https://test-redis.upstash.io',
+      UPSTASH_REDIS_REST_TOKEN: 'test-token',
+      CRON_JOB_TOKEN: 'test-cron-token',
+    };
+    
+    // Import middleware after mocks are set up
+    const middlewareModule = await import('@/middleware');
+    middleware = middlewareModule.middleware;
   });
 
-  test('should allow requests within rate limit', async () => {
-    const request = createMockRequest('127.0.0.1');
-    const result = await rateLimit(request, '/api/test', {
-      capacity: 5,
-      refillRate: 1,
-      windowMs: 60000,
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  test('should allow non-API requests to pass through', async () => {
+    const request = new Request('https://example.com/page');
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+  });
+
+  test('should allow API requests within rate limit', async () => {
+    mockLimit.mockResolvedValue({ success: true });
+
+    const request = new Request('https://example.com/api/test', {
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+      },
     });
-
-    expect(result.allowed).toBe(true);
-    expect(result.response).toBeUndefined();
+    
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+    expect(mockLimit).toHaveBeenCalledWith('api:127.0.0.1');
   });
 
-  test('should block requests exceeding rate limit', async () => {
-    const request = createMockRequest('127.0.0.1');
-    const config = {
-      capacity: 2,
-      refillRate: 0.01, // Very slow refill - 1 token per 100 seconds
-      windowMs: 60000,
-    };
+  test('should block API requests exceeding rate limit', async () => {
+    mockLimit.mockResolvedValue({ success: false });
 
-    // First request should be allowed
-    const result1 = await rateLimit(request, '/api/test', config);
-    expect(result1.allowed).toBe(true);
-
-    // Second request should be allowed
-    const result2 = await rateLimit(request, '/api/test', config);
-    expect(result2.allowed).toBe(true);
-
-    // Third request should be blocked
-    const result3 = await rateLimit(request, '/api/test', config);
-    expect(result3.allowed).toBe(false);
-    expect(result3.response).toBeDefined();
-    expect(result3.response?.status).toBe(429);
+    const request = new Request('https://example.com/api/test', {
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+      },
+    });
+    
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(429);
+    
+    const responseData = await response.json();
+    expect(responseData.error).toBe('Too Many Requests');
   });
 
-  test('should return proper error response when rate limited', async () => {
-    const request = createMockRequest('127.0.0.1');
-    const config = {
-      capacity: 1,
-      refillRate: 0.01, // Very slow refill
-      windowMs: 60000,
-    };
+  test('should bypass rate limiting for authenticated cron jobs', async () => {
+    const request = new Request('https://example.com/api/test', {
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+        'x-cron-key': 'test-cron-token',
+      },
+    });
+    
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+    expect(mockLimit).not.toHaveBeenCalled();
+  });
 
-    // First request should be allowed
-    const result1 = await rateLimit(request, '/api/test', config);
-    expect(result1.allowed).toBe(true);
+  test('should bypass rate limiting for CRON_SECRET environment variable', async () => {
+    process.env.CRON_SECRET = 'test-cron-secret';
+    delete process.env.CRON_JOB_TOKEN;
 
-    // Second request should be blocked
-    const result2 = await rateLimit(request, '/api/test', config);
-    expect(result2.allowed).toBe(false);
+    const request = new Request('https://example.com/api/test', {
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+        'x-cron-key': 'test-cron-secret',
+      },
+    });
+    
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+    expect(mockLimit).not.toHaveBeenCalled();
+  });
 
-    if (result2.response) {
-      const responseData = await result2.response.json();
-      expect(responseData.error).toBe('Too Many Requests');
-      expect(responseData.message).toContain('Rate limit exceeded');
-      expect(responseData.retryAfter).toBeDefined();
+  test('should use default IP when x-forwarded-for is not present', async () => {
+    mockLimit.mockResolvedValue({ success: true });
 
-      // Check headers
-      const retryAfter = result2.response.headers.get('Retry-After');
-      expect(retryAfter).toBeDefined();
-      expect(parseInt(retryAfter!)).toBeGreaterThan(0);
-    }
+    const request = new Request('https://example.com/api/test');
+    
+    const response = await middleware(request);
+    
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response.status).toBe(200);
+    expect(mockLimit).toHaveBeenCalledWith('api:127.0.0.1');
   });
 
   test('should handle different IPs separately', async () => {
-    const request1 = createMockRequest('127.0.0.1');
-    const request2 = createMockRequest('192.168.1.1');
-    const config = {
-      capacity: 1,
-      refillRate: 0.01, // Very slow refill
-      windowMs: 60000,
-    };
+    mockLimit.mockResolvedValue({ success: true });
 
-    // Both IPs should be able to make one request
-    const result1 = await rateLimit(request1, '/api/test', config);
-    const result2 = await rateLimit(request2, '/api/test', config);
-
-    expect(result1.allowed).toBe(true);
-    expect(result2.allowed).toBe(true);
-  });
-
-  test('should handle different routes separately', async () => {
-    const request = createMockRequest('127.0.0.1');
-    const config = {
-      capacity: 1,
-      refillRate: 0.01, // Very slow refill
-      windowMs: 60000,
-    };
-
-    // Same IP should be able to make requests to different routes
-    const result1 = await rateLimit(request, '/api/route1', config);
-    const result2 = await rateLimit(request, '/api/route2', config);
-
-    expect(result1.allowed).toBe(true);
-    expect(result2.allowed).toBe(true);
-  });
-
-  test('should extract IP from x-forwarded-for header', async () => {
-    const request = createMockRequest('203.0.113.1');
-    const result = await rateLimit(request, '/api/test', {
-      capacity: 5,
-      refillRate: 1,
-      windowMs: 60000,
+    const request1 = new Request('https://example.com/api/test', {
+      headers: { 'x-forwarded-for': '192.168.1.1' },
     });
-
-    expect(result.allowed).toBe(true);
-  });
-
-  test('should extract IP from x-real-ip header', async () => {
-    const headers = new Headers();
-    headers.set('x-real-ip', '198.51.100.1');
-
-    const request = {
-      headers,
-      method: 'POST',
-    } as NextRequest;
-
-    const result = await rateLimit(request, '/api/test', {
-      capacity: 5,
-      refillRate: 1,
-      windowMs: 60000,
+    const request2 = new Request('https://example.com/api/test', {
+      headers: { 'x-forwarded-for': '192.168.1.2' },
     });
-
-    expect(result.allowed).toBe(true);
+    
+    await middleware(request1);
+    await middleware(request2);
+    
+    expect(mockLimit).toHaveBeenCalledWith('api:192.168.1.1');
+    expect(mockLimit).toHaveBeenCalledWith('api:192.168.1.2');
   });
 });
