@@ -3,6 +3,7 @@ import { verifySignature } from "@/lib/crypto-server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { validateCronAuth } from "@/lib/auth-server";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -22,11 +23,11 @@ export async function POST(req: NextRequest) {
       .limit(1000); // Process in batches
 
     if (fetchError) {
-      return NextResponse.json({ error: fetchError.message }, { status: 500 });
+      return jsonErr(fetchError.message, 500);
     }
 
     if (!proofs) {
-      return NextResponse.json({ error: "No proofs found" }, { status: 404 });
+      return jsonErr("No proofs found", 404);
     }
 
     // Check each proof's signature integrity
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
       meta: { errors_count: errors.length },
     });
 
-    return NextResponse.json({
+    return jsonOk({
       success: true,
       checked,
       errors: errors.length,
@@ -69,6 +70,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     capture(error, { route: "/api/integrity-check" });
-    return NextResponse.json({ error: "Integrity check failed", details: error }, { status: 500 });
+    return jsonErr("Integrity check failed", 500);
   }
 }

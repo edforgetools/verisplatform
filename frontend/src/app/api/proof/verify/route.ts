@@ -3,6 +3,7 @@ import { supabaseService } from "@/lib/db";
 import { verifySignature } from "@/lib/crypto-server";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -44,12 +45,7 @@ async function handleVerifyProof(req: NextRequest) {
 
     // Validate input format
     if (!isVerifyByIdRequest(body) && !isVerifyBySignatureRequest(body)) {
-      return NextResponse.json(
-        {
-          error: "Invalid input: must provide either { id } or { hashHex, signatureB64 }",
-        },
-        { status: 400 },
-      );
+      return jsonErr("Invalid input: must provide either { id } or { hashHex, signatureB64 }", 400);
     }
 
     // Handle ID-based verification (preferred signature path)
@@ -62,13 +58,13 @@ async function handleVerifyProof(req: NextRequest) {
         .single();
 
       if (error || !proof) {
-        return NextResponse.json({ error: "Proof not found" }, { status: 404 });
+        return jsonErr("Proof not found", 404);
       }
 
       // Verify signature if available
       if (proof.signature) {
         const signatureVerified = verifySignature(proof.hash_full, proof.signature);
-        return NextResponse.json({
+        return jsonOk({
           verified: signatureVerified,
           verified_by: "signature",
           hashHex: proof.hash_full,
@@ -76,7 +72,7 @@ async function handleVerifyProof(req: NextRequest) {
         });
       } else {
         // Fallback to hash-only verification
-        return NextResponse.json({
+        return jsonOk({
           verified: true,
           verified_by: "hash",
           hashHex: proof.hash_full,
@@ -88,7 +84,7 @@ async function handleVerifyProof(req: NextRequest) {
     // Handle signature-based verification
     if (isVerifyBySignatureRequest(body)) {
       const signatureVerified = verifySignature(body.hashHex, body.signatureB64);
-      return NextResponse.json({
+      return jsonOk({
         verified: signatureVerified,
         verified_by: "signature",
         hashHex: body.hashHex,
@@ -97,10 +93,10 @@ async function handleVerifyProof(req: NextRequest) {
     }
 
     // This should never be reached due to the validation above
-    return NextResponse.json({ error: "Invalid request format" }, { status: 400 });
+    return jsonErr("Invalid request format", 400);
   } catch (error) {
     capture(error, { route: "/api/proof/verify" });
-    return NextResponse.json({ error: "Malformed request body" }, { status: 400 });
+    return jsonErr("Malformed request body", 400);
   }
 }
 

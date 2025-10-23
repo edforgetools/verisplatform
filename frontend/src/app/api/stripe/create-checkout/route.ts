@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { assertEntitled } from "@/lib/entitlements";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -27,26 +28,23 @@ export async function POST(req: NextRequest) {
     const { priceId, userId, customerEmail } = await req.json();
 
     if (!priceId) {
-      return NextResponse.json({ error: "priceId is required" }, { status: 400 });
+      return jsonErr("priceId is required", 400);
     }
 
     // Validate priceId against allowlist
     if (!PRICE_IDS.has(priceId)) {
-      return NextResponse.json({ error: "Invalid priceId" }, { status: 400 });
+      return jsonErr("Invalid priceId", 400);
     }
 
     if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 });
+      return jsonErr("userId is required", 400);
     }
 
     // Check entitlement for creating checkout sessions
     try {
       await assertEntitled(userId, "create_checkout");
     } catch {
-      return NextResponse.json(
-        { error: "Insufficient permissions to create checkout sessions" },
-        { status: 403 },
-      );
+      return jsonErr("Insufficient permissions to create checkout sessions", 403);
     }
 
     const stripe = getStripe();
@@ -60,13 +58,13 @@ export async function POST(req: NextRequest) {
       metadata: { user_id: userId },
     });
 
-    return NextResponse.json({ url: session.url });
+    return jsonOk({ url: session.url });
   } catch (error) {
     capture(error, { route: "/api/stripe/create-checkout" });
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return jsonErr("Failed to create checkout session", 500);
   }
 }
 
 export function GET() {
-  return NextResponse.json({ ok: true });
+  return jsonOk({ ok: true });
 }

@@ -4,6 +4,7 @@ import { sha256, shortHash, signHash } from "@/lib/crypto-server";
 import { assertEntitled } from "@/lib/entitlements";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -14,16 +15,13 @@ async function handleCreateProof(req: NextRequest) {
     const userId = form.get("user_id") as string | null;
     const project = (form.get("project") as string | null) ?? null;
     if (!file || !userId)
-      return NextResponse.json({ error: "file and user_id required" }, { status: 400 });
+      return jsonErr("file and user_id required", 400);
 
     // Check entitlement for creating proofs
     try {
       await assertEntitled(userId, "create_proof");
     } catch {
-      return NextResponse.json(
-        { error: "Insufficient permissions to create proofs" },
-        { status: 403 },
-      );
+      return jsonErr("Insufficient permissions to create proofs", 403);
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -50,8 +48,8 @@ async function handleCreateProof(req: NextRequest) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({
+    if (error) return jsonErr(error.message, 500);
+    return jsonOk({
       id: data.id,
       hash_prefix: hashPrefix,
       timestamp: ts,
@@ -59,7 +57,7 @@ async function handleCreateProof(req: NextRequest) {
     });
   } catch (error) {
     capture(error, { route: "/api/proof/create" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return jsonErr("Internal server error", 500);
   }
 }
 

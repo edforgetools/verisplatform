@@ -1,26 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabaseService } from '@/lib/db';
-import { capture } from '@/lib/observability';
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseService } from "@/lib/db";
+import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const svc = supabaseService();
-    const { data, error } = await svc
-      .from('proofs')
-      .select('*')
-      .eq('id', id)
-      .single();
-    if (error)
-      return NextResponse.json({ error: error.message }, { status: 404 });
-    return NextResponse.json(data);
+    const { data, error } = await svc.from("proofs").select("*").eq("id", id).single();
+    if (error) return jsonErr(error.message, 404);
+    return jsonOk(data);
   } catch (error) {
     capture(error, { route: "/api/proof/[id]" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return jsonErr("Internal server error", 500);
   }
 }

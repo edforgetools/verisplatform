@@ -1,10 +1,11 @@
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
 export function GET() {
   try {
-    return Response.json({
+    return jsonOk({
       sha: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
       branch: process.env.VERCEL_GIT_COMMIT_REF ?? "local",
       stripeApiVersion: "2024-06-20",
@@ -12,6 +13,6 @@ export function GET() {
     });
   } catch (error) {
     capture(error, { route: "/api/version" });
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return jsonErr("Internal server error", 500);
   }
 }

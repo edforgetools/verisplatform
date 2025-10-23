@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getKeyFingerprint } from "@/lib/crypto-server";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -8,11 +9,11 @@ export async function GET() {
   try {
     const fingerprint = getKeyFingerprint();
     if (!fingerprint) {
-      return NextResponse.json({ error: "Failed to generate key fingerprint" }, { status: 500 });
+      return jsonErr("Failed to generate key fingerprint", 500);
     }
-    return NextResponse.json({ fingerprint });
+    return jsonOk({ fingerprint });
   } catch (error) {
     capture(error, { route: "/api/key-fingerprint" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return jsonErr("Internal server error", 500);
   }
 }

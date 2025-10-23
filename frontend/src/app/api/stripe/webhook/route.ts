@@ -5,6 +5,7 @@ import { BillingInsert } from "@/lib/db-types";
 import { withRateLimit } from "@/lib/rateLimit";
 import { verifyWebhook } from "@/lib/stripe";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -21,7 +22,7 @@ async function handleStripeWebhook(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
     console.error("Missing stripe-signature header");
-    return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
+    return jsonErr("Missing stripe-signature header", 400);
   }
 
   // Read raw body using Next 15 App Router method
@@ -40,10 +41,7 @@ async function handleStripeWebhook(req: NextRequest) {
       error: errorMessage,
       signature: sig,
     });
-    return NextResponse.json(
-      { error: `Webhook signature verification failed: ${errorMessage}` },
-      { status: 400 },
-    );
+    return jsonErr(`Webhook signature verification failed: ${errorMessage}`, 400);
   }
 
   // Filter allowed events for security
@@ -52,7 +50,7 @@ async function handleStripeWebhook(req: NextRequest) {
       eventId: event.id,
       eventType: event.type,
     });
-    return NextResponse.json({ received: true });
+    return jsonOk({ received: true });
   }
 
   const svc = supabaseService();
@@ -69,7 +67,7 @@ async function handleStripeWebhook(req: NextRequest) {
       eventId: event.id,
       eventType: event.type,
     });
-    return NextResponse.json({ received: true, alreadyProcessed: true });
+    return jsonOk({ received: true, alreadyProcessed: true });
   }
 
   try {
@@ -83,7 +81,7 @@ async function handleStripeWebhook(req: NextRequest) {
           clientReferenceId: session.client_reference_id,
           subscription: session.subscription,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       const billingRecord: BillingInsert = {
@@ -123,7 +121,7 @@ async function handleStripeWebhook(req: NextRequest) {
         console.warn("customer.subscription.updated missing subscription id:", {
           eventId: event.id,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       // Update billing record by subscription ID
@@ -141,7 +139,7 @@ async function handleStripeWebhook(req: NextRequest) {
           subscriptionId: subscription.id,
           error: error.message,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       // Log successful event processing
@@ -166,7 +164,7 @@ async function handleStripeWebhook(req: NextRequest) {
         console.warn("customer.subscription.deleted missing subscription id:", {
           eventId: event.id,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       // Update billing record to cancelled status
@@ -184,7 +182,7 @@ async function handleStripeWebhook(req: NextRequest) {
           subscriptionId: subscription.id,
           error: error.message,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       // Log successful event processing
@@ -214,7 +212,7 @@ async function handleStripeWebhook(req: NextRequest) {
         console.warn("invoice.payment_failed missing subscription:", {
           eventId: event.id,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       const subscriptionIdString =
@@ -235,7 +233,7 @@ async function handleStripeWebhook(req: NextRequest) {
           subscriptionId: subscriptionIdString,
           error: error.message,
         });
-        return NextResponse.json({ received: true });
+        return jsonOk({ received: true });
       }
 
       // Log successful event processing
@@ -252,20 +250,20 @@ async function handleStripeWebhook(req: NextRequest) {
     }
 
     // Fast 200 response for handled events
-    return NextResponse.json({
+    return jsonOk({
       received: true,
       eventId: event.id,
       eventType: event.type,
     });
   } catch (error) {
-    capture(error, { 
+    capture(error, {
       route: "/api/stripe/webhook",
       eventId: event.id,
-      eventType: event.type
+      eventType: event.type,
     });
 
     // Return 200 to prevent Stripe retries for processing errors
-    return NextResponse.json({ received: true });
+    return jsonOk({ received: true });
   }
 }
 

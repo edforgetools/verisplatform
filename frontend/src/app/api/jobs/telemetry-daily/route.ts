@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { validateCronAuth } from "@/lib/auth-server";
 import { capture } from "@/lib/observability";
+import { jsonOk, jsonErr } from "@/lib/http";
 
 export async function GET() {
   return new NextResponse("ok", { status: 200 });
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
       ok: true,
     });
     if (error) return new NextResponse("db error", { status: 500 });
-    return NextResponse.json({ status: "ok" });
+    return jsonOk({ status: "ok" });
   } catch (error) {
     capture(error, { route: "/api/jobs/telemetry-daily" });
     return new NextResponse("Internal server error", { status: 500 });

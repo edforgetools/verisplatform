@@ -30,18 +30,20 @@ export function capture(error: Error | unknown, context: CaptureContext = {}): v
     try {
       // Dynamic import to avoid bundling Sentry in client-side code
       // This will only work if @sentry/nextjs is installed
-      import('@sentry/nextjs').then(({ captureException }) => {
-        captureException(error, {
-          tags: {
-            route: context.route,
-          },
-          extra: context,
+      import("@sentry/nextjs")
+        .then(({ captureException }) => {
+          captureException(error, {
+            tags: {
+              route: context.route,
+            },
+            extra: context,
+          });
+        })
+        .catch((importError) => {
+          console.warn("Failed to import Sentry (package may not be installed):", importError);
         });
-      }).catch((importError) => {
-        console.warn('Failed to import Sentry (package may not be installed):', importError);
-      });
     } catch (err) {
-      console.warn('Failed to capture error with Sentry:', err);
+      console.warn("Failed to capture error with Sentry:", err);
     }
   }
 }
@@ -51,24 +53,24 @@ export function capture(error: Error | unknown, context: CaptureContext = {}): v
  */
 export function withErrorCapture<T extends any[]>(
   handler: (...args: T) => Promise<Response>,
-  routeName: string
+  routeName: string,
 ) {
   return async (...args: T): Promise<Response> => {
     try {
       return await handler(...args);
     } catch (error) {
       capture(error, { route: routeName });
-      
+
       // Return a generic error response
       return new Response(
-        JSON.stringify({ 
-          error: 'Internal server error',
-          timestamp: new Date().toISOString()
+        JSON.stringify({
+          error: "Internal server error",
+          timestamp: new Date().toISOString(),
         }),
-        { 
+        {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
+          headers: { "Content-Type": "application/json" },
+        },
       );
     }
   };
