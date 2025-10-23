@@ -1,1 +1,8 @@
+# Global ownership
 * @edforgetools
+
+# Supabase schema and migrations
+supabase/** @edforgetools
+
+# API routes require review
+frontend/src/app/api/** @edforgetools
