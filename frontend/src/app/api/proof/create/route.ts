@@ -1,18 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { sha256, shortHash, signHash } from "@/lib/crypto-server";
+import { signHash } from "@/lib/crypto-server";
 import { assertEntitled } from "@/lib/entitlements";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
 import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
+import { generateProofId } from "@/lib/ids";
 
 export const runtime = "nodejs";
 
 async function handleCreateProof(req: NextRequest) {
   let tmpPath: string | null = null;
-  
+
   try {
     // Get authenticated user ID from request
     const authenticatedUserId = await getAuthenticatedUserId(req);
@@ -24,7 +25,7 @@ async function handleCreateProof(req: NextRequest) {
     const file = form.get("file") as File | null;
     const userId = form.get("user_id") as string | null;
     const project = (form.get("project") as string | null) ?? null;
-    
+
     if (!file || !userId) {
       return jsonErr("file and user_id required", 400);
     }
@@ -48,11 +49,13 @@ async function handleCreateProof(req: NextRequest) {
 
     const signature = signHash(hashFull);
     const ts = new Date().toISOString();
+    const proofId = generateProofId();
 
     const svc = supabaseService();
     const { data, error } = await svc
       .from("proofs")
       .insert({
+        id: proofId,
         user_id: userId,
         file_name: file.name,
         version: 1,
@@ -78,14 +81,14 @@ async function handleCreateProof(req: NextRequest) {
     });
   } catch (error) {
     capture(error, { route: "/api/proof/create" });
-    
+
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes("Invalid file type")) {
         return jsonErr(error.message, 400);
       }
     }
-    
+
     return jsonErr("Internal server error", 500);
   } finally {
     // Clean up temporary file

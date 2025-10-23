@@ -1,10 +1,14 @@
 'use client';
 import React, { useState } from 'react';
+import { generateUserId } from '@/lib/ids';
 
 export default function DemoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [res, setRes] = useState<{ url: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Generate a consistent demo user ID for this session
+  const demoUserId = generateUserId();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,11 +18,11 @@ export default function DemoPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      fd.append('user_id', 'demo-user-uuid');
+      fd.append('user_id', demoUserId);
       const r = await fetch('/api/proof/create', {
         method: 'POST',
         body: fd,
-        headers: { 'x-user-id': 'demo-user-uuid' },
+        headers: { 'x-user-id': demoUserId },
       });
       const data = await r.json();
       setRes(data);
