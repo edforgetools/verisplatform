@@ -60,3 +60,35 @@ export async function getAuthenticatedUserId(request: Request): Promise<string |
     return null;
   }
 }
+
+/**
+ * Check if the authenticated user has admin role
+ * Returns true if user is admin, false otherwise
+ */
+export async function isAdminUser(request: Request): Promise<boolean> {
+  const userId = await getAuthenticatedUserId(request);
+  if (!userId) {
+    return false;
+  }
+
+  try {
+    // Create a Supabase admin client to check user role
+    const { supabaseAdmin } = await import("./supabaseAdmin");
+    const supabase = supabaseAdmin();
+    
+    const { data, error } = await supabase
+      .from("app_users")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    return data.role === "admin";
+  } catch (error) {
+    console.error("Error checking admin role:", error);
+    return false;
+  }
+}
