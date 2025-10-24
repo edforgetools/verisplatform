@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/validate-env.ts && next build",
+    "build:validate": "tsx scripts/validate-env.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "jest --testPathPattern=__tests__ --passWithNoTests",
@@ -14,6 +15,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
+    "test:e2e:preview": "playwright test --config=playwright.config.preview.ts",
     "seed:stripe": "tsx ../scripts/seed.stripe.ts",
     "release": "tsx ../scripts/release.ts"
   },
@@ -30,6 +32,7 @@
     "ajv-formats": "^3.0.1",
     "arweave": "^1.15.7",
     "canonical-json": "^0.2.0",
+    "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
     "merkle-tree-stream": "^4.0.0",
     "next": "15.5.6",

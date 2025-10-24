@@ -41,7 +41,7 @@ function createS3Client(): S3Client {
 /**
  * Create Arweave client
  */
-function createArweaveClient(): Arweave {
+export function createArweaveClient(): Arweave {
   const gatewayUrl = process.env.ARWEAVE_GATEWAY_URL || "https://arweave.net";
 
   return Arweave.init({

@@ -73,7 +73,39 @@ export class VerisClient {
   }
 
   /**
-   * Verify a proof
+   * Verify a proof by hash (primary method)
+   */
+  async verifyProofByHash(hash: string): Promise<VerifyProofResponse> {
+    const response = await this.client.get<VerifyProofResponse>(`/api/verify?hash=${hash}`);
+    return response.data;
+  }
+
+  /**
+   * Verify a proof by hash (POST method)
+   */
+  async verifyProofByHashPost(hash: string): Promise<VerifyProofResponse> {
+    const response = await this.client.post<VerifyProofResponse>("/api/verify", { hash });
+    return response.data;
+  }
+
+  /**
+   * Verify a proof by file upload
+   */
+  async verifyProofByFile(file: File): Promise<VerifyProofResponse> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await this.client.post<VerifyProofResponse>("/api/verify", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Verify a proof (legacy method for backward compatibility)
    */
   async verifyProof(request: VerifyProofRequest): Promise<VerifyProofResponse> {
     if (request.file) {

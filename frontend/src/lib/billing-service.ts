@@ -3,7 +3,7 @@
  * Integrates with Stripe usage recording and pricing rules
  */
 
-import { stripe } from "./stripe";
+import { stripe, stripeConfig } from "./stripe";
 import { shouldBill, BillingEvent } from "./pricing_rules";
 import { supabaseService } from "./db";
 import { logger } from "./logger";
@@ -88,7 +88,7 @@ async function recordStripeUsage(event: BillingEvent): Promise<void> {
 
   // Record usage with Stripe
   // This assumes you have a usage-based price configured in Stripe
-  const priceId = process.env.STRIPE_USAGE_PRICE_ID;
+  const priceId = stripeConfig.usagePriceId;
   if (!priceId) {
     throw new Error("STRIPE_USAGE_PRICE_ID environment variable not set");
   }

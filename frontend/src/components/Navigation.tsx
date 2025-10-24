@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ENV_CLIENT } from "@/lib/env-client";
+import { ENV_CLIENT } from "@/lib/env";
 
 export function Navigation() {
   return (

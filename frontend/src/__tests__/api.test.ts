@@ -9,7 +9,20 @@ const mockSupabaseService = jest.fn(() => ({
         single: jest.fn(() => Promise.resolve({ data: null, error: null })),
       })),
       eq: jest.fn(() => ({
-        single: jest.fn(() => Promise.resolve({ data: null, error: null })),
+        single: jest.fn(() =>
+          Promise.resolve({
+            data: {
+              id: "test-proof-id",
+              hash_full: "test-hash",
+              signature: "test-signature",
+              timestamp: new Date().toISOString(),
+              anchor_txid: null,
+              file_name: "test.pdf",
+              created_at: new Date().toISOString(),
+            },
+            error: null,
+          }),
+        ),
       })),
     })),
     insert: jest.fn(() => ({
@@ -113,6 +126,14 @@ jest.mock("@/lib/ids", () => ({
 
 jest.mock("@/lib/billing-service", () => ({
   recordBillingEvent: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock crypto-server specifically for API tests
+jest.mock("@/lib/crypto-server", () => ({
+  sha256: jest.fn((buf: Buffer) => "mock-hash"),
+  signHash: jest.fn((hash: string) => "mock-signature-base64"),
+  verifySignature: jest.fn((hash: string, signature: string) => true),
+  getKeyFingerprint: jest.fn(() => "mock-hash-hex"),
 }));
 
 jest.mock("@supabase/supabase-js", () => ({

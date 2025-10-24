@@ -12,6 +12,7 @@ import { logger } from "@/lib/logger";
 import { createCanonicalProof, canonicalizeAndSign } from "@/lib/proof-schema";
 import { recordBillingEvent } from "@/lib/billing-service";
 import { withIdempotency } from "@/lib/idempotency";
+import { validateCreateProofRequest, validateCreateProofResponse, CreateProofRequest, CreateProofResponse } from "@/types/proof-api";
 
 export const runtime = "nodejs";
 
@@ -31,16 +32,30 @@ async function handleCreateProof(req: NextRequest) {
     const userId = form.get("user_id") as string | null;
     const project = (form.get("project") as string | null) ?? null;
 
-    if (!file || !userId) {
-      return jsonErr("file and user_id required", 400);
+    // Validate request using DTOs
+    let validatedRequest: CreateProofRequest;
+    try {
+      validatedRequest = validateCreateProofRequest({
+        file,
+        user_id: userId,
+        project,
+      });
+    } catch (error) {
+      logger.warn(
+        {
+          error: error instanceof Error ? error.message : "Unknown validation error",
+        },
+        "Invalid proof creation request",
+      );
+      return jsonErr("Invalid request: file and user_id are required", 400);
     }
 
     // Validate user_id matches authenticated user
-    if (userId !== authenticatedUserId) {
+    if (validatedRequest.user_id !== authenticatedUserId) {
       logger.warn(
         {
           authenticatedUserId,
-          providedUserId: userId,
+          providedUserId: validatedRequest.user_id,
         },
         "Proof creation attempted with mismatched user_id",
       );
@@ -49,11 +64,11 @@ async function handleCreateProof(req: NextRequest) {
 
     // Check entitlement for creating proofs
     try {
-      await assertEntitled(userId, "create_proof");
+      await assertEntitled(validatedRequest.user_id, "create_proof");
     } catch {
       logger.warn(
         {
-          userId,
+          userId: validatedRequest.user_id,
         },
         "Proof creation attempted without sufficient permissions",
       );
@@ -62,7 +77,7 @@ async function handleCreateProof(req: NextRequest) {
 
     // Stream file to temporary location and compute hash
     // This also validates MIME type against allow-list
-    const { tmpPath: fileTmpPath, hashFull, hashPrefix } = await streamFileToTmp(file);
+    const { tmpPath: fileTmpPath, hashFull, hashPrefix } = await streamFileToTmp(validatedRequest.file);
     tmpPath = fileTmpPath;
 
     const ts = new Date().toISOString();
@@ -76,9 +91,9 @@ async function handleCreateProof(req: NextRequest) {
     };
 
     const metadata = {
-      file_name: file.name,
-      project: project || null,
-      user_id: userId,
+      file_name: validatedRequest.file.name,
+      project: validatedRequest.project || null,
+      user_id: validatedRequest.user_id,
     };
 
     const canonicalProof = createCanonicalProof(hashFull, subject, metadata);
@@ -89,14 +104,14 @@ async function handleCreateProof(req: NextRequest) {
       .from("proofs")
       .insert({
         id: proofId,
-        user_id: userId,
-        file_name: file.name,
+        user_id: validatedRequest.user_id,
+        file_name: validatedRequest.file.name,
         version: 1,
         hash_full: hashFull,
         hash_prefix: hashPrefix,
         signature: signedProof.signature,
         timestamp: ts,
-        project,
+        project: validatedRequest.project,
         visibility: "public",
         proof_json: signedProof,
       })
@@ -106,8 +121,8 @@ async function handleCreateProof(req: NextRequest) {
     if (error) {
       logger.error(
         {
-          userId,
-          fileName: file.name,
+          userId: validatedRequest.user_id,
+          fileName: validatedRequest.file.name,
           error: error.message,
         },
         "Failed to create proof in database",
@@ -118,9 +133,9 @@ async function handleCreateProof(req: NextRequest) {
     logger.info(
       {
         proofId: data.id,
-        userId,
-        fileName: file.name,
-        project,
+        userId: validatedRequest.user_id,
+        fileName: validatedRequest.file.name,
+        project: validatedRequest.project,
       },
       "Proof created successfully",
     );
@@ -128,22 +143,40 @@ async function handleCreateProof(req: NextRequest) {
     // Record billing event for successful proof creation
     await recordBillingEvent({
       type: "proof.create",
-      userId,
+      userId: validatedRequest.user_id,
       proofId: data.id,
       success: true,
       metadata: {
-        file_name: file.name,
-        project,
+        file_name: validatedRequest.file.name,
+        project: validatedRequest.project,
         hash_prefix: hashPrefix,
       },
     });
 
-    return jsonOk({
-      id: data.id,
-      hash_prefix: hashPrefix,
+    // Create response using DTOs
+    const response: CreateProofResponse = {
+      proof_id: data.id,
+      hash: hashFull,
       timestamp: ts,
+      signature: signedProof.signature,
       url: `/proof/${data.id}`,
-    });
+    };
+
+    // Validate response before sending
+    try {
+      validateCreateProofResponse(response);
+    } catch (error) {
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : "Unknown validation error",
+          proofId: data.id,
+        },
+        "Invalid proof creation response",
+      );
+      return jsonErr("Internal server error", 500);
+    }
+
+    return jsonOk(response);
   } catch (error) {
     capture(error, { route: "/api/proof/create" });
 

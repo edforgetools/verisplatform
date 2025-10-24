@@ -15,7 +15,19 @@ export declare class VerisClient {
      */
     getProof(id: string): Promise<GetProofResponse>;
     /**
-     * Verify a proof
+     * Verify a proof by hash (primary method)
+     */
+    verifyProofByHash(hash: string): Promise<VerifyProofResponse>;
+    /**
+     * Verify a proof by hash (POST method)
+     */
+    verifyProofByHashPost(hash: string): Promise<VerifyProofResponse>;
+    /**
+     * Verify a proof by file upload
+     */
+    verifyProofByFile(file: File): Promise<VerifyProofResponse>;
+    /**
+     * Verify a proof (legacy method for backward compatibility)
      */
     verifyProof(request: VerifyProofRequest): Promise<VerifyProofResponse>;
     /**

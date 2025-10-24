@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { ENV_CLIENT } from "./env-client";
+import { ENV_CLIENT } from "./env";
 
 export function supabaseClient() {
   const url = ENV_CLIENT.NEXT_PUBLIC_SUPABASE_URL;

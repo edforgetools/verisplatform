@@ -28,6 +28,11 @@ async function handleStripeWebhook(req: NextRequest) {
 
   // Read raw body using Next 15 App Router method
   const text = await req.text();
+  if (!text) {
+    logger.error("Empty webhook body");
+    return jsonErr("Empty webhook body", 400);
+  }
+
   const buf = Buffer.from(text);
 
   let event: Stripe.Event;
@@ -41,11 +46,25 @@ async function handleStripeWebhook(req: NextRequest) {
     logger.error(
       {
         error: errorMessage,
-        signature: sig,
+        signature: sig.substring(0, 20) + "...", // Log only first 20 chars for security
+        bodyLength: text.length,
       },
       "Webhook signature verification failed",
     );
     return jsonErr(`Webhook signature verification failed: ${errorMessage}`, 400);
+  }
+
+  // Validate event structure
+  if (!event.id || !event.type || !event.data) {
+    logger.error(
+      {
+        eventId: event.id,
+        eventType: event.type,
+        hasData: !!event.data,
+      },
+      "Invalid webhook event structure",
+    );
+    return jsonErr("Invalid webhook event structure", 400);
   }
 
   // Filter allowed events for security
@@ -161,7 +180,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for subscription.updated",
         );
-        return jsonOk({ received: true });
+        return jsonErr("Failed to update billing for subscription.updated", 500);
       }
 
       // Log successful event processing
@@ -213,7 +232,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for subscription.deleted",
         );
-        return jsonOk({ received: true });
+        return jsonErr("Failed to update billing for subscription.deleted", 500);
       }
 
       // Log successful event processing
@@ -273,7 +292,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for invoice.payment_failed",
         );
-        return jsonOk({ received: true });
+        return jsonErr("Failed to update billing for invoice.payment_failed", 500);
       }
 
       // Log successful event processing
@@ -305,8 +324,17 @@ async function handleStripeWebhook(req: NextRequest) {
       eventType: event.type,
     });
 
-    // Return 200 to prevent Stripe retries for processing errors
-    return jsonOk({ received: true });
+    logger.error(
+      {
+        eventId: event.id,
+        eventType: event.type,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      "Webhook processing failed",
+    );
+
+    // Return 500 to allow Stripe to retry failed webhooks
+    return jsonErr("Webhook processing failed", 500);
   }
 }
 

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabaseClient } from "@/lib/supabase";
-import { ENV_CLIENT } from "@/lib/env-client";
+import { ENV_CLIENT } from "@/lib/env";
 import toast, { Toaster } from "react-hot-toast";
 import { Navigation } from "@/components/Navigation";
 
@@ -152,11 +152,7 @@ export default function BillingPage() {
               </ul>
 
               <button
-                onClick={() =>
-                  checkout(
-                    ENV_CLIENT.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID || "price_1SKqkE2O9l5kYbcA5hZf9ZtD",
-                  )
-                }
+                onClick={() => checkout(ENV_CLIENT.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID!)}
                 disabled={loading}
                 className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
               >
@@ -230,12 +226,7 @@ export default function BillingPage() {
               </ul>
 
               <button
-                onClick={() =>
-                  checkout(
-                    ENV_CLIENT.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID ||
-                      "price_1SKqkj2O9l5kYbcAJzO0YOfB",
-                  )
-                }
+                onClick={() => checkout(ENV_CLIENT.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID!)}
                 disabled={loading}
                 className="w-full px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
               >

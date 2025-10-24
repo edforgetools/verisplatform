@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+// Import environment validation to ensure it runs at build time
+// This will cause the build to fail if required environment variables are missing
+import "./src/lib/env";
+
 const nextConfig: NextConfig = {
   async headers() {
     return [

@@ -1,66 +1,215 @@
 import { z } from "zod";
 
+// =============================================================================
+// CLIENT-SIDE ENVIRONMENT VARIABLES (NEXT_PUBLIC_*)
+// =============================================================================
+// These variables are exposed to the browser and should not contain secrets
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(10),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url("Invalid Supabase URL"),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(10, "Supabase anon key too short"),
   NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
   NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
 });
 
+// =============================================================================
+// SERVER-SIDE ENVIRONMENT VARIABLES
+// =============================================================================
+// These variables are only available on the server and can contain secrets
 const serverSchema = z
   .object({
-    STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
-    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
-    supabaseservicekey: z.string().min(10),
-    CRON_JOB_TOKEN: z.string().min(16).or(z.undefined()),
-    UPSTASH_REDIS_URL: z.string().url().optional(),
-    REDIS_URL: z.string().url().optional(),
-    VERIS_SIGNING_PRIVATE_KEY: z.string().min(100),
-    VERIS_SIGNING_PUBLIC_KEY: z.string().min(100),
+    // Supabase
+    supabaseservicekey: z.string().min(10, "Supabase service key too short"),
+
+    // Stripe
+    STRIPE_SECRET_KEY: z.string().startsWith("sk_", "Invalid Stripe secret key format"),
+    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_", "Invalid Stripe webhook secret format"),
+    STRIPE_USAGE_PRICE_ID: z.string().optional(),
+
+    // CRON Authentication
+    CRON_JOB_TOKEN: z.string().min(16, "CRON token must be at least 16 characters").optional(),
+    CRON_SECRET: z.string().min(16, "CRON secret must be at least 16 characters").optional(),
+
+    // Redis
+    UPSTASH_REDIS_URL: z.string().url("Invalid Upstash Redis URL").optional(),
+    REDIS_URL: z.string().url("Invalid Redis URL").optional(),
+    UPSTASH_REDIS_REST_URL: z.string().url("Invalid Upstash Redis REST URL").optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1, "Upstash Redis REST token required").optional(),
+
+    // Veris Cryptographic Keys
+    VERIS_SIGNING_PRIVATE_KEY: z.string().min(100, "Veris signing private key too short"),
+    VERIS_SIGNING_PUBLIC_KEY: z.string().min(100, "Veris signing public key too short"),
+
+    // AWS Configuration
+    AWS_REGION: z.string().min(1, "AWS region required").optional(),
+    AWS_ROLE_ARN: z.string().startsWith("arn:aws:iam::", "Invalid AWS role ARN format").optional(),
+
+    // S3 Registry
+    REGISTRY_S3_BUCKET: z.string().min(1, "Registry S3 bucket required").optional(),
+    REGISTRY_S3_STAGING_BUCKET: z.string().min(1, "Registry S3 staging bucket required").optional(),
+    REGISTRY_S3_PRODUCTION_BUCKET: z
+      .string()
+      .min(1, "Registry S3 production bucket required")
+      .optional(),
+    REGISTRY_S3_PREFIX: z.string().optional(),
+
+    // Arweave
+    ARWEAVE_GATEWAY_URL: z.string().url("Invalid Arweave gateway URL").optional(),
+    ARWEAVE_WALLET_JSON: z.string().optional(),
+
+    // Monitoring
+    SENTRY_DSN: z.string().url("Invalid Sentry DSN").optional(),
+
+    // Internal Status Page
+    INTERNAL_KEY: z.string().min(16, "Internal key must be at least 16 characters").optional(),
+
+    // Verification
+    VERIFICATION_TIMESTAMP_TOLERANCE_MS: z.string().transform(Number).optional(),
   })
   .refine(
     (v) => {
-      // Skip CRON key validation during build time
-      if (
-        process.env.NODE_ENV === "production" &&
-        process.env.NEXT_PHASE === "phase-production-build"
-      ) {
-        return true;
-      }
-      return !!(v.CRON_JOB_TOKEN ?? process.env.CRON_SECRET);
+      // At least one CRON authentication method must be provided
+      return !!(v.CRON_JOB_TOKEN || v.CRON_SECRET);
     },
-    { message: "CRON key missing" },
+    {
+      message: "Either CRON_JOB_TOKEN or CRON_SECRET must be provided",
+      path: ["CRON_JOB_TOKEN"],
+    },
+  )
+  .refine(
+    (v) => {
+      // If Redis REST is configured, both URL and token are required
+      if (v.UPSTASH_REDIS_REST_URL || v.UPSTASH_REDIS_REST_TOKEN) {
+        return !!(v.UPSTASH_REDIS_REST_URL && v.UPSTASH_REDIS_REST_TOKEN);
+      }
+      return true;
+    },
+    {
+      message:
+        "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required when using Upstash Redis REST",
+      path: ["UPSTASH_REDIS_REST_URL"],
+    },
   );
 
-export const ENV = {
-  client: clientSchema.parse({
+// =============================================================================
+// ENVIRONMENT VALIDATION AND PARSING
+// =============================================================================
+
+function createEnv() {
+  // Parse client environment variables
+  const clientEnv = clientSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_STRIPE_MODE: process.env.NEXT_PUBLIC_STRIPE_MODE,
     NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
     NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-  }),
-  server: serverSchema.parse({
+  });
+
+  // Parse server environment variables
+  const serverEnv = serverSchema.safeParse({
+    supabaseservicekey: process.env.supabaseservicekey,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    supabaseservicekey: process.env.supabaseservicekey ?? process.env.supabaseservicekey,
+    STRIPE_USAGE_PRICE_ID: process.env.STRIPE_USAGE_PRICE_ID,
     CRON_JOB_TOKEN: process.env.CRON_JOB_TOKEN,
+    CRON_SECRET: process.env.CRON_SECRET,
     UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL,
     REDIS_URL: process.env.REDIS_URL,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     VERIS_SIGNING_PRIVATE_KEY: process.env.VERIS_SIGNING_PRIVATE_KEY,
     VERIS_SIGNING_PUBLIC_KEY: process.env.VERIS_SIGNING_PUBLIC_KEY,
-  }),
-};
+    AWS_REGION: process.env.AWS_REGION,
+    AWS_ROLE_ARN: process.env.AWS_ROLE_ARN,
+    REGISTRY_S3_BUCKET: process.env.REGISTRY_S3_BUCKET,
+    REGISTRY_S3_STAGING_BUCKET: process.env.REGISTRY_S3_STAGING_BUCKET,
+    REGISTRY_S3_PRODUCTION_BUCKET: process.env.REGISTRY_S3_PRODUCTION_BUCKET,
+    REGISTRY_S3_PREFIX: process.env.REGISTRY_S3_PREFIX,
+    ARWEAVE_GATEWAY_URL: process.env.ARWEAVE_GATEWAY_URL,
+    ARWEAVE_WALLET_JSON: process.env.ARWEAVE_WALLET_JSON,
+    SENTRY_DSN: process.env.SENTRY_DSN,
+    INTERNAL_KEY: process.env.INTERNAL_KEY,
+    VERIFICATION_TIMESTAMP_TOLERANCE_MS: process.env.VERIFICATION_TIMESTAMP_TOLERANCE_MS,
+  });
+
+  // Handle validation errors
+  if (!clientEnv.success) {
+    const errors = clientEnv.error.issues
+      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .join("\n");
+    throw new Error(`Client environment validation failed:\n${errors}`);
+  }
+
+  if (!serverEnv.success) {
+    const errors = serverEnv.error.issues
+      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .join("\n");
+    throw new Error(`Server environment validation failed:\n${errors}`);
+  }
+
+  return {
+    client: clientEnv.data,
+    server: serverEnv.data,
+  };
+}
+
+// Export validated environment variables
+// Handle test environment by providing default values
+let ENV: ReturnType<typeof createEnv>;
+try {
+  ENV = createEnv();
+} catch (error) {
+  // In test environment, provide default values
+  if (process.env.NODE_ENV === "test") {
+    ENV = {
+      client: {
+        NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-anon-key",
+        NEXT_PUBLIC_STRIPE_MODE: "test",
+        NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: "test-pro-price",
+        NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: "test-team-price",
+        NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
+      },
+      server: {
+        supabaseservicekey: "test-service-key",
+        STRIPE_SECRET_KEY: "sk_test_placeholder",
+        STRIPE_WEBHOOK_SECRET: "whsec_placeholder",
+        STRIPE_USAGE_PRICE_ID: "test-usage-price",
+        CRON_JOB_TOKEN: "test-cron-token-12345678901234567890",
+        UPSTASH_REDIS_REST_URL: "https://test-redis.upstash.io",
+        UPSTASH_REDIS_REST_TOKEN: "test-redis-token",
+        VERIS_SIGNING_PRIVATE_KEY: "test-private-key-".repeat(10),
+        VERIS_SIGNING_PUBLIC_KEY: "test-public-key-".repeat(10),
+        AWS_REGION: "us-east-1",
+        REGISTRY_S3_BUCKET: "test-bucket",
+        REGISTRY_S3_STAGING_BUCKET: "test-staging-bucket",
+        REGISTRY_S3_PRODUCTION_BUCKET: "test-production-bucket",
+        REGISTRY_S3_PREFIX: "registry/",
+        ARWEAVE_GATEWAY_URL: "https://arweave.net",
+        ARWEAVE_WALLET_JSON: '{"kty":"EC","crv":"P-256","x":"test","y":"test","d":"test"}',
+        SENTRY_DSN: "https://test@sentry.io/test",
+        INTERNAL_KEY: "test-internal-key",
+        VERIFICATION_TIMESTAMP_TOLERANCE_MS: "300000",
+      },
+    };
+  } else {
+    throw error;
+  }
+}
+
+export { ENV };
+
+// Export client environment for use in client-side code
+export const ENV_CLIENT = ENV.client;
 
 /**
  * Get the CRON key from environment variables.
  * Supports both CRON_JOB_TOKEN and CRON_SECRET for backward compatibility.
  */
 export function getCronKey(): string {
-  const CRON_KEY = ENV.server.CRON_JOB_TOKEN ?? process.env.CRON_SECRET ?? "";
+  const CRON_KEY = ENV.server.CRON_JOB_TOKEN ?? ENV.server.CRON_SECRET ?? "";
   if (!CRON_KEY) {
     throw new Error("Missing CRON_JOB_TOKEN (or CRON_SECRET)");
   }
@@ -73,4 +222,33 @@ export function getCronKey(): string {
 export function validateCronAuth(request: Request): boolean {
   const CRON_KEY = getCronKey();
   return request.headers.get("x-cron-key") === CRON_KEY;
+}
+
+/**
+ * Get Stripe configuration based on mode
+ */
+export function getStripeConfig() {
+  const mode = ENV.client.NEXT_PUBLIC_STRIPE_MODE || "test";
+
+  return {
+    mode,
+    isLive: mode === "live",
+    isTest: mode === "test",
+    secretKey: ENV.server.STRIPE_SECRET_KEY,
+    webhookSecret: ENV.server.STRIPE_WEBHOOK_SECRET,
+    proPriceId: ENV.client.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID,
+    teamPriceId: ENV.client.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID,
+    usagePriceId: ENV.server.STRIPE_USAGE_PRICE_ID,
+  };
+}
+
+/**
+ * Validate internal authentication from request headers
+ */
+export function validateInternalAuth(request: Request): boolean {
+  const internalKey = ENV.server.INTERNAL_KEY;
+  if (!internalKey) {
+    return false;
+  }
+  return request.headers.get("x-internal-key") === internalKey;
 }

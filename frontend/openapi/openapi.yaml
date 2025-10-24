@@ -65,21 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: Unique proof identifier
-                  hash_prefix:
-                    type: string
-                    description: Short hash prefix for display
-                  timestamp:
-                    type: string
-                    format: date-time
-                    description: Proof creation timestamp
-                  url:
-                    type: string
-                    description: URL to view the proof
+                $ref: "#/components/schemas/CreateProofResponse"
         "400":
           description: Bad request
           content:
@@ -152,11 +138,86 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /api/verify:
+    get:
+      summary: Verify a proof by hash
+      description: Verify a proof using its hash. This is the primary public verification endpoint.
+      operationId: verifyProofByHash
+      parameters:
+        - name: hash
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+          description: SHA256 hash of the proof to verify
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Verify a proof by hash or file
+      description: Verify a proof using hash (JSON) or file upload (multipart)
+      operationId: verifyProof
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hash:
+                  type: string
+                  pattern: "^[a-f0-9]{64}$"
+                  description: SHA256 hash of the proof to verify
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to verify
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /api/proof/verify:
     post:
-      summary: Verify a proof
-      description: Verify a proof using various methods (ID, signature, or file upload)
-      operationId: verifyProof
+      summary: Verify a proof (legacy endpoint)
+      description: Legacy verification endpoint for backward compatibility
+      operationId: verifyProofLegacy
       requestBody:
         required: true
         content:
@@ -198,34 +259,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  schema_version:
-                    type: integer
-                    description: API response schema version
-                  proof_hash:
-                    type: string
-                    description: Hash of the verified proof
-                  valid:
-                    type: boolean
-                    description: Whether the proof is valid
-                  verified_at:
-                    type: string
-                    format: date-time
-                    description: Verification timestamp
-                  signer_fp:
-                    type: string
-                    nullable: true
-                    description: Signer fingerprint
-                  source_registry:
-                    type: string
-                    enum: [primary, s3, arweave]
-                    description: Source of the verification
-                  errors:
-                    type: array
-                    items:
-                      type: string
-                    description: Any verification errors
+                $ref: "#/components/schemas/VerificationResponse"
         "400":
           description: Bad request
           content:
@@ -533,25 +567,72 @@ components:
     VerificationResponse:
       type: object
       properties:
-        schema_version:
-          type: integer
-        proof_hash:
-          type: string
         valid:
           type: boolean
-        verified_at:
+          description: Whether the proof is valid
+        timestamp:
           type: string
           format: date-time
-        signer_fp:
+          description: Timestamp from the proof
+        signer:
           type: string
-          nullable: true
-        source_registry:
+          description: Signer fingerprint
+        source:
           type: string
-          enum: [primary, s3, arweave]
+          enum: [s3-registry, database, none]
+          description: Source of the verification
+        latency_ms:
+          type: integer
+          description: Response latency in milliseconds
         errors:
           type: array
           items:
             type: string
+          description: Any verification errors
+
+    CreateProofResponse:
+      type: object
+      required:
+        - proof_id
+        - hash
+        - timestamp
+        - signature
+      properties:
+        proof_id:
+          type: string
+          description: Unique proof identifier
+        hash:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+          description: Full SHA256 hash of the file
+        timestamp:
+          type: string
+          format: date-time
+          description: Proof creation timestamp
+        signature:
+          type: string
+          description: Base64-encoded RSA-SHA256 signature
+        url:
+          type: string
+          format: uri
+          description: URL to view the proof
+
+    CreateProofRequest:
+      type: object
+      required:
+        - file
+        - user_id
+      properties:
+        file:
+          type: string
+          format: binary
+          description: The file to create a proof for
+        user_id:
+          type: string
+          description: The user ID (must match authenticated user)
+        project:
+          type: string
+          description: Optional project name
 
 tags:
   - name: Proofs

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "hash_algo": "sha256",
+  "hash_full": "cd2894f3bbbf60bae462795dfde2fba08acdf604fb6357cda9d282eb3f1f364c",
+  "signed_at": "2025-10-24T07:22:16.614Z",
+  "signer_fingerprint": "6290d16937fc023e466d384c0a7764a3fd12bff1ea470c830771d988e0d30231",
+  "subject": {
+    "type": "file",
+    "namespace": "veris",
+    "id": "01K8AHHHN118PSQ6DZCMC607GH"
+  },
+  "metadata": {
+    "file_name": "reproducibility-test.txt",
+    "project": null,
+    "user_id": "system"
+  },
+  "signature": "U6sZIMBEK+f0PhVYsFqn0aF903oQLVv7fi29tpjf7FrLFyLLkmajRJ0/HaOwNAXYpWOO5VsMs4MFeBatRXhx90GbTXYIr8oGlSYIMC8Bj3dRuOXyQR+5mx0Ie37/Ns8CKa9S9FnILj/+NfyVhnIsbyRU9r0Uzgy1Rnr5ymxE13nv0ydKbJU8AoFxDhpDjH0XakUXoZR4F/9v2BMDOMllLaeIu4nhMeVwI6ndZ5ZI1NWKkXYw9UTH2wdVTlYbtEUt2uP2dR6OI1b/2vWukr+5Fz3H7FsCbjgoj15aRC/E4AvCD3HUtu0ZuefAWBLa7zrofvNlwURJ1DwvFDci9VdHlA=="
+}

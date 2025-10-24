@@ -3,22 +3,28 @@ import Stripe from "stripe";
 import { assertEntitled } from "@/lib/entitlements";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
+import { getStripeConfig } from "@/lib/env";
 
 export const runtime = "nodejs";
 
 function getStripe() {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error("STRIPE_SECRET_KEY environment variable is required");
-  }
-  return new Stripe(secretKey);
+  const config = getStripeConfig();
+  return new Stripe(config.secretKey);
 }
 
-// Allowlist of valid price IDs
-const PRICE_IDS = new Set([
-  process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID!,
-  process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID!,
-]);
+function getValidPriceIds(): Set<string> {
+  const config = getStripeConfig();
+  const priceIds = new Set<string>();
+
+  if (config.proPriceId) {
+    priceIds.add(config.proPriceId);
+  }
+  if (config.teamPriceId) {
+    priceIds.add(config.teamPriceId);
+  }
+
+  return priceIds;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,7 +38,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate priceId against allowlist
-    if (!PRICE_IDS.has(priceId)) {
+    const validPriceIds = getValidPriceIds();
+    if (!validPriceIds.has(priceId)) {
       return jsonErr("Invalid priceId", 400);
     }
 

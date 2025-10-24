@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "hash_algo": "sha256",
+  "hash_full": "7f9b0d0000f3929022d6c4c5657892a09efbb29c025f0e9556247455b82339d0",
+  "signed_at": "2025-10-24T07:22:21.460Z",
+  "signer_fingerprint": "6290d16937fc023e466d384c0a7764a3fd12bff1ea470c830771d988e0d30231",
+  "subject": {
+    "type": "file",
+    "namespace": "veris",
+    "id": "01K8AHHPCKA3RHZQ2RP5WBYR1S"
+  },
+  "metadata": {
+    "file_name": "mock-proof-9.txt",
+    "project": "mock-proofs",
+    "user_id": "test-user"
+  },
+  "signature": "YxbCy5Qle3GrJ4dsyrC7+1LwMFSJw0Zxl0Ik6G6LjS/krdTbyjVaDhO3WE9sO0uHthr79XoiHewdnLImBcvixJHl5EipsbLq+XNLb/Bd4Cj7vrOkHRa5g6/2VrZenbkueoO/l69lci9K8c2+lm58JDiic3FCCekgkc9/df/ZMgOzrUz3xONbwdsimOC/pl5yHWzseBYi52XXb74U7aKM948Ld8S+UTE4h+8b7wpX2P3OLCxrPOYSW7Lt3deBNWj6kuvO5wvJgE7nA+DVYTINWL6FajFwA8aly4xQG/bMQquOT7LO+VDggow7E38suphG/h33gdb7uBfZ0YWh4PMq4w=="
+}

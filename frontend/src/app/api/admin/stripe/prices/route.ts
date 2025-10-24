@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
-import { ENV } from "@/lib/env";
-import { stripe } from "@/lib/stripe";
+import { stripe, stripeConfig } from "@/lib/stripe";
 import { isAdminUser } from "@/lib/auth-server";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
@@ -62,7 +61,7 @@ async function handleGetStripePrices(req: NextRequest) {
 
     // Format the response
     const response = {
-      mode: ENV.server.STRIPE_SECRET_KEY.startsWith("sk_live_") ? "live" : "test",
+      mode: stripeConfig.mode,
       account_id: await getStripeAccountId(),
       products: productsWithPrices.map((product) => ({
         id: product.id,

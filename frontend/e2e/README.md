@@ -1,37 +1,36 @@
-# E2E Tests with Playwright
+# E2E Tests
 
-This directory contains end-to-end tests for the Veris application using Playwright.
+This directory contains end-to-end tests for the Veris platform using Playwright.
 
-## Test Structure
+## Test Files
 
-- `happy-path.spec.ts` - Main happy path tests covering the complete user journey
-- `test-utils.ts` - Test utilities and helpers for common operations
+### `e2e-flow.spec.ts`
 
-## Test Flows Covered
+Comprehensive E2E flow test that covers the complete user journey:
 
-1. **Complete User Journey**: Sign up → Checkout → Create Proof → View → Verify
-2. **Demo Flow**: Create proof and verify with file upload
-3. **Billing Page**: Verify billing page displays correctly
-4. **Navigation**: Test navigation between pages
-5. **Verify Page**: Test different input scenarios
+1. **Checkout** → Stripe session creation
+2. **Webhook** → Subscription activation
+3. **Issuance** → File upload and proof creation
+4. **S3 Write** → Registry upload
+5. **Verification** → Proof validation
+
+### `happy-path.spec.ts`
+
+Tests the basic user journey and navigation flow.
+
+### `integrity.spec.ts`
+
+Tests the integrity page functionality and API responses.
 
 ## Running Tests
 
-### Prerequisites
-
-Make sure the development server is running or will be started automatically:
-
-```bash
-pnpm dev
-```
-
-### Test Commands
+### Local Development
 
 ```bash
 # Run all E2E tests
 pnpm test:e2e
 
-# Run tests with UI (interactive mode)
+# Run tests in UI mode
 pnpm test:e2e:ui
 
 # Run tests in headed mode (see browser)
@@ -41,26 +40,132 @@ pnpm test:e2e:headed
 pnpm test:e2e:debug
 ```
 
-### Test Configuration
+### Against Preview Deployments
 
-Tests are configured in `playwright.config.ts` with:
+```bash
+# Run tests against preview deployment
+pnpm test:e2e:preview
+```
+
+### Specific Test Files
+
+```bash
+# Run only the E2E flow test
+npx playwright test e2e-flow.spec.ts
+
+# Run only happy path tests
+npx playwright test happy-path.spec.ts
+```
+
+## Test Configuration
+
+### Local Tests (`playwright.config.ts`)
+
 - Base URL: `http://localhost:3000`
-- Automatic dev server startup
-- Screenshot capture on failure
-- Trace collection for debugging
+- Runs against local development server
+- Uses mocked external services
 
-## Mock Services
+### Preview Tests (`playwright.config.preview.ts`)
 
-The tests mock external services to ensure reliable testing:
+- Base URL: Preview deployment URL
+- Runs against actual preview deployments
+- Tests real integrations
 
-- **Supabase Auth**: Mocked authentication responses
-- **Stripe Checkout**: Mocked checkout session creation and redirects
-- **Billing Status**: Mocked billing status checks
+## Test Utilities
 
-## Screenshots
+### `TestHelpers` Class
 
-Test screenshots are saved to `test-results/screenshots/` for debugging and documentation.
+Provides common utilities for E2E tests:
+
+- `mockFileUpload()` - Mock file uploads
+- `mockStripeCheckout()` - Mock Stripe checkout flow
+- `mockSupabaseAuth()` - Mock authentication
+- `mockBillingStatus()` - Mock billing status
+- `waitForProofCreation()` - Wait for proof creation
+- `waitForVerification()` - Wait for verification
+- `extractProofId()` - Extract proof ID from URL
+- `takeScreenshot()` - Take screenshots for documentation
+
+## CI Integration
+
+### GitHub Actions
+
+- **CI Workflow**: Runs all E2E tests on every PR
+- **Preview Workflow**: Runs E2E tests against preview deployments
+- **Security Workflow**: Includes security scanning
+
+### Required Status Checks
+
+All E2E tests must pass before merging:
+
+- `e2e` - Local E2E tests
+- `e2e-preview` - Preview deployment tests
 
 ## Test Data
 
-Tests use generated test files and mock data to avoid dependencies on external services.
+### Mock Data
+
+Tests use mocked data to avoid dependencies on external services:
+
+- Stripe checkout sessions
+- Supabase authentication
+- File uploads
+- API responses
+
+### Test Files
+
+Temporary test files are created in `test-results/temp/` and cleaned up after tests.
+
+## Debugging
+
+### Failed Tests
+
+1. Check test results in `test-results/`
+2. View screenshots and videos for failed tests
+3. Use `pnpm test:e2e:debug` for interactive debugging
+4. Check browser console for errors
+
+### Common Issues
+
+- **Timeout errors**: Increase timeout in test configuration
+- **Network errors**: Check if local server is running
+- **Element not found**: Verify selectors and page state
+- **Mock failures**: Check mock implementations
+
+## Best Practices
+
+1. **Use descriptive test names** that explain the scenario
+2. **Mock external services** to avoid flaky tests
+3. **Take screenshots** for documentation and debugging
+4. **Clean up test data** after tests complete
+5. **Use page object model** for complex interactions
+6. **Write atomic tests** that don't depend on each other
+7. **Test error scenarios** in addition to happy paths
+
+## Environment Variables
+
+### Required for CI
+
+- `CI=true` - Enables CI-specific behavior
+- `PREVIEW_URL` - URL for preview deployment tests
+
+### Optional
+
+- `PLAYWRIGHT_DEBUG` - Enable debug mode
+- `PLAYWRIGHT_HEADLESS` - Run in headless mode
+
+## Maintenance
+
+### Updating Tests
+
+1. Update selectors when UI changes
+2. Update mock data when APIs change
+3. Add new tests for new features
+4. Remove obsolete tests
+
+### Performance
+
+- Keep tests fast and focused
+- Use parallel execution where possible
+- Optimize wait conditions
+- Monitor test execution time

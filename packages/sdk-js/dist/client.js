@@ -48,7 +48,34 @@ export class VerisClient {
         return response.data;
     }
     /**
-     * Verify a proof
+     * Verify a proof by hash (primary method)
+     */
+    async verifyProofByHash(hash) {
+        const response = await this.client.get(`/api/verify?hash=${hash}`);
+        return response.data;
+    }
+    /**
+     * Verify a proof by hash (POST method)
+     */
+    async verifyProofByHashPost(hash) {
+        const response = await this.client.post("/api/verify", { hash });
+        return response.data;
+    }
+    /**
+     * Verify a proof by file upload
+     */
+    async verifyProofByFile(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await this.client.post("/api/verify", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    }
+    /**
+     * Verify a proof (legacy method for backward compatibility)
      */
     async verifyProof(request) {
         if (request.file) {

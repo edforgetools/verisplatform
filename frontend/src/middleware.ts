@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { ENV, getCronKey } from "@/lib/env";
 
 // Initialize Redis only if environment variables are available and not in test environment
 let redis: Redis | null = null;
@@ -10,18 +11,18 @@ let limiter: Ratelimit | null = null;
 const isTestEnvironment =
   process.env.NODE_ENV === "test" ||
   process.env.NEXT_PHASE === "phase-production-build" ||
-  process.env.UPSTASH_REDIS_REST_URL?.includes("placeholder") ||
-  process.env.UPSTASH_REDIS_REST_TOKEN?.includes("placeholder");
+  ENV.server.UPSTASH_REDIS_REST_URL?.includes("placeholder") ||
+  ENV.server.UPSTASH_REDIS_REST_TOKEN?.includes("placeholder");
 
 if (
   !isTestEnvironment &&
-  process.env.UPSTASH_REDIS_REST_URL &&
-  process.env.UPSTASH_REDIS_REST_TOKEN
+  ENV.server.UPSTASH_REDIS_REST_URL &&
+  ENV.server.UPSTASH_REDIS_REST_TOKEN
 ) {
   try {
     redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      url: ENV.server.UPSTASH_REDIS_REST_URL,
+      token: ENV.server.UPSTASH_REDIS_REST_TOKEN,
     });
 
     limiter = new Ratelimit({
@@ -44,7 +45,7 @@ export async function middleware(req: Request) {
 
     // Check for cron job authentication - bypass rate limiting for authenticated cron jobs
     const cronKey = req.headers.get("x-cron-key");
-    const allowed = cronKey && cronKey === (process.env.CRON_JOB_TOKEN ?? process.env.CRON_SECRET);
+    const allowed = cronKey && cronKey === getCronKey();
     if (allowed) {
       return NextResponse.next();
     }
