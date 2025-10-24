@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["yaml"],
   async headers() {
     return [
       {
@@ -57,19 +58,13 @@ const nextConfig: NextConfig = {
     ];
   },
   webpack: (config, { isServer }) => {
-    // Fix for yaml package compatibility with Next.js
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      yaml: require.resolve('yaml'),
-    };
-    
     // Handle yaml package module resolution
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       path: false,
     };
-    
+
     return config;
   },
 };
