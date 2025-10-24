@@ -1,6 +1,15 @@
 // Optional: configure or set up a testing framework before each test.
 // If you delete this file, remove `setupFilesAfterEnv` from `jest.config.js`
 
+// Extend Jest mock types globally
+global.jest = global.jest || {};
+global.jest.Mock = global.jest.Mock || function() {};
+
+// Mock require for ES modules
+global.require = global.require || function() {
+  throw new Error('require() is not available in ES module mode. Use import instead.');
+};
+
 // Mock environment variables for testing
 process.env.NODE_ENV = "test";
 process.env.NEXT_PUBLIC_SUPABASE_URL =

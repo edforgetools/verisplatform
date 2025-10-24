@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "jest --testPathPattern=__tests__ --passWithNoTests",
     "test:watch": "jest --watch --testPathPattern=__tests__",
-    "test:ci": "jest --testPathPattern=__tests__ --ci --coverage --watchAll=false",
+    "test:ci": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=__tests__ --ci --coverage --watchAll=false",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",

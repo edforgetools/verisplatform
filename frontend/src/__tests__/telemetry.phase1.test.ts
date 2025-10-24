@@ -174,6 +174,7 @@ describe("Phase-1 Telemetry", () => {
       const gates = {
         issued_gate: metrics.proofs_issued_total >= 500,
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
+        overall_phase1_ready: false,
       };
 
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
@@ -190,6 +191,7 @@ describe("Phase-1 Telemetry", () => {
       const gates = {
         issued_gate: metrics.proofs_issued_total >= 500,
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
+        overall_phase1_ready: false,
       };
 
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
@@ -206,6 +208,7 @@ describe("Phase-1 Telemetry", () => {
       const gates = {
         issued_gate: metrics.proofs_issued_total >= 500,
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
+        overall_phase1_ready: false,
       };
 
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
@@ -222,6 +225,7 @@ describe("Phase-1 Telemetry", () => {
       const gates = {
         issued_gate: metrics.proofs_issued_total >= 500,
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
+        overall_phase1_ready: false,
       };
 
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;

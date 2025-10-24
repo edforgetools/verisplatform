@@ -210,9 +210,9 @@ describe("Billing Rules", () => {
         const event: BillingEvent = {
           type: "proof.verify",
           userId: `user-${i}`,
-          proofId: Math.random() > 0.5 ? `proof-${i}` : undefined,
+          proofId: `proof-${i}`,
           success: Math.random() > 0.5,
-          metadata: Math.random() > 0.5 ? { test: "data" } : undefined,
+          ...(Math.random() > 0.5 && { metadata: { test: "data" } }),
         };
 
         expect(shouldBill(event)).toBe(false);
@@ -228,7 +228,7 @@ describe("Billing Rules", () => {
         const event: BillingEvent = {
           type: "proof.create",
           userId: `user-${i}`,
-          proofId: hasProofId ? `proof-${i}` : undefined,
+          proofId: `proof-${i}`,
           success: isSuccess,
         };
 

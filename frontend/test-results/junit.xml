@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="88" failures="26" errors="0" time="2.255">
+  <testsuite name="Phase-1 Telemetry" errors="0" failures="0" skipped="0" timestamp="2025-10-24T05:25:52" time="0.33" tests="17">
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should pass issued gate when &gt;= 500 proofs" name="Phase-1 Telemetry Phase-1 Gates Logic should pass issued gate when &gt;= 500 proofs" time="0.006">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should fail issued gate when &lt; 500 proofs" name="Phase-1 Telemetry Phase-1 Gates Logic should fail issued gate when &lt; 500 proofs" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should pass success ratio gate when &gt;= 0.99" name="Phase-1 Telemetry Phase-1 Gates Logic should pass success ratio gate when &gt;= 0.99" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should fail success ratio gate when &lt; 0.99" name="Phase-1 Telemetry Phase-1 Gates Logic should fail success ratio gate when &lt; 0.99" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should be Phase-1 ready when both gates pass" name="Phase-1 Telemetry Phase-1 Gates Logic should be Phase-1 ready when both gates pass" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Gates Logic should not be Phase-1 ready when either gate fails" name="Phase-1 Telemetry Phase-1 Gates Logic should not be Phase-1 ready when either gate fails" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Metrics Calculation should calculate verification success ratio correctly" name="Phase-1 Telemetry Metrics Calculation should calculate verification success ratio correctly" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Metrics Calculation should handle empty verifications array" name="Phase-1 Telemetry Metrics Calculation should handle empty verifications array" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Metrics Calculation should handle all successful verifications" name="Phase-1 Telemetry Metrics Calculation should handle all successful verifications" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Metrics Calculation should handle all failed verifications" name="Phase-1 Telemetry Metrics Calculation should handle all failed verifications" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Automation Efficiency should calculate automation efficiency" name="Phase-1 Telemetry Automation Efficiency should calculate automation efficiency" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Automation Efficiency should handle perfect efficiency" name="Phase-1 Telemetry Automation Efficiency should handle perfect efficiency" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Automation Efficiency should handle poor efficiency" name="Phase-1 Telemetry Automation Efficiency should handle poor efficiency" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness Scenarios should be ready with high volume and high success rate" name="Phase-1 Telemetry Phase-1 Readiness Scenarios should be ready with high volume and high success rate" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with low volume" name="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with low volume" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with low success rate" name="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with low success rate" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with both low volume and low success rate" name="Phase-1 Telemetry Phase-1 Readiness Scenarios should not be ready with both low volume and low success rate" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Security Headers" errors="0" failures="0" skipped="0" timestamp="2025-10-24T05:25:52" time="0.303" tests="10">
+    <testcase classname="Security Headers Content Security Policy should have strict CSP configuration" name="Security Headers Content Security Policy should have strict CSP configuration" time="0.007">
+    </testcase>
+    <testcase classname="Security Headers Content Security Policy should allow necessary external resources" name="Security Headers Content Security Policy should allow necessary external resources" time="0">
+    </testcase>
+    <testcase classname="Security Headers Content Security Policy should block dangerous directives" name="Security Headers Content Security Policy should block dangerous directives" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Security Headers should have X-Frame-Options set to DENY" name="Security Headers Security Headers should have X-Frame-Options set to DENY" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers should have X-Content-Type-Options set to nosniff" name="Security Headers Security Headers should have X-Content-Type-Options set to nosniff" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers should have strict Referrer-Policy" name="Security Headers Security Headers should have strict Referrer-Policy" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers should have restrictive Permissions-Policy" name="Security Headers Security Headers should have restrictive Permissions-Policy" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers should have Cross-Origin headers" name="Security Headers Security Headers should have Cross-Origin headers" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Header Security should not allow dangerous permissions" name="Security Headers Header Security should not allow dangerous permissions" time="0">
+    </testcase>
+    <testcase classname="Security Headers Header Security should enforce same-origin policies" name="Security Headers Header Security should enforce same-origin policies" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Billing Rules" errors="0" failures="1" skipped="0" timestamp="2025-10-24T05:25:52" time="0.638" tests="15">
+    <testcase classname="Billing Rules shouldBill should bill for successful proof creation" name="Billing Rules shouldBill should bill for successful proof creation" time="0.005">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for failed proof creation" name="Billing Rules shouldBill should not bill for failed proof creation" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for proof creation without proof ID" name="Billing Rules shouldBill should not bill for proof creation without proof ID" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for proof verification" name="Billing Rules shouldBill should not bill for proof verification" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for proof retrieval" name="Billing Rules shouldBill should not bill for proof retrieval" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for integrity checks" name="Billing Rules shouldBill should not bill for integrity checks" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for health checks" name="Billing Rules shouldBill should not bill for health checks" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for unknown event types" name="Billing Rules shouldBill should not bill for unknown event types" time="0.016">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should return all pricing rules" name="Billing Rules getPricingRules should return all pricing rules" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should have correct descriptions" name="Billing Rules getPricingRules should have correct descriptions" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should calculate billing summary correctly" name="Billing Rules getBillingSummary should calculate billing summary correctly" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should handle empty events array" name="Billing Rules getBillingSummary should handle empty events array" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should handle only free events" name="Billing Rules getBillingSummary should handle only free events" time="0">
+    </testcase>
+    <testcase classname="Billing Rules Property-based testing should never bill for verify events" name="Billing Rules Property-based testing should never bill for verify events" time="0.044">
+    </testcase>
+    <testcase classname="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" name="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: false
+Received: true
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/billing.rules.test.ts:236:35)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Rate Limiting" errors="0" failures="6" skipped="0" timestamp="2025-10-24T05:25:52" time="0.69" tests="11">
+    <testcase classname="Rate Limiting In-memory rate limiting should allow requests within limit" name="Rate Limiting In-memory rate limiting should allow requests within limit" time="0.003">
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should block requests when limit exceeded" name="Rate Limiting In-memory rate limiting should block requests when limit exceeded" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should refill tokens over time" name="Rate Limiting In-memory rate limiting should refill tokens over time" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:74:30)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should handle different keys independently" name="Rate Limiting In-memory rate limiting should handle different keys independently" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting Redis rate limiting should use Redis when available" name="Rate Limiting Redis rate limiting should use Redis when available" time="0.001">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:111:21)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting Redis rate limiting should handle Redis errors gracefully" name="Rate Limiting Redis rate limiting should handle Redis errors gracefully" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:130:21)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should add rate limit headers to successful responses" name="Rate Limiting withRateLimit wrapper should add rate limit headers to successful responses" time="0.031">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: &quot;9&quot;
+Received: &quot;NaN&quot;
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:156:61)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should return 429 when rate limit exceeded" name="Rate Limiting withRateLimit wrapper should return 429 when rate limit exceeded" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 429
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:175:32)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should handle different IPs independently" name="Rate Limiting withRateLimit wrapper should handle different IPs independently" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 429
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:209:32)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting Rate limit configurations should apply correct limits for public endpoints" name="Rate Limiting Rate limit configurations should apply correct limits for public endpoints" time="0.001">
+    </testcase>
+    <testcase classname="Rate Limiting Rate limit configurations should apply correct limits for create/verify endpoints" name="Rate Limiting Rate limit configurations should apply correct limits for create/verify endpoints" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Idempotency System" errors="0" failures="4" skipped="0" timestamp="2025-10-24T05:25:52" time="1.308" tests="11">
+    <testcase classname="Idempotency System getIdempotencyKey should extract idempotency key from headers" name="Idempotency System getIdempotencyKey should extract idempotency key from headers" time="0.004">
+    </testcase>
+    <testcase classname="Idempotency System getIdempotencyKey should return null when no idempotency key" name="Idempotency System getIdempotencyKey should return null when no idempotency key" time="0">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should store and retrieve idempotency records" name="Idempotency System In-memory idempotency should store and retrieve idempotency records" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should return false for non-existent keys" name="Idempotency System In-memory idempotency should return false for non-existent keys" time="0">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should handle expired records" name="Idempotency System In-memory idempotency should handle expired records" time="0.103">
+    </testcase>
+    <testcase classname="Idempotency System Redis idempotency should use Redis when available" name="Idempotency System Redis idempotency should use Redis when available" time="0.001">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:110:21)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Idempotency System Redis idempotency should retrieve from Redis when available" name="Idempotency System Redis idempotency should retrieve from Redis when available" time="0.081">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:144:21)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should return cached response for duplicate requests" name="Idempotency System withIdempotency wrapper should return cached response for duplicate requests" time="0.031">
+      <failure>TypeError: Body is unusable: Body has already been read
+    at consumeBody (node:internal/deps/undici/undici:5712:15)
+    at _Response.text (node:internal/deps/undici/undici:5662:18)
+    at text (/Users/edbrooks/veris/frontend/src/lib/idempotency.ts:168:41)
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:179:25)</failure>
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should proceed normally when no idempotency key" name="Idempotency System withIdempotency wrapper should proceed normally when no idempotency key" time="0.013">
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should handle different idempotency keys independently" name="Idempotency System withIdempotency wrapper should handle different idempotency keys independently" time="0.002">
+      <failure>TypeError: Body is unusable: Body has already been read
+    at consumeBody (node:internal/deps/undici/undici:5712:15)
+    at _Response.text (node:internal/deps/undici/undici:5662:18)
+    at text (/Users/edbrooks/veris/frontend/src/lib/idempotency.ts:168:41)
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:225:25)</failure>
+    </testcase>
+    <testcase classname="Idempotency System Duplicate content prevention should prevent duplicate proofs with same content" name="Idempotency System Duplicate content prevention should prevent duplicate proofs with same content" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Telemetry Daily Aggregation" errors="0" failures="0" skipped="0" timestamp="2025-10-24T05:25:52" time="1.337" tests="2">
+    <testcase classname="Telemetry Daily Aggregation should have basic functionality" name="Telemetry Daily Aggregation should have basic functionality" time="0.002">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle dry run mode" name="Telemetry Daily Aggregation should handle dry run mode" time="0.576">
+    </testcase>
+  </testsuite>
+  <testsuite name="Arweave Publisher" errors="0" failures="7" skipped="0" timestamp="2025-10-24T05:25:52" time="1.491" tests="8">
+    <testcase classname="Arweave Publisher publishSnapshotToArweave publishes snapshot artifacts to Arweave" name="Arweave Publisher publishSnapshotToArweave publishes snapshot artifacts to Arweave" time="0.004">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:65:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when ARWEAVE_WALLET_JSON is missing" name="Arweave Publisher publishSnapshotToArweave throws error when ARWEAVE_WALLET_JSON is missing" time="0.007">
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when manifest integrity verification fails" name="Arweave Publisher publishSnapshotToArweave throws error when manifest integrity verification fails" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:121:35)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when JSONL hash mismatch" name="Arweave Publisher publishSnapshotToArweave throws error when JSONL hash mismatch" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:140:26)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when Arweave transaction fails" name="Arweave Publisher publishSnapshotToArweave throws error when Arweave transaction fails" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:166:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns true when snapshot is published" name="Arweave Publisher isSnapshotPublished returns true when snapshot is published" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:205:37)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns false when snapshot is not published" name="Arweave Publisher isSnapshotPublished returns false when snapshot is not published" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:225:37)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns false when Arweave query fails" name="Arweave Publisher isSnapshotPublished returns false when Arweave query fails" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:238:37)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification Conformance" errors="0" failures="5" skipped="0" timestamp="2025-10-24T05:25:53" time="1.248" tests="5">
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" name="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" time="0.001">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/verify.conformance.test.ts:61:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" name="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/verify.conformance.test.ts:96:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle verification failure" name="Verification Conformance Primary vs Mirror Conformance should handle verification failure" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/verify.conformance.test.ts:126:40)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should maintain consistent field types" name="Verification Conformance Response Format Consistency should maintain consistent field types" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/verify.conformance.test.ts:161:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" name="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/verify.conformance.test.ts:192:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Registry Snapshot" errors="0" failures="3" skipped="0" timestamp="2025-10-24T05:25:53" time="0.903" tests="9">
+    <testcase classname="Registry Snapshot computeMerkleRoot computes Merkle root for single proof" name="Registry Snapshot computeMerkleRoot computes Merkle root for single proof" time="0.001">
+    </testcase>
+    <testcase classname="Registry Snapshot computeMerkleRoot computes Merkle root for multiple proofs" name="Registry Snapshot computeMerkleRoot computes Merkle root for multiple proofs" time="0">
+    </testcase>
+    <testcase classname="Registry Snapshot computeMerkleRoot computes Merkle root for odd number of proofs" name="Registry Snapshot computeMerkleRoot computes Merkle root for odd number of proofs" time="0.001">
+    </testcase>
+    <testcase classname="Registry Snapshot computeMerkleRoot throws error for empty array" name="Registry Snapshot computeMerkleRoot throws error for empty array" time="0.011">
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot creates snapshot for batch of proofs" name="Registry Snapshot createRegistrySnapshot creates snapshot for batch of proofs" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/registry.snapshot.test.ts:102:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot handles existing snapshot (idempotency)" name="Registry Snapshot createRegistrySnapshot handles existing snapshot (idempotency)" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/registry.snapshot.test.ts:132:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot throws error when AWS_REGION is missing" name="Registry Snapshot createRegistrySnapshot throws error when AWS_REGION is missing" time="0">
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot throws error when REGISTRY_S3_BUCKET is missing" name="Registry Snapshot createRegistrySnapshot throws error when REGISTRY_S3_BUCKET is missing" time="0.001">
+    </testcase>
+    <testcase classname="Registry Snapshot Determinism produces identical results for same input" name="Registry Snapshot Determinism produces identical results for same input" time="0">
+      <failure>ReferenceError: require is not defined
+    at Object.require (/Users/edbrooks/veris/frontend/src/__tests__/registry.snapshot.test.ts:176:28)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)
+    at Object.worker (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/testWorker.js:106:12)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

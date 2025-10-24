@@ -1,4 +1,4 @@
-/// <reference types="jest" />
+import { jest } from '@jest/globals';
 
 declare global {
   namespace jest {
@@ -7,17 +7,23 @@ declare global {
       mockRejectedValue(value: any): this;
       mockReturnValue(value: T): this;
       mockImplementation(fn: (...args: Y) => T): this;
+      mockResolvedValueOnce(value: T | PromiseLike<T>): this;
+      mockRejectedValueOnce(value: any): this;
+      mockReturnValueOnce(value: T): this;
     }
   }
 }
 
-// Extend Jest mock types for better compatibility
+// Extend the jest namespace for better mock typing
 declare module '@jest/globals' {
   interface Mock<T = any, Y extends any[] = any[]> {
     mockResolvedValue(value: T | PromiseLike<T>): this;
     mockRejectedValue(value: any): this;
     mockReturnValue(value: T): this;
     mockImplementation(fn: (...args: Y) => T): this;
+    mockResolvedValueOnce(value: T | PromiseLike<T>): this;
+    mockRejectedValueOnce(value: any): this;
+    mockReturnValueOnce(value: T): this;
   }
 }
 

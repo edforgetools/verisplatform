@@ -84,6 +84,16 @@ jobs:
 
       - name: Run frontend unit tests
         run: cd frontend && pnpm run test:ci
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          CRON_JOB_TOKEN: placeholder-cron-token
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          SUPABASE_SERVICE_KEY: placeholder-service-key
+          VERIS_SIGNING_PRIVATE_KEY: placeholder-private-key
+          VERIS_SIGNING_PUBLIC_KEY: placeholder-public-key
 
       - name: Run SDK tests
         run: cd packages/sdk-js && pnpm run test
@@ -240,6 +250,16 @@ jobs:
 
       - name: Build frontend
         run: cd frontend && pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          CRON_JOB_TOKEN: placeholder-cron-token
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          SUPABASE_SERVICE_KEY: placeholder-service-key
+          VERIS_SIGNING_PRIVATE_KEY: placeholder-private-key
+          VERIS_SIGNING_PUBLIC_KEY: placeholder-public-key
 
       - name: Build SDK
         run: cd packages/sdk-js && pnpm run build
