@@ -1,5 +1,8 @@
 node_modules
+.env
 .env*
+frontend/.env*
+*.pem
 .vercel
 .next
 .supabase
