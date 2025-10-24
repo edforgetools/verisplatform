@@ -11,15 +11,10 @@ import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
-interface RouteParams {
-  params: {
-    batch: string;
-  };
-}
-
-async function handleSnapshotIntegrity(req: NextRequest, { params }: RouteParams) {
+async function handleSnapshotIntegrity(req: NextRequest, { params }: { params: Promise<{ batch: string }> }) {
   try {
-    const batch = parseInt(params.batch, 10);
+    const { batch: batchStr } = await params;
+    const batch = parseInt(batchStr, 10);
 
     if (isNaN(batch) || batch <= 0) {
       return jsonErr("Invalid batch number", 400);

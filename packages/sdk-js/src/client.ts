@@ -35,9 +35,9 @@ export class VerisClient {
       (response) => response,
       (error: AxiosError) => {
         const verisError: VerisError = {
-          error: error.response?.data?.error || error.message || "Unknown error",
-          code: error.response?.data?.code,
-          details: error.response?.data?.details,
+          error: (error.response?.data as any)?.error || error.message || "Unknown error",
+          code: (error.response?.data as any)?.code,
+          details: (error.response?.data as any)?.details,
         };
         throw verisError;
       },

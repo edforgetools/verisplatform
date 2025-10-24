@@ -15,6 +15,8 @@ export type {
   VerisError,
 } from "./types.js";
 
+import { VerisClient } from "./client.js";
+
 // Convenience function to create a client
 export function createVerisClient(config: {
   baseUrl: string;
