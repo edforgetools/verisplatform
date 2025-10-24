@@ -123,7 +123,7 @@ export async function runTelemetryDailyAggregation(
             event,
             count,
             unique_users: uniqueUsers,
-            meta: Object.keys(meta).length > 0 ? meta : undefined,
+            meta: Object.keys(meta).length > 0 ? meta : {} as Record<string, unknown>,
           };
 
           results.push(result);

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseService } from "@/lib/db";
 import { signHash } from "@/lib/crypto-server";
 import { assertEntitled } from "@/lib/entitlements";
@@ -165,7 +165,7 @@ async function handleCreateProof(req: NextRequest) {
 
 // Apply rate limiting and idempotency to the POST handler
 export const POST = withRateLimit(
-  withIdempotency(handleCreateProof, 10), // 10 minute idempotency TTL
+  withIdempotency(handleCreateProof, 10) as (req: NextRequest) => Promise<NextResponse>, // 10 minute idempotency TTL
   "/api/proof/create",
   {
     capacity: 10, // 10 requests per minute
