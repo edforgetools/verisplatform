@@ -8,7 +8,6 @@ interface HealthCheck {
   details?: Record<string, unknown>;
 }
 
-
 async function checkDbHealth(): Promise<HealthCheck> {
   const startTime = Date.now();
   try {

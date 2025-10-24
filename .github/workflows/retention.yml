@@ -5,12 +5,16 @@ jobs:
   purge:
     runs-on: ubuntu-latest
     steps:
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
       - name: Purge old proofs
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           supabaseservicekey: ${{ secrets.supabaseservicekey }}
         run: |
-          npm i -g supabase
           node -e "
           const { createClient } = require('@supabase/supabase-js');
           const c = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.supabaseservicekey);

@@ -45,7 +45,6 @@ function isVerifyBySignatureRequest(data: unknown): data is VerifyBySignatureReq
   );
 }
 
-
 async function handleVerifyProof(req: NextRequest) {
   let tmpPath: string | null = null;
 

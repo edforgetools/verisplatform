@@ -21,7 +21,7 @@ interface StripeProductWithPrices {
 
 /**
  * GET /api/admin/stripe/prices
- * 
+ *
  * Lists all active Stripe products and their prices.
  * Requires admin authentication.
  */
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
             metadata: product.metadata,
             prices: prices.data,
           };
-        })
+        }),
       );
 
       // Format the response
@@ -85,23 +85,28 @@ export async function GET(request: NextRequest) {
         summary: {
           total_products: productsWithPrices.length,
           total_prices: productsWithPrices.reduce((sum, product) => sum + product.prices.length, 0),
-          active_products: productsWithPrices.filter(p => p.active).length,
+          active_products: productsWithPrices.filter((p) => p.active).length,
         },
       };
 
-      logger.info({
-        admin_action: "stripe_prices_list",
-        product_count: response.summary.total_products,
-        price_count: response.summary.total_prices,
-      }, "Admin accessed Stripe prices list");
+      logger.info(
+        {
+          admin_action: "stripe_prices_list",
+          product_count: response.summary.total_products,
+          price_count: response.summary.total_prices,
+        },
+        "Admin accessed Stripe prices list",
+      );
 
       return jsonOk(response);
-
     } catch (error) {
-      logger.error({
-        error: error instanceof Error ? error.message : "Unknown error",
-        admin_action: "stripe_prices_list",
-      }, "Failed to fetch Stripe prices");
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : "Unknown error",
+          admin_action: "stripe_prices_list",
+        },
+        "Failed to fetch Stripe prices",
+      );
 
       capture(error, { route: "/api/admin/stripe/prices" });
       return jsonErr("Failed to fetch Stripe prices", 500);

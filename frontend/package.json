@@ -39,8 +39,6 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.6.0",
-    "redoc": "^2.5.2",
-    "redoc-cli": "^0.13.21",
     "stripe": "^19.1.0",
     "swagger-jsdoc": "^6.2.8",
     "ulidx": "^2.4.1",

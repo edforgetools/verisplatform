@@ -1,0 +1,111 @@
+name: Registry Snapshot and Arweave Publishing
+
+on:
+  schedule:
+    # Run hourly
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      batch:
+        description: 'Specific batch to process (optional)'
+        required: false
+        type: string
+
+env:
+  AWS_REGION: us-east-1
+  REGISTRY_S3_BUCKET: ${{ secrets.REGISTRY_S3_BUCKET }}
+  REGISTRY_S3_PREFIX: registry/
+  ARWEAVE_WALLET_JSON: ${{ secrets.ARWEAVE_WALLET_JSON }}
+  ARWEAVE_GATEWAY_URL: https://arweave.net
+
+jobs:
+  registry-snapshot:
+    name: Create Registry Snapshot
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create registry snapshot
+        run: |
+          curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-snapshot" \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -H "Content-Type: application/json"
+        id: snapshot
+
+      - name: Check if new batch was created
+        id: check-batch
+        run: |
+          if [ "${{ steps.snapshot.outcome }}" = "success" ]; then
+            echo "new_batch=true" >> $GITHUB_OUTPUT
+          else
+            echo "new_batch=false" >> $GITHUB_OUTPUT
+          fi
+
+  arweave-publish:
+    name: Publish to Arweave
+    runs-on: ubuntu-latest
+    needs: [registry-snapshot]
+    if: needs.registry-snapshot.outputs.new_batch == 'true'
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get latest batch number
+        id: get-batch
+        run: |
+          BATCH=$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.batch // empty')
+          if [ -n "$BATCH" ]; then
+            echo "batch=$BATCH" >> $GITHUB_OUTPUT
+          else
+            echo "No batch found" && exit 1
+          fi
+
+      - name: Publish to Arweave
+        run: |
+          curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-arweave" \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"batch\": ${{ steps.get-batch.outputs.batch }}}"
+
+      - name: Verify Arweave publication
+        run: |
+          curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty'
+          if [ -z "$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty')" ]; then
+            echo "Arweave transaction ID not found" && exit 1
+          fi
+
+  notify:
+    name: Notify on Success
+    runs-on: ubuntu-latest
+    needs: [registry-snapshot, arweave-publish]
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.registry-snapshot.result == 'success' && needs.arweave-publish.result == 'success'
+        run: |
+          echo "Registry snapshot and Arweave publishing completed successfully"
+
+      - name: Notify failure
+        if: needs.registry-snapshot.result == 'failure' || needs.arweave-publish.result == 'failure'
+        run: |
+          echo "Registry snapshot or Arweave publishing failed"
+          exit 1
