@@ -26,22 +26,11 @@ const customJestConfig = {
     "default",
     ["jest-junit", { outputDirectory: "test-results", outputName: "junit.xml" }],
   ],
-  transform: {
-    "^.+\\.(ts|tsx)$": [
-      "ts-jest",
-      {
-        useESM: true,
-        tsconfig: "./tsconfig.test.json",
-      },
-    ],
-  },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   transformIgnorePatterns: [
-    "node_modules/(?!(canonical-json|@apidevtools|swagger-parser|z-schema|validator|arweave)/)",
+    "node_modules/(?!(canonical-json|@apidevtools|swagger-parser|z-schema|validator|arweave|@aws-sdk|@smithy)/)",
   ],
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
-  preset: "ts-jest/presets/default-esm",
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  // Remove custom transform - let Next.js handle everything
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

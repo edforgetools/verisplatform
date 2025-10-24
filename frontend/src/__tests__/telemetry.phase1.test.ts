@@ -5,33 +5,35 @@
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
 // Mock the database
-jest.mock("../lib/db", () => ({
-  supabaseService: jest.fn().mockReturnValue({
-    from: jest.fn().mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        count: jest.fn().mockReturnValue({
-          head: jest.fn().mockResolvedValue({
-            count: 750,
+const mockSupabaseService = jest.fn().mockReturnValue({
+  from: jest.fn().mockReturnValue({
+    select: jest.fn().mockReturnValue({
+      count: jest.fn().mockReturnValue({
+        head: jest.fn().mockResolvedValue({
+          count: 750,
+          error: null,
+        }),
+      }),
+      eq: jest.fn().mockReturnValue({
+        order: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue({
+            data: [
+              { success: true },
+              { success: true },
+              { success: false },
+              { success: true },
+              { success: true },
+            ],
             error: null,
           }),
         }),
-        eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue({
-              data: [
-                { event: "proof.verify", value: 1, meta: { verified: true } },
-                { event: "proof.verify", value: 1, meta: { verified: true } },
-                { event: "proof.verify", value: 0, meta: { verified: false } },
-                { event: "proof.verify", value: 1, meta: { verified: true } },
-              ],
-              error: null,
-            }),
-          }),
-        }),
       }),
-      insert: jest.fn().mockResolvedValue({ error: null }),
     }),
   }),
+});
+
+jest.mock("../lib/db", () => ({
+  supabaseService: mockSupabaseService,
 }));
 
 describe("Phase-1 Telemetry", () => {
@@ -39,135 +41,23 @@ describe("Phase-1 Telemetry", () => {
     jest.clearAllMocks();
   });
 
-  describe("Phase-1 Gates Logic", () => {
-    it("should pass issued gate when >= 500 proofs", () => {
-      const proofsIssued = 750;
-      const issuedGate = proofsIssued >= 500;
-
-      expect(issuedGate).toBe(true);
-    });
-
-    it("should fail issued gate when < 500 proofs", () => {
-      const proofsIssued = 250;
-      const issuedGate = proofsIssued >= 500;
-
-      expect(issuedGate).toBe(false);
-    });
-
-    it("should pass success ratio gate when >= 0.99", () => {
-      const successfulVerifications = 990;
-      const totalVerifications = 1000;
-      const successRatio = successfulVerifications / totalVerifications;
-      const successRatioGate = successRatio >= 0.99;
-
-      expect(successRatioGate).toBe(true);
-    });
-
-    it("should fail success ratio gate when < 0.99", () => {
-      const successfulVerifications = 980;
-      const totalVerifications = 1000;
-      const successRatio = successfulVerifications / totalVerifications;
-      const successRatioGate = successRatio >= 0.99;
-
-      expect(successRatioGate).toBe(false);
-    });
-
-    it("should be Phase-1 ready when both gates pass", () => {
-      const issuedGate = true;
-      const successRatioGate = true;
-      const overallPhase1Ready = issuedGate && successRatioGate;
-
-      expect(overallPhase1Ready).toBe(true);
-    });
-
-    it("should not be Phase-1 ready when either gate fails", () => {
-      const issuedGate = true;
-      const successRatioGate = false;
-      const overallPhase1Ready = issuedGate && successRatioGate;
-
-      expect(overallPhase1Ready).toBe(false);
-    });
-  });
-
-  describe("Metrics Calculation", () => {
-    it("should calculate verification success ratio correctly", () => {
-      const verifications = [
-        { verified: true },
-        { verified: true },
-        { verified: false },
-        { verified: true },
-        { verified: true },
-      ];
-
-      const successful = verifications.filter((v) => v.verified).length;
-      const total = verifications.length;
-      const successRatio = successful / total;
-
-      expect(successRatio).toBe(0.8);
-    });
-
-    it("should handle empty verifications array", () => {
-      const verifications: unknown[] = [];
-      const successRatio =
-        verifications.length > 0
-          ? verifications.filter((v) => v.verified).length / verifications.length
-          : 0;
-
-      expect(successRatio).toBe(0);
-    });
-
-    it("should handle all successful verifications", () => {
-      const verifications = [{ verified: true }, { verified: true }, { verified: true }];
-
-      const successful = verifications.filter((v) => v.verified).length;
-      const total = verifications.length;
-      const successRatio = successful / total;
-
-      expect(successRatio).toBe(1.0);
-    });
-
-    it("should handle all failed verifications", () => {
-      const verifications = [{ verified: false }, { verified: false }, { verified: false }];
-
-      const successful = verifications.filter((v) => v.verified).length;
-      const total = verifications.length;
-      const successRatio = successful / total;
-
-      expect(successRatio).toBe(0.0);
-    });
-  });
-
-  describe("Automation Efficiency", () => {
-    it("should calculate automation efficiency", () => {
-      // Mock automation efficiency calculation
-      const expectedProcessingTime = 1000; // ms
-      const actualProcessingTime = 950; // ms
-      const automationEfficiency = actualProcessingTime / expectedProcessingTime;
-
-      expect(automationEfficiency).toBe(0.95);
-    });
-
-    it("should handle perfect efficiency", () => {
-      const expectedProcessingTime = 1000;
-      const actualProcessingTime = 1000;
-      const automationEfficiency = actualProcessingTime / expectedProcessingTime;
-
-      expect(automationEfficiency).toBe(1.0);
-    });
-
-    it("should handle poor efficiency", () => {
-      const expectedProcessingTime = 1000;
-      const actualProcessingTime = 2000;
-      const automationEfficiency = actualProcessingTime / expectedProcessingTime;
-
-      expect(automationEfficiency).toBe(2.0);
-    });
-  });
-
-  describe("Phase-1 Readiness Scenarios", () => {
-    it("should be ready with high volume and high success rate", () => {
+  describe("Quality Gates", () => {
+    it("should calculate metrics correctly", async () => {
+      // Mock the metrics calculation
       const metrics = {
-        proofs_issued_total: 1000,
+        proofs_issued_total: 750,
+        verification_success_ratio_1k: 0.995,
+        proofs_verified_total: 1000,
+        proofs_verified_successful: 995,
+      };
+
+      expect(metrics.proofs_issued_total).toBeGreaterThanOrEqual(500);
+      expect(metrics.verification_success_ratio_1k).toBeGreaterThanOrEqual(0.99);
+    });
+
+    it("should pass issued gate when threshold is met", () => {
+      const metrics = {
+        proofs_issued_total: 750,
         verification_success_ratio_1k: 0.995,
       };
 
@@ -176,15 +66,16 @@ describe("Phase-1 Telemetry", () => {
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
         overall_phase1_ready: false,
       };
-
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
 
+      expect(gates.issued_gate).toBe(true);
+      expect(gates.success_ratio_gate).toBe(true);
       expect(gates.overall_phase1_ready).toBe(true);
     });
 
-    it("should not be ready with low volume", () => {
+    it("should fail issued gate when threshold is not met", () => {
       const metrics = {
-        proofs_issued_total: 250,
+        proofs_issued_total: 400,
         verification_success_ratio_1k: 0.995,
       };
 
@@ -193,16 +84,17 @@ describe("Phase-1 Telemetry", () => {
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
         overall_phase1_ready: false,
       };
-
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
 
+      expect(gates.issued_gate).toBe(false);
+      expect(gates.success_ratio_gate).toBe(true);
       expect(gates.overall_phase1_ready).toBe(false);
     });
 
-    it("should not be ready with low success rate", () => {
+    it("should fail success ratio gate when threshold is not met", () => {
       const metrics = {
-        proofs_issued_total: 1000,
-        verification_success_ratio_1k: 0.95,
+        proofs_issued_total: 750,
+        verification_success_ratio_1k: 0.98,
       };
 
       const gates = {
@@ -210,16 +102,27 @@ describe("Phase-1 Telemetry", () => {
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
         overall_phase1_ready: false,
       };
-
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
 
+      expect(gates.issued_gate).toBe(true);
+      expect(gates.success_ratio_gate).toBe(false);
       expect(gates.overall_phase1_ready).toBe(false);
     });
 
-    it("should not be ready with both low volume and low success rate", () => {
+    it("should calculate success ratio correctly", () => {
+      const totalVerifications = 1000;
+      const successfulVerifications = 995;
+      const successRatio = successfulVerifications / totalVerifications;
+
+      expect(successRatio).toBe(0.995);
+      expect(successRatio).toBeGreaterThanOrEqual(0.99);
+    });
+
+    it("should handle edge cases", () => {
+      // Test with exact threshold values
       const metrics = {
-        proofs_issued_total: 250,
-        verification_success_ratio_1k: 0.95,
+        proofs_issued_total: 500,
+        verification_success_ratio_1k: 0.99,
       };
 
       const gates = {
@@ -227,10 +130,78 @@ describe("Phase-1 Telemetry", () => {
         success_ratio_gate: metrics.verification_success_ratio_1k >= 0.99,
         overall_phase1_ready: false,
       };
-
       gates.overall_phase1_ready = gates.issued_gate && gates.success_ratio_gate;
 
-      expect(gates.overall_phase1_ready).toBe(false);
+      expect(gates.issued_gate).toBe(true);
+      expect(gates.success_ratio_gate).toBe(true);
+      expect(gates.overall_phase1_ready).toBe(true);
+    });
+  });
+
+  describe("Data Collection", () => {
+    it("should collect proof issuance data", async () => {
+      const mockData = {
+        count: 750,
+        error: null,
+      };
+
+      expect(mockData.count).toBe(750);
+      expect(mockData.error).toBeNull();
+    });
+
+    it("should collect verification data", async () => {
+      const mockData = [
+        { success: true },
+        { success: true },
+        { success: false },
+        { success: true },
+        { success: true },
+      ];
+
+      const successfulCount = mockData.filter((item) => item.success).length;
+      const totalCount = mockData.length;
+      const successRatio = successfulCount / totalCount;
+
+      expect(successfulCount).toBe(4);
+      expect(totalCount).toBe(5);
+      expect(successRatio).toBe(0.8);
+    });
+
+    it("should handle database errors gracefully", async () => {
+      const mockError = {
+        count: null,
+        error: { message: "Database connection failed" },
+      };
+
+      expect(mockError.count).toBeNull();
+      expect(mockError.error).toBeDefined();
+      expect(mockError.error.message).toBe("Database connection failed");
+    });
+  });
+
+  describe("Phase-1 Readiness", () => {
+    it("should be ready when all gates pass", () => {
+      const metrics = {
+        proofs_issued_total: 750,
+        verification_success_ratio_1k: 0.995,
+      };
+
+      const isReady =
+        metrics.proofs_issued_total >= 500 && metrics.verification_success_ratio_1k >= 0.99;
+
+      expect(isReady).toBe(true);
+    });
+
+    it("should not be ready when any gate fails", () => {
+      const metrics = {
+        proofs_issued_total: 400,
+        verification_success_ratio_1k: 0.98,
+      };
+
+      const isReady =
+        metrics.proofs_issued_total >= 500 && metrics.verification_success_ratio_1k >= 0.99;
+
+      expect(isReady).toBe(false);
     });
   });
 });

@@ -1,3 +1,402 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.274">
+<testsuites name="jest tests" tests="94" failures="16" errors="0" time="1.762">
+  <testsuite name="Registry Snapshot" errors="0" failures="2" skipped="0" timestamp="2025-10-24T06:36:02" time="0.328" tests="6">
+    <testcase classname="Registry Snapshot createRegistrySnapshot creates snapshot for batch of proofs" name="Registry Snapshot createRegistrySnapshot creates snapshot for batch of proofs" time="0.016">
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot handles existing snapshot (idempotency)" name="Registry Snapshot createRegistrySnapshot handles existing snapshot (idempotency)" time="0.001">
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot handles database errors gracefully" name="Registry Snapshot createRegistrySnapshot handles database errors gracefully" time="0.002">
+      <failure>Error: expect(received).rejects.toThrow()
+
+Received promise resolved instead of rejected
+Resolved to value: {&quot;batch&quot;: 1, &quot;count&quot;: 1, &quot;manifest&quot;: {&quot;batch&quot;: 1, &quot;count&quot;: 1, &quot;created_at&quot;: &quot;2025-10-24T06:36:02.604Z&quot;, &quot;merkle_root&quot;: &quot;a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456&quot;, &quot;schema_version&quot;: 1, &quot;sha256_jsonl&quot;: &quot;mock-hash&quot;, &quot;sha256_manifest_without_signature&quot;: &quot;mock-hash&quot;, &quot;signature&quot;: &quot;mock-signature-base64&quot;}, &quot;merkle_root&quot;: &quot;a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456&quot;, &quot;s3_url&quot;: &quot;https://test-bucket.s3.us-east-1.amazonaws.com/registry/snapshots/1.manifest.json&quot;}
+    at expect (/Users/edbrooks/veris/node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/registry.snapshot.test.ts:155:19)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Registry Snapshot createRegistrySnapshot handles S3 errors gracefully" name="Registry Snapshot createRegistrySnapshot handles S3 errors gracefully" time="0.001">
+      <failure>Error: expect(received).rejects.toThrow()
+
+Received promise resolved instead of rejected
+Resolved to value: {&quot;batch&quot;: 1, &quot;count&quot;: 1, &quot;manifest&quot;: {&quot;batch&quot;: 1, &quot;count&quot;: 1, &quot;created_at&quot;: &quot;2025-10-24T06:36:02.614Z&quot;, &quot;merkle_root&quot;: &quot;a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456&quot;, &quot;schema_version&quot;: 1, &quot;sha256_jsonl&quot;: &quot;mock-hash&quot;, &quot;sha256_manifest_without_signature&quot;: &quot;mock-hash&quot;, &quot;signature&quot;: &quot;mock-signature-base64&quot;}, &quot;merkle_root&quot;: &quot;a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456&quot;, &quot;s3_url&quot;: &quot;https://test-bucket.s3.us-east-1.amazonaws.com/registry/snapshots/1.manifest.json&quot;}
+    at expect (/Users/edbrooks/veris/node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:113:15)
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/registry.snapshot.test.ts:172:19)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Registry Snapshot Determinism produces identical results for same input" name="Registry Snapshot Determinism produces identical results for same input" time="0.001">
+    </testcase>
+    <testcase classname="Registry Snapshot Determinism produces different results for different inputs" name="Registry Snapshot Determinism produces different results for different inputs" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Arweave Publisher" errors="0" failures="5" skipped="0" timestamp="2025-10-24T06:36:02" time="0.122" tests="7">
+    <testcase classname="Arweave Publisher publishSnapshotToArweave publishes snapshot artifacts to Arweave" name="Arweave Publisher publishSnapshotToArweave publishes snapshot artifacts to Arweave" time="0.001">
+      <failure>SyntaxError: Unexpected token &apos;m&apos;, &quot;mock-content&quot; is not valid JSON
+    at JSON.parse (&lt;anonymous&gt;)
+    at parse (/Users/edbrooks/veris/frontend/src/lib/arweave-publisher.ts:85:43)
+    at publishSnapshotToArweave (/Users/edbrooks/veris/frontend/src/lib/arweave-publisher.ts:144:35)
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:72:22)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when manifest integrity verification fails" name="Arweave Publisher publishSnapshotToArweave throws error when manifest integrity verification fails" time="0.001">
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when JSONL hash mismatch" name="Arweave Publisher publishSnapshotToArweave throws error when JSONL hash mismatch" time="0.001">
+    </testcase>
+    <testcase classname="Arweave Publisher publishSnapshotToArweave throws error when Arweave transaction fails" name="Arweave Publisher publishSnapshotToArweave throws error when Arweave transaction fails" time="0.003">
+      <failure>Error: expect(received).rejects.toThrow(expected)
+
+Expected substring: &quot;Arweave error&quot;
+Received message:   &quot;Unexpected token &apos;m&apos;, \&quot;mock-content\&quot; is not valid JSON&quot;
+
+      83 |
+      84 |   const manifestContent = await manifestBody.transformToString();
+    &gt; 85 |   const manifest: SnapshotManifest = JSON.parse(manifestContent);
+         |                                           ^
+      86 |
+      87 |   // Fetch JSONL data
+      88 |   const { Body: jsonlBody } = await s3Client.send(
+
+      at parse (src/lib/arweave-publisher.ts:85:43)
+      at publishSnapshotToArweave (src/lib/arweave-publisher.ts:144:35)
+      at Object.&lt;anonymous&gt; (src/__tests__/arweave.publisher.test.ts:153:7)
+    at Object.toThrow (/Users/edbrooks/veris/node_modules/.pnpm/expect@29.7.0/node_modules/expect/build/index.js:218:22)
+    at Object.toThrow (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:153:57)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns true when snapshot is published" name="Arweave Publisher isSnapshotPublished returns true when snapshot is published" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:163:22)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns false when snapshot is not published" name="Arweave Publisher isSnapshotPublished returns false when snapshot is not published" time="0">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalled()
+
+Expected number of calls: &gt;= 1
+Received number of calls:    0
+    at Object.toHaveBeenCalled (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:173:32)</failure>
+    </testcase>
+    <testcase classname="Arweave Publisher isSnapshotPublished returns false when Arweave query fails" name="Arweave Publisher isSnapshotPublished returns false when Arweave query fails" time="0.001">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalled()
+
+Expected number of calls: &gt;= 1
+Received number of calls:    0
+    at Object.toHaveBeenCalled (/Users/edbrooks/veris/frontend/src/__tests__/arweave.publisher.test.ts:182:32)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Rate Limiting" errors="0" failures="4" skipped="0" timestamp="2025-10-24T06:36:02" time="0.113" tests="9">
+    <testcase classname="Rate Limiting In-memory rate limiting should allow requests within limit" name="Rate Limiting In-memory rate limiting should allow requests within limit" time="0.002">
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should block requests exceeding limit" name="Rate Limiting In-memory rate limiting should block requests exceeding limit" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should handle different keys independently" name="Rate Limiting In-memory rate limiting should handle different keys independently" time="0.001">
+    </testcase>
+    <testcase classname="Rate Limiting In-memory rate limiting should refill tokens over time" name="Rate Limiting In-memory rate limiting should refill tokens over time" time="0">
+    </testcase>
+    <testcase classname="Rate Limiting Redis rate limiting should use Redis when available" name="Rate Limiting Redis rate limiting should use Redis when available" time="0.001">
+    </testcase>
+    <testcase classname="Rate Limiting Redis rate limiting should handle Redis errors gracefully" name="Rate Limiting Redis rate limiting should handle Redis errors gracefully" time="0.001">
+      <failure>Error: Redis connection failed
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:119:34)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should add rate limit headers to successful responses" name="Rate Limiting withRateLimit wrapper should add rate limit headers to successful responses" time="0.008">
+      <failure>Error: Redis connection failed
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:119:34)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should return 429 when rate limit exceeded" name="Rate Limiting withRateLimit wrapper should return 429 when rate limit exceeded" time="0.002">
+      <failure>Error: Redis connection failed
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:119:34)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Rate Limiting withRateLimit wrapper should handle different IPs independently" name="Rate Limiting withRateLimit wrapper should handle different IPs independently" time="0.001">
+      <failure>Error: Redis connection failed
+    at Object.&lt;anonymous&gt; (/Users/edbrooks/veris/frontend/src/__tests__/rateLimit.test.ts:119:34)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Proof Schema v1" errors="0" failures="1" skipped="0" timestamp="2025-10-24T06:36:02" time="0.266" tests="9">
+    <testcase classname="Proof Schema v1 createCanonicalProof should create a valid canonical proof" name="Proof Schema v1 createCanonicalProof should create a valid canonical proof" time="0.006">
+    </testcase>
+    <testcase classname="Proof Schema v1 createCanonicalProof should include required fields" name="Proof Schema v1 createCanonicalProof should include required fields" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 canonicalizeAndSign should canonicalize and sign a proof" name="Proof Schema v1 canonicalizeAndSign should canonicalize and sign a proof" time="0.003">
+    </testcase>
+    <testcase classname="Proof Schema v1 validateCanonicalProof should validate a correct proof" name="Proof Schema v1 validateCanonicalProof should validate a correct proof" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof.schema.test.ts:82:23)
+    at Promise.then.completed (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at _runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at _runTestsForDescribeBlock (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at run (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at runAndTransformResultsToJestFormat (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at jestAdapter (/Users/edbrooks/veris/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at runTestInternal (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at runTest (/Users/edbrooks/veris/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Proof Schema v1 validateCanonicalProof should reject invalid proof structure" name="Proof Schema v1 validateCanonicalProof should reject invalid proof structure" time="0">
+    </testcase>
+    <testcase classname="Proof Schema v1 verifyCanonicalProof should verify a valid proof" name="Proof Schema v1 verifyCanonicalProof should verify a valid proof" time="0">
+    </testcase>
+    <testcase classname="Proof Schema v1 verifyCanonicalProof should reject proof with invalid signature" name="Proof Schema v1 verifyCanonicalProof should reject proof with invalid signature" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 getCanonicalJsonString should return canonical JSON string" name="Proof Schema v1 getCanonicalJsonString should return canonical JSON string" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 getCanonicalHash should return canonical hash" name="Proof Schema v1 getCanonicalHash should return canonical hash" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="API Routes" errors="0" failures="2" skipped="0" timestamp="2025-10-24T06:36:03" time="0.308" tests="5">
+    <testcase classname="API Routes Proof Creation should create a proof successfully" name="API Routes Proof Creation should create a proof successfully" time="0.086">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 500
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:155:31)</failure>
+    </testcase>
+    <testcase classname="API Routes Proof Creation should handle missing file content" name="API Routes Proof Creation should handle missing file content" time="0.001">
+    </testcase>
+    <testcase classname="API Routes Proof Verification should verify a proof successfully" name="API Routes Proof Verification should verify a proof successfully" time="0.004">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 404
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:197:31)</failure>
+    </testcase>
+    <testcase classname="API Routes Proof Verification should handle missing proof ID" name="API Routes Proof Verification should handle missing proof ID" time="0.001">
+    </testcase>
+    <testcase classname="API Routes Health Check should return health status" name="API Routes Health Check should return health status" time="0.052">
+    </testcase>
+  </testsuite>
+  <testsuite name="Idempotency System" errors="0" failures="2" skipped="0" timestamp="2025-10-24T06:36:03" time="0.101" tests="12">
+    <testcase classname="Idempotency System getIdempotencyKey should extract idempotency key from request headers" name="Idempotency System getIdempotencyKey should extract idempotency key from request headers" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System getIdempotencyKey should return null when no idempotency key header" name="Idempotency System getIdempotencyKey should return null when no idempotency key header" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System getIdempotencyKey should return null when idempotency key header is empty" name="Idempotency System getIdempotencyKey should return null when idempotency key header is empty" time="0">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should store and retrieve idempotency data" name="Idempotency System In-memory idempotency should store and retrieve idempotency data" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should return null for non-existent keys" name="Idempotency System In-memory idempotency should return null for non-existent keys" time="0">
+    </testcase>
+    <testcase classname="Idempotency System In-memory idempotency should handle concurrent requests" name="Idempotency System In-memory idempotency should handle concurrent requests" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System Redis idempotency should use Redis when available" name="Idempotency System Redis idempotency should use Redis when available" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:125:40)</failure>
+    </testcase>
+    <testcase classname="Idempotency System Redis idempotency should retrieve from Redis when available" name="Idempotency System Redis idempotency should retrieve from Redis when available" time="0">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/idempotency.test.ts:144:40)</failure>
+    </testcase>
+    <testcase classname="Idempotency System Redis idempotency should handle Redis errors gracefully" name="Idempotency System Redis idempotency should handle Redis errors gracefully" time="0">
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should return cached response for duplicate requests" name="Idempotency System withIdempotency wrapper should return cached response for duplicate requests" time="0.002">
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should handle different idempotency keys independently" name="Idempotency System withIdempotency wrapper should handle different idempotency keys independently" time="0.001">
+    </testcase>
+    <testcase classname="Idempotency System withIdempotency wrapper should handle requests without idempotency key" name="Idempotency System withIdempotency wrapper should handle requests without idempotency key" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Telemetry Daily Aggregation" errors="0" failures="0" skipped="0" timestamp="2025-10-24T06:36:03" time="0.183" tests="4">
+    <testcase classname="Telemetry Daily Aggregation should have basic functionality" name="Telemetry Daily Aggregation should have basic functionality" time="0.001">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle dry run mode" name="Telemetry Daily Aggregation should handle dry run mode" time="0.077">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle invalid date format" name="Telemetry Daily Aggregation should handle invalid date format" time="0.003">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle missing environment variables" name="Telemetry Daily Aggregation should handle missing environment variables" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification Conformance" errors="0" failures="0" skipped="0" timestamp="2025-10-24T06:36:03" time="0.053" tests="8">
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" name="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" time="0.001">
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" name="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" time="0">
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle verification failure" name="Verification Conformance Primary vs Mirror Conformance should handle verification failure" time="0">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should maintain consistent field types" name="Verification Conformance Response Format Consistency should maintain consistent field types" time="0.002">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" name="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" time="0">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should handle error responses consistently" name="Verification Conformance Response Format Consistency should handle error responses consistently" time="0.001">
+    </testcase>
+    <testcase classname="Verification Conformance Data Integrity should preserve proof data integrity" name="Verification Conformance Data Integrity should preserve proof data integrity" time="0.001">
+    </testcase>
+    <testcase classname="Verification Conformance Data Integrity should handle compressed data correctly" name="Verification Conformance Data Integrity should handle compressed data correctly" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Security Headers" errors="0" failures="0" skipped="0" timestamp="2025-10-24T06:36:03" time="0.055" tests="12">
+    <testcase classname="Security Headers Content Security Policy should have strict CSP configuration" name="Security Headers Content Security Policy should have strict CSP configuration" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Content Security Policy should allow necessary external resources" name="Security Headers Content Security Policy should allow necessary external resources" time="0.003">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have proper security headers" name="Security Headers Security Headers Configuration should have proper security headers" time="0.002">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have strict frame options" name="Security Headers Security Headers Configuration should have strict frame options" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should prevent MIME type sniffing" name="Security Headers Security Headers Configuration should prevent MIME type sniffing" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have strict referrer policy" name="Security Headers Security Headers Configuration should have strict referrer policy" time="0">
+    </testcase>
+    <testcase classname="Security Headers Permissions Policy should restrict dangerous permissions" name="Security Headers Permissions Policy should restrict dangerous permissions" time="0">
+    </testcase>
+    <testcase classname="Security Headers HTTPS Configuration should enforce HTTPS" name="Security Headers HTTPS Configuration should enforce HTTPS" time="0">
+    </testcase>
+    <testcase classname="Security Headers HTTPS Configuration should have proper HSTS configuration" name="Security Headers HTTPS Configuration should have proper HSTS configuration" time="0">
+    </testcase>
+    <testcase classname="Security Headers Content Type Security should prevent content type sniffing" name="Security Headers Content Type Security should prevent content type sniffing" time="0">
+    </testcase>
+    <testcase classname="Security Headers Content Type Security should have proper content type validation" name="Security Headers Content Type Security should have proper content type validation" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers CORS Configuration should have strict CORS policy" name="Security Headers CORS Configuration should have strict CORS policy" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Phase-1 Telemetry" errors="0" failures="0" skipped="0" timestamp="2025-10-24T06:36:03" time="0.055" tests="11">
+    <testcase classname="Phase-1 Telemetry Quality Gates should calculate metrics correctly" name="Phase-1 Telemetry Quality Gates should calculate metrics correctly" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should pass issued gate when threshold is met" name="Phase-1 Telemetry Quality Gates should pass issued gate when threshold is met" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should fail issued gate when threshold is not met" name="Phase-1 Telemetry Quality Gates should fail issued gate when threshold is not met" time="0.003">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should fail success ratio gate when threshold is not met" name="Phase-1 Telemetry Quality Gates should fail success ratio gate when threshold is not met" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should calculate success ratio correctly" name="Phase-1 Telemetry Quality Gates should calculate success ratio correctly" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should handle edge cases" name="Phase-1 Telemetry Quality Gates should handle edge cases" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should collect proof issuance data" name="Phase-1 Telemetry Data Collection should collect proof issuance data" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should collect verification data" name="Phase-1 Telemetry Data Collection should collect verification data" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should handle database errors gracefully" name="Phase-1 Telemetry Data Collection should handle database errors gracefully" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness should be ready when all gates pass" name="Phase-1 Telemetry Phase-1 Readiness should be ready when all gates pass" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness should not be ready when any gate fails" name="Phase-1 Telemetry Phase-1 Readiness should not be ready when any gate fails" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Billing Rules" errors="0" failures="0" skipped="0" timestamp="2025-10-24T06:36:03" time="0.066" tests="11">
+    <testcase classname="Billing Rules shouldBill should bill for successful proof creation" name="Billing Rules shouldBill should bill for successful proof creation" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for failed proof creation" name="Billing Rules shouldBill should not bill for failed proof creation" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for proof verification (verification is free)" name="Billing Rules shouldBill should not bill for proof verification (verification is free)" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for failed proof verification" name="Billing Rules shouldBill should not bill for failed proof verification" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for unknown event types" name="Billing Rules shouldBill should not bill for unknown event types" time="0.002">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for events without proof ID" name="Billing Rules shouldBill should not bill for events without proof ID" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should return all pricing rules" name="Billing Rules getPricingRules should return all pricing rules" time="0.006">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should include rules for all event types" name="Billing Rules getPricingRules should include rules for all event types" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should calculate billing summary correctly" name="Billing Rules getBillingSummary should calculate billing summary correctly" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should handle empty events array" name="Billing Rules getBillingSummary should handle empty events array" time="0">
+    </testcase>
+    <testcase classname="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" name="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" time="0.003">
+    </testcase>
+  </testsuite>
 </testsuites>
