@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 declare global {
   namespace jest {
@@ -15,7 +15,7 @@ declare global {
 }
 
 // Extend the jest namespace for better mock typing
-declare module '@jest/globals' {
+declare module "@jest/globals" {
   interface Mock<T = any, Y extends any[] = any[]> {
     mockResolvedValue(value: T | PromiseLike<T>): this;
     mockRejectedValue(value: any): this;

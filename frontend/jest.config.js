@@ -27,10 +27,13 @@ const customJestConfig = {
     ["jest-junit", { outputDirectory: "test-results", outputName: "junit.xml" }],
   ],
   transform: {
-    "^.+\\.(ts|tsx)$": ["ts-jest", {
-      useESM: true,
-      tsconfig: "./tsconfig.test.json"
-    }],
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        useESM: true,
+        tsconfig: "./tsconfig.test.json",
+      },
+    ],
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   transformIgnorePatterns: [

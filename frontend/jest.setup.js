@@ -3,12 +3,14 @@
 
 // Extend Jest mock types globally
 global.jest = global.jest || {};
-global.jest.Mock = global.jest.Mock || function() {};
+global.jest.Mock = global.jest.Mock || function () {};
 
 // Mock require for ES modules
-global.require = global.require || function() {
-  throw new Error('require() is not available in ES module mode. Use import instead.');
-};
+global.require =
+  global.require ||
+  function () {
+    throw new Error("require() is not available in ES module mode. Use import instead.");
+  };
 
 // Mock environment variables for testing
 process.env.NODE_ENV = "test";

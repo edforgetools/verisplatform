@@ -31,7 +31,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check frontend
-        run: cd frontend && pnpm exec tsc --noEmit
+        run: cd frontend && pnpm exec tsc --noEmit --project tsconfig.build.json
 
       - name: Type check SDK
         run: cd packages/sdk-js && pnpm run build
@@ -134,6 +134,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
           NEXT_PUBLIC_STRIPE_MODE: test
+          UPSTASH_REDIS_REST_URL: https://placeholder-redis.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: placeholder-redis-token
+          CRON_JOB_TOKEN: placeholder-cron-token
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4

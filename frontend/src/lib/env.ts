@@ -20,13 +20,19 @@ const serverSchema = z
     VERIS_SIGNING_PRIVATE_KEY: z.string().min(100),
     VERIS_SIGNING_PUBLIC_KEY: z.string().min(100),
   })
-  .refine((v) => {
-    // Skip CRON key validation during build time
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
-      return true;
-    }
-    return !!(v.CRON_JOB_TOKEN ?? process.env.CRON_SECRET);
-  }, { message: "CRON key missing" });
+  .refine(
+    (v) => {
+      // Skip CRON key validation during build time
+      if (
+        process.env.NODE_ENV === "production" &&
+        process.env.NEXT_PHASE === "phase-production-build"
+      ) {
+        return true;
+      }
+      return !!(v.CRON_JOB_TOKEN ?? process.env.CRON_SECRET);
+    },
+    { message: "CRON key missing" },
+  );
 
 export const ENV = {
   client: clientSchema.parse({

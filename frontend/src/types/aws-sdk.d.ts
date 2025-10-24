@@ -5,10 +5,7 @@ declare module "@aws-sdk/client-s3" {
   }
 
   export class GetObjectCommand {
-    constructor(input: {
-      Bucket: string;
-      Key: string;
-    });
+    constructor(input: { Bucket: string; Key: string });
   }
 
   export class PutObjectCommand {
@@ -22,24 +19,14 @@ declare module "@aws-sdk/client-s3" {
   }
 
   export class HeadObjectCommand {
-    constructor(input: {
-      Bucket: string;
-      Key: string;
-    });
+    constructor(input: { Bucket: string; Key: string });
   }
 
   export class ListObjectsV2Command {
-    constructor(input: {
-      Bucket: string;
-      Prefix?: string;
-    });
+    constructor(input: { Bucket: string; Prefix?: string });
   }
 }
 
 declare module "@aws-sdk/s3-request-presigner" {
-  export function getSignedUrl(
-    client: any,
-    command: any,
-    options?: any
-  ): Promise<string>;
+  export function getSignedUrl(client: any, command: any, options?: any): Promise<string>;
 }
