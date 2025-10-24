@@ -23,7 +23,7 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      - run: pnpm -C frontend install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm -C frontend build
 
