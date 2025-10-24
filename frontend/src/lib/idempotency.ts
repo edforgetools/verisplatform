@@ -3,12 +3,11 @@
  * Server-only module for handling idempotency keys
  */
 
-import { supabaseService } from "./db";
 import { logger } from "./logger";
 
 interface IdempotencyRecord {
   key: string;
-  response: any;
+  response: unknown;
   status: number;
   created_at: string;
   expires_at: string;
@@ -80,7 +79,7 @@ export async function checkIdempotency(key: string): Promise<{
  */
 export async function storeIdempotency(
   key: string,
-  response: any,
+  response: unknown,
   status: number,
   ttlMinutes: number = 10,
 ): Promise<void> {
@@ -118,7 +117,7 @@ export async function storeIdempotency(
 /**
  * Get Redis client (if available)
  */
-async function getRedis(): Promise<any> {
+async function getRedis(): Promise<unknown> {
   try {
     const url = process.env.UPSTASH_REDIS_URL || process.env.REDIS_URL;
     if (!url) return null;
@@ -133,7 +132,7 @@ async function getRedis(): Promise<any> {
 /**
  * Higher-order function that wraps a handler with idempotency
  */
-export function withIdempotency<T extends any[]>(
+export function withIdempotency<T extends unknown[]>(
   handler: (...args: T) => Promise<Response>,
   ttlMinutes: number = 10,
 ) {

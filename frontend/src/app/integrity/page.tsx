@@ -282,7 +282,7 @@ echo "Schema version: ${latestIntegrity.schema_version}"`;
           <div className="text-sm text-blue-800 space-y-2">
             <p>
               Veris publishes cryptographic snapshots of issued proofs for transparency. Snapshots
-              and manifests are provided "as is" without warranties or guarantees of completeness.
+              and manifests are provided &quot;as is&quot; without warranties or guarantees of completeness.
               Verification results are informational and not legal advice. Use of this site and API
               is subject to our Terms and Privacy Policy.
             </p>

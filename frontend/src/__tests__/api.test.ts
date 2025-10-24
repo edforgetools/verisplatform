@@ -82,7 +82,7 @@ describe("API Routes", () => {
 
   describe("/api/db-health", () => {
     it("should return {ok: true} on successful database connection", async () => {
-      const { req, res } = createMocks({
+      const { res } = createMocks({
         method: "GET",
         url: "/api/db-health",
       });

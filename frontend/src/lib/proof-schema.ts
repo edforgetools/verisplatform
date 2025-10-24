@@ -25,7 +25,7 @@ export interface ProofSubject {
 }
 
 export interface ProofMetadata {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CanonicalProofV1 {
@@ -87,7 +87,7 @@ export function canonicalizeAndSign(proof: Omit<CanonicalProofV1, "signature">):
 /**
  * Validate a canonical proof
  */
-export function validateCanonicalProof(proof: any): proof is CanonicalProofV1 {
+export function validateCanonicalProof(proof: unknown): proof is CanonicalProofV1 {
   return validateProofV1(proof);
 }
 

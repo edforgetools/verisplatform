@@ -107,7 +107,7 @@ describe("Phase-1 Telemetry", () => {
     });
 
     it("should handle empty verifications array", () => {
-      const verifications: any[] = [];
+      const verifications: unknown[] = [];
       const successRatio =
         verifications.length > 0
           ? verifications.filter((v) => v.verified).length / verifications.length

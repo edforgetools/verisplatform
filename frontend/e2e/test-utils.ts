@@ -40,8 +40,8 @@ export class TestHelpers {
    */
   async mockFileUpload(selector: string, fileContent: string = "Test file content") {
     // Create a temporary file for upload
-    const fs = require("fs");
-    const path = require("path");
+    const fs = await import("fs");
+    const path = await import("path");
     const tempDir = path.join(process.cwd(), "test-results", "temp");
 
     // Ensure temp directory exists

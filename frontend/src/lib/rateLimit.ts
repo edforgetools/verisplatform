@@ -23,7 +23,7 @@ async function getRedis() {
 /**
  * In-memory token bucket rate limiter
  */
-function inMemoryRateLimit(key: string, capacity: number, refillRate: number, windowMs: number) {
+function inMemoryRateLimit(key: string, capacity: number, refillRate: number, _windowMs: number) {
   const now = Date.now();
   const bucket = inMemoryBuckets.get(key) || { tokens: capacity, lastRefill: now };
 

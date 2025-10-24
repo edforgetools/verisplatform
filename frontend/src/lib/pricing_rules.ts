@@ -8,7 +8,7 @@ export interface BillingEvent {
   userId: string;
   proofId?: string;
   success: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface PricingRule {

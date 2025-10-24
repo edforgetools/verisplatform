@@ -48,7 +48,7 @@ function createS3Client(): S3Client {
     throw new Error("AWS_REGION environment variable is required");
   }
 
-  const config: any = {
+  const config: Record<string, unknown> = {
     region,
   };
 
@@ -198,7 +198,7 @@ export async function createRegistrySnapshot(
       s3_url: s3Url,
       manifest,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.name !== "NotFound") {
       throw error;
     }

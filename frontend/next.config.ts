@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     // Handle yaml package module resolution
     config.resolve.fallback = {
       ...config.resolve.fallback,

@@ -27,7 +27,7 @@ function createS3Client(): S3Client {
     throw new Error("AWS_REGION environment variable is required");
   }
 
-  const config: any = {
+  const config: Record<string, unknown> = {
     region,
   };
 
