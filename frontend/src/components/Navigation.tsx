@@ -1,6 +1,6 @@
 "use client";
-import Link from 'next/link';
-import { ENV_CLIENT } from '@/lib/env-client';
+import Link from "next/link";
+import { ENV_CLIENT } from "@/lib/env-client";
 
 export function Navigation() {
   return (
@@ -8,10 +8,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-xl font-bold text-slate-900 dark:text-white"
-            >
+            <Link href="/" className="text-xl font-bold text-slate-900 dark:text-white">
               Veris
             </Link>
           </div>

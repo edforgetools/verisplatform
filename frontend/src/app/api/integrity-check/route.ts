@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { verifySignature } from "@/lib/crypto-server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { validateCronAuth } from "@/lib/auth-server";

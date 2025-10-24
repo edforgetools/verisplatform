@@ -5,7 +5,7 @@ import { assertEntitled } from "@/lib/entitlements";
 import { getKeyFingerprint, formatKeyFingerprint, verifySignature } from "@/lib/crypto";
 import QRCode from "qrcode";
 import { capture } from "@/lib/observability";
-import { jsonOk, jsonErr } from "@/lib/http";
+import { jsonErr } from "@/lib/http";
 
 export const runtime = "nodejs";
 

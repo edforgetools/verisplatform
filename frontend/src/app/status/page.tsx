@@ -5,13 +5,9 @@ interface HealthCheck {
   status: "healthy" | "unhealthy";
   responseTime?: number;
   error?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
-interface StatusPageProps {
-  healthChecks: HealthCheck[];
-  timestamp: string;
-}
 
 async function checkDbHealth(): Promise<HealthCheck> {
   const startTime = Date.now();

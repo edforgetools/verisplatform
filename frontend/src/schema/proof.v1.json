@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://verisplatform.com/schema/proof.v1.json",
+  "title": "Veris Proof Schema v1",
+  "description": "Canonical proof schema for cryptographic verification",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version number"
+    },
+    "hash_algo": {
+      "type": "string",
+      "const": "sha256",
+      "description": "Hash algorithm used"
+    },
+    "hash_full": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Full SHA256 hash as lowercase hex string"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp in UTC (Z suffix)"
+    },
+    "signer_fingerprint": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "description": "Base64url encoded SHA256 of public key DER"
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Subject type identifier"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Subject namespace"
+        },
+        "id": {
+          "type": "string",
+          "description": "Subject identifier"
+        }
+      },
+      "required": ["type", "namespace", "id"],
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/=]+$",
+      "description": "Base64 encoded RSA-SHA256 signature"
+    }
+  },
+  "required": [
+    "schema_version",
+    "hash_algo",
+    "hash_full",
+    "signed_at",
+    "signer_fingerprint",
+    "subject",
+    "metadata",
+    "signature"
+  ],
+  "additionalProperties": false
+}

@@ -5,7 +5,7 @@
 interface CaptureContext {
   route?: string;
   userId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -51,7 +51,7 @@ export function capture(error: Error | unknown, context: CaptureContext = {}): v
 /**
  * Wrap an API route handler with error capture
  */
-export function withErrorCapture<T extends any[]>(
+export function withErrorCapture<T extends unknown[]>(
   handler: (...args: T) => Promise<Response>,
   routeName: string,
 ) {

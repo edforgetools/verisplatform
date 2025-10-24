@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getKeyFingerprint } from "@/lib/crypto-server";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";

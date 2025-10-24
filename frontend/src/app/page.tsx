@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { Navigation } from '@/components/Navigation';
+import Link from "next/link";
+import { Navigation } from "@/components/Navigation";
 
 export default function Home() {
   return (
@@ -13,8 +13,8 @@ export default function Home() {
             Final Means Final
           </h1>
           <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
-            Cryptographic proof of file integrity for creative professionals.
-            Secure, verifiable, and tamper-proof.
+            Cryptographic proof of file integrity for creative professionals. Secure, verifiable,
+            and tamper-proof.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -56,8 +56,8 @@ export default function Home() {
               Cryptographic Security
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              SHA-256 hashing and RSA digital signatures ensure your files are
-              tamper-proof and verifiable.
+              SHA-256 hashing and RSA digital signatures ensure your files are tamper-proof and
+              verifiable.
             </p>
           </div>
 
@@ -81,8 +81,7 @@ export default function Home() {
               Instant Verification
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              Upload any file and instantly verify its integrity against our
-              cryptographic proofs.
+              Upload any file and instantly verify its integrity against our cryptographic proofs.
             </p>
           </div>
 
@@ -106,8 +105,7 @@ export default function Home() {
               PDF Certificates
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              Download professional PDF certificates for legal and business
-              documentation.
+              Download professional PDF certificates for legal and business documentation.
             </p>
           </div>
         </div>
@@ -120,8 +118,8 @@ export default function Home() {
             Ready to Secure Your Files?
           </h2>
           <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-            Join creative professionals who trust Veris to protect their work
-            with cryptographic proof.
+            Join creative professionals who trust Veris to protect their work with cryptographic
+            proof.
           </p>
           <Link
             href="/billing"
@@ -144,7 +142,7 @@ export default function Home() {
               >
                 support@verisplatform.com
               </a>
-              {' • '}
+              {" • "}
               <a
                 href="mailto:billing@verisplatform.com"
                 className="hover:text-slate-900 dark:hover:text-white"

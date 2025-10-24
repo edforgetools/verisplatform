@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
               "connect-src 'self' https://*.stripe.com https://*.supabase.co https://*.supabase.com https://*.upstash.io https://*.vercel-insights.com https://vitals.vercel-insights.com",
-              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+              "frame-src 'none'", // Tightened for PDF/cert rendering
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -39,6 +39,18 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-site",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "require-corp",
           },
         ],
       },

@@ -1,0 +1,564 @@
+openapi: 3.0.3
+info:
+  title: Veris API
+  description: |
+    Veris is a cryptographic proof platform that provides transparent, verifiable proof of existence for digital assets.
+
+    ## Features
+    - **Proof Creation**: Create cryptographic proofs for files and data
+    - **Proof Verification**: Verify proofs using multiple methods
+    - **Registry Integrity**: Transparent registry with cryptographic snapshots
+    - **Billing**: Usage-based billing for proof creation
+
+    ## Authentication
+    Most endpoints require authentication via Supabase Auth. Include the `Authorization: Bearer <token>` header.
+
+    ## Rate Limiting
+    - Public endpoints: 60 requests per minute per IP
+    - Proof creation/verification: 10 requests per minute per IP
+
+  version: 1.0.0
+  contact:
+    name: Veris Support
+    email: support@verisplatform.com
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://verisplatform.com
+    description: Production server
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /api/proof/create:
+    post:
+      summary: Create a new proof
+      description: Create a cryptographic proof for a file. This endpoint is rate-limited and requires authentication.
+      operationId: createProof
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - user_id
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to create a proof for
+                user_id:
+                  type: string
+                  description: The user ID (must match authenticated user)
+                project:
+                  type: string
+                  description: Optional project name
+      responses:
+        "200":
+          description: Proof created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique proof identifier
+                  hash_prefix:
+                    type: string
+                    description: Short hash prefix for display
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Proof creation timestamp
+                  url:
+                    type: string
+                    description: URL to view the proof
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/proof/{id}:
+    get:
+      summary: Get proof details
+      description: Retrieve proof information by ID
+      operationId: getProof
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Proof identifier
+      responses:
+        "200":
+          description: Proof details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  file_name:
+                    type: string
+                  hash_full:
+                    type: string
+                  hash_prefix:
+                    type: string
+                  signature:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  project:
+                    type: string
+                  visibility:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        "404":
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/proof/verify:
+    post:
+      summary: Verify a proof
+      description: Verify a proof using various methods (ID, signature, or file upload)
+      operationId: verifyProof
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      type: string
+                      description: Proof ID to verify
+                - type: object
+                  required:
+                    - hashHex
+                    - signatureB64
+                  properties:
+                    hashHex:
+                      type: string
+                      description: Hash to verify
+                    signatureB64:
+                      type: string
+                      description: Base64-encoded signature
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to verify
+                proof_id:
+                  type: string
+                  description: Optional proof ID to verify against
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schema_version:
+                    type: integer
+                    description: API response schema version
+                  proof_hash:
+                    type: string
+                    description: Hash of the verified proof
+                  valid:
+                    type: boolean
+                    description: Whether the proof is valid
+                  verified_at:
+                    type: string
+                    format: date-time
+                    description: Verification timestamp
+                  signer_fp:
+                    type: string
+                    nullable: true
+                    description: Signer fingerprint
+                  source_registry:
+                    type: string
+                    enum: [primary, s3, arweave]
+                    description: Source of the verification
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    description: Any verification errors
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/integrity/latest:
+    get:
+      summary: Get latest integrity snapshot
+      description: Retrieve the latest registry integrity snapshot information
+      operationId: getLatestIntegrity
+      responses:
+        "200":
+          description: Latest integrity information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch:
+                    type: integer
+                    nullable: true
+                    description: Latest batch number
+                  merkle_root:
+                    type: string
+                    nullable: true
+                    description: Merkle root of the latest batch
+                  s3_url:
+                    type: string
+                    nullable: true
+                    description: S3 URL of the manifest
+                  arweave_txid:
+                    type: string
+                    nullable: true
+                    description: Arweave transaction ID
+                  schema_version:
+                    type: integer
+                    description: Schema version
+                  created_at:
+                    type: string
+                    format: date-time
+                    description: Creation timestamp
+                  message:
+                    type: string
+                    description: Status message
+
+  /api/integrity/snapshot/{batch}:
+    get:
+      summary: Get snapshot integrity data
+      description: Retrieve integrity information for a specific snapshot batch
+      operationId: getSnapshotIntegrity
+      parameters:
+        - name: batch
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: Batch number
+      responses:
+        "200":
+          description: Snapshot integrity data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  batch:
+                    type: integer
+                  count:
+                    type: integer
+                    description: Number of proofs in the batch
+                  merkle_root:
+                    type: string
+                  schema_version:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  urls:
+                    type: object
+                    properties:
+                      s3:
+                        type: object
+                        properties:
+                          manifest:
+                            type: string
+                          jsonl:
+                            type: string
+                      arweave:
+                        type: object
+                        properties:
+                          manifest:
+                            type: string
+                            nullable: true
+                          jsonl:
+                            type: string
+                            nullable: true
+                  arweave_txid:
+                    type: string
+                    nullable: true
+        "404":
+          description: Snapshot not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/integrity/health:
+    get:
+      summary: Get system health status
+      description: Check the health and integrity status of the system
+      operationId: getIntegrityHealth
+      responses:
+        "200":
+          description: System health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                    description: Overall system health
+                  total_proofs:
+                    type: integer
+                    description: Total number of proofs in the system
+                  checks:
+                    type: object
+                    properties:
+                      signing_key_present:
+                        type: boolean
+                      database_accessible:
+                        type: boolean
+                      snapshot_exists:
+                        type: boolean
+                      snapshot_recent:
+                        type: boolean
+                      arweave_published:
+                        type: boolean
+                      snapshot_count_correct:
+                        type: boolean
+                  issues:
+                    type: array
+                    items:
+                      type: string
+                    description: List of health issues
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/stripe/create-checkout:
+    post:
+      summary: Create Stripe checkout session
+      description: Create a Stripe checkout session for billing
+      operationId: createStripeCheckout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - price_id
+              properties:
+                price_id:
+                  type: string
+                  description: Stripe price ID
+                success_url:
+                  type: string
+                  description: Success redirect URL
+                cancel_url:
+                  type: string
+                  description: Cancel redirect URL
+      responses:
+        "200":
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                  url:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/stripe/webhook:
+    post:
+      summary: Stripe webhook handler
+      description: Handle Stripe webhook events
+      operationId: handleStripeWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe webhook payload
+      responses:
+        "200":
+          description: Webhook processed successfully
+        "400":
+          description: Invalid webhook payload
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+
+    Proof:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        file_name:
+          type: string
+        version:
+          type: integer
+        hash_full:
+          type: string
+        hash_prefix:
+          type: string
+        signature:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        project:
+          type: string
+        visibility:
+          type: string
+        anchor_txid:
+          type: string
+          nullable: true
+        proof_json:
+          type: object
+          description: Canonical proof JSON
+        created_at:
+          type: string
+          format: date-time
+
+    VerificationRequest:
+      type: object
+      oneOf:
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+        - type: object
+          required:
+            - hashHex
+            - signatureB64
+          properties:
+            hashHex:
+              type: string
+            signatureB64:
+              type: string
+
+    VerificationResponse:
+      type: object
+      properties:
+        schema_version:
+          type: integer
+        proof_hash:
+          type: string
+        valid:
+          type: boolean
+        verified_at:
+          type: string
+          format: date-time
+        signer_fp:
+          type: string
+          nullable: true
+        source_registry:
+          type: string
+          enum: [primary, s3, arweave]
+        errors:
+          type: array
+          items:
+            type: string
+
+tags:
+  - name: Proofs
+    description: Proof creation and management
+  - name: Verification
+    description: Proof verification
+  - name: Integrity
+    description: Registry integrity and transparency
+  - name: Billing
+    description: Stripe billing integration

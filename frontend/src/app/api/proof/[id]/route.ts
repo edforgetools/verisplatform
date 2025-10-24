@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";

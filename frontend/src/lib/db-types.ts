@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   public: {
@@ -70,6 +64,7 @@ export type Database = {
           project: string | null;
           visibility: string;
           anchor_txid: string | null;
+          proof_json: Json | null;
           created_at: string | null;
         };
         Insert: {
@@ -84,6 +79,7 @@ export type Database = {
           project?: string | null;
           visibility?: string;
           anchor_txid?: string | null;
+          proof_json?: Json | null;
           created_at?: string | null;
         };
         Update: {
@@ -98,6 +94,7 @@ export type Database = {
           project?: string | null;
           visibility?: string;
           anchor_txid?: string | null;
+          proof_json?: Json | null;
           created_at?: string | null;
         };
         Relationships: [];
@@ -159,6 +156,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      snapshot_meta: {
+        Row: {
+          id: number;
+          batch: number;
+          count: number;
+          merkle_root: string;
+          s3_url: string;
+          arweave_txid: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: number;
+          batch: number;
+          count: number;
+          merkle_root: string;
+          s3_url: string;
+          arweave_txid?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: number;
+          batch?: number;
+          count?: number;
+          merkle_root?: string;
+          s3_url?: string;
+          arweave_txid?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -175,27 +202,25 @@ export type Database = {
   };
 };
 
-type PublicSchema = Database[Extract<keyof Database, 'public'>];
+type PublicSchema = Database[Extract<keyof Database, "public">];
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (PublicSchema['Tables'] & PublicSchema['Views'])
+    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions['schema']]['Tables'] &
-        Database[PublicTableNameOrOptions['schema']]['Views'])
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions['schema']]['Tables'] &
-      Database[PublicTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema['Tables'] &
-      PublicSchema['Views'])
-  ? (PublicSchema['Tables'] &
-      PublicSchema['Views'])[PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  ? (PublicSchema["Tables"] & PublicSchema["Views"])[PublicTableNameOrOptions] extends {
       Row: infer R;
     }
     ? R
@@ -203,20 +228,18 @@ export type Tables<
   : never;
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema['Tables']
-    | { schema: keyof Database },
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
-  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
       Insert: infer I;
     }
     ? I
@@ -224,20 +247,18 @@ export type TablesInsert<
   : never;
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema['Tables']
-    | { schema: keyof Database },
+  PublicTableNameOrOptions extends keyof PublicSchema["Tables"] | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
-  ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
       Update: infer U;
     }
     ? U
@@ -245,35 +266,37 @@ export type TablesUpdate<
   : never;
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema['Enums']
-    | { schema: keyof Database },
+  PublicEnumNameOrOptions extends keyof PublicSchema["Enums"] | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions['schema']]['Enums']
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
-  ? PublicSchema['Enums'][PublicEnumNameOrOptions]
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
   : never;
 
 // Convenience types for your specific tables
-export type AppUser = Tables<'app_users'>;
-export type AppUserInsert = TablesInsert<'app_users'>;
-export type AppUserUpdate = TablesUpdate<'app_users'>;
+export type AppUser = Tables<"app_users">;
+export type AppUserInsert = TablesInsert<"app_users">;
+export type AppUserUpdate = TablesUpdate<"app_users">;
 
-export type Billing = Tables<'billing'>;
-export type BillingInsert = TablesInsert<'billing'>;
-export type BillingUpdate = TablesUpdate<'billing'>;
+export type Billing = Tables<"billing">;
+export type BillingInsert = TablesInsert<"billing">;
+export type BillingUpdate = TablesUpdate<"billing">;
 
-export type Proof = Tables<'proofs'>;
-export type ProofInsert = TablesInsert<'proofs'>;
-export type ProofUpdate = TablesUpdate<'proofs'>;
+export type Proof = Tables<"proofs">;
+export type ProofInsert = TablesInsert<"proofs">;
+export type ProofUpdate = TablesUpdate<"proofs">;
 
-export type Telemetry = Tables<'telemetry'>;
-export type TelemetryInsert = TablesInsert<'telemetry'>;
-export type TelemetryUpdate = TablesUpdate<'telemetry'>;
+export type Telemetry = Tables<"telemetry">;
+export type TelemetryInsert = TablesInsert<"telemetry">;
+export type TelemetryUpdate = TablesUpdate<"telemetry">;
 
-export type TelemetryDaily = Tables<'telemetry_daily'>;
-export type TelemetryDailyInsert = TablesInsert<'telemetry_daily'>;
-export type TelemetryDailyUpdate = TablesUpdate<'telemetry_daily'>;
+export type TelemetryDaily = Tables<"telemetry_daily">;
+export type TelemetryDailyInsert = TablesInsert<"telemetry_daily">;
+export type TelemetryDailyUpdate = TablesUpdate<"telemetry_daily">;
+
+export type SnapshotMeta = Tables<"snapshot_meta">;
+export type SnapshotMetaInsert = TablesInsert<"snapshot_meta">;
+export type SnapshotMetaUpdate = TablesUpdate<"snapshot_meta">;

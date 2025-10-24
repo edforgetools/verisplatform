@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { ENV } from "@/lib/env";
 import { stripe } from "@/lib/stripe";

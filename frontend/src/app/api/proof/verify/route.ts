@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { verifySignature, sha256 } from "@/lib/crypto-server";
+import { verifySignature } from "@/lib/crypto-server";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
@@ -45,9 +45,6 @@ function isVerifyBySignatureRequest(data: unknown): data is VerifyBySignatureReq
   );
 }
 
-function isVerifyByFileRequest(data: unknown): data is VerifyByFileRequest {
-  return typeof data === "object" && data !== null && "file" in data && data.file instanceof File;
-}
 
 async function handleVerifyProof(req: NextRequest) {
   let tmpPath: string | null = null;
@@ -112,38 +109,24 @@ async function handleVerifyProof(req: NextRequest) {
         );
 
         return jsonOk({
-          verified: hashMatch && signatureVerified !== false,
-          verified_by: hashMatch ? (proof.signature ? "signature" : "hash") : "none",
-          hashHex: hashFull,
-          signatureB64: proof.signature,
-          timestamp: proof.timestamp,
-          anchor_txid: proof.anchor_txid,
-          file_name: proof.file_name,
-          created_at: proof.created_at,
-          checks: {
-            hash_match: hashMatch,
-            signature_valid: signatureVerified,
-            timestamp_within_tolerance: timestampWithinTolerance,
-            anchor_exists: !!proof.anchor_txid,
-          },
+          schema_version: 1,
+          proof_hash: hashFull,
+          valid: hashMatch && signatureVerified !== false,
+          verified_at: new Date().toISOString(),
+          signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+          source_registry: "primary",
+          errors: [],
         });
       } else {
         // File-only verification - just return the computed hash
         return jsonOk({
-          verified: true,
-          verified_by: "hash",
-          hashHex: hashFull,
-          signatureB64: null,
-          timestamp: null,
-          anchor_txid: null,
-          file_name: file.name,
-          created_at: null,
-          checks: {
-            hash_match: true,
-            signature_valid: null,
-            timestamp_within_tolerance: null,
-            anchor_exists: null,
-          },
+          schema_version: 1,
+          proof_hash: hashFull,
+          valid: true,
+          verified_at: new Date().toISOString(),
+          signer_fp: null,
+          source_registry: "primary",
+          errors: [],
         });
       }
     }
@@ -198,20 +181,13 @@ async function handleVerifyProof(req: NextRequest) {
       );
 
       return jsonOk({
-        verified: signatureVerified !== false,
-        verified_by: proof.signature ? "signature" : "hash",
-        hashHex: proof.hash_full,
-        signatureB64: proof.signature,
-        timestamp: proof.timestamp,
-        anchor_txid: proof.anchor_txid,
-        file_name: proof.file_name,
-        created_at: proof.created_at,
-        checks: {
-          hash_match: true, // If we found the proof, hash matches
-          signature_valid: signatureVerified,
-          timestamp_within_tolerance: timestampWithinTolerance,
-          anchor_exists: !!proof.anchor_txid,
-        },
+        schema_version: 1,
+        proof_hash: proof.hash_full,
+        valid: signatureVerified !== false,
+        verified_at: new Date().toISOString(),
+        signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+        source_registry: "primary",
+        errors: [],
       });
     }
 
@@ -227,20 +203,13 @@ async function handleVerifyProof(req: NextRequest) {
       );
 
       return jsonOk({
-        verified: signatureVerified,
-        verified_by: "signature",
-        hashHex: body.hashHex,
-        signatureB64: body.signatureB64,
-        timestamp: null,
-        anchor_txid: null,
-        file_name: null,
-        created_at: null,
-        checks: {
-          hash_match: true, // We're verifying the provided hash
-          signature_valid: signatureVerified,
-          timestamp_within_tolerance: null, // Not available for signature-only verification
-          anchor_exists: null, // Not available for signature-only verification
-        },
+        schema_version: 1,
+        proof_hash: body.hashHex,
+        valid: signatureVerified,
+        verified_at: new Date().toISOString(),
+        signer_fp: signatureVerified ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+        source_registry: "primary",
+        errors: signatureVerified ? [] : ["Signature verification failed"],
       });
     }
 
@@ -259,7 +228,7 @@ async function handleVerifyProof(req: NextRequest) {
 
 // Apply rate limiting to the POST handler
 export const POST = withRateLimit(handleVerifyProof, "/api/proof/verify", {
-  capacity: 20, // 20 requests
-  refillRate: 2, // 2 tokens per second
+  capacity: 10, // 10 requests per minute
+  refillRate: 10 / 60, // 10 tokens per minute
   windowMs: 60000, // 1 minute window
 });

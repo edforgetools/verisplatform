@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!validateCronAuth(req)) return new Response("Forbidden", { status: 403 });
 
     const supabase = supabaseAdmin();
-    
+
     // Define retention period (e.g., 90 days for old proofs)
     const retentionDays = 90;
     const cutoffDate = new Date();
@@ -41,10 +41,11 @@ export async function POST(req: Request) {
     }
 
     // Group by visibility
-    const visibilityBreakdown = visibilityCounts?.reduce((acc, proof) => {
-      acc[proof.visibility] = (acc[proof.visibility] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>) || {};
+    const visibilityBreakdown =
+      visibilityCounts?.reduce((acc, proof) => {
+        acc[proof.visibility] = (acc[proof.visibility] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
 
     // Delete old proofs
     const { error: deleteError } = await supabase

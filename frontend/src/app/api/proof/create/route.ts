@@ -9,6 +9,9 @@ import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { generateProofId } from "@/lib/ids";
 import { logger } from "@/lib/logger";
+import { createCanonicalProof, canonicalizeAndSign } from "@/lib/proof-schema";
+import { recordBillingEvent } from "@/lib/billing-service";
+import { withIdempotency } from "@/lib/idempotency";
 
 export const runtime = "nodejs";
 
@@ -62,9 +65,24 @@ async function handleCreateProof(req: NextRequest) {
     const { tmpPath: fileTmpPath, hashFull, hashPrefix } = await streamFileToTmp(file);
     tmpPath = fileTmpPath;
 
-    const signature = signHash(hashFull);
     const ts = new Date().toISOString();
     const proofId = generateProofId();
+
+    // Create canonical proof with schema v1
+    const subject = {
+      type: "file",
+      namespace: "veris",
+      id: proofId,
+    };
+
+    const metadata = {
+      file_name: file.name,
+      project: project || null,
+      user_id: userId,
+    };
+
+    const canonicalProof = createCanonicalProof(hashFull, subject, metadata);
+    const signedProof = canonicalizeAndSign(canonicalProof);
 
     const svc = supabaseService();
     const { data, error } = await svc
@@ -76,10 +94,11 @@ async function handleCreateProof(req: NextRequest) {
         version: 1,
         hash_full: hashFull,
         hash_prefix: hashPrefix,
-        signature,
+        signature: signedProof.signature,
         timestamp: ts,
         project,
         visibility: "public",
+        proof_json: signedProof,
       })
       .select()
       .single();
@@ -106,6 +125,19 @@ async function handleCreateProof(req: NextRequest) {
       "Proof created successfully",
     );
 
+    // Record billing event for successful proof creation
+    await recordBillingEvent({
+      type: "proof.create",
+      userId,
+      proofId: data.id,
+      success: true,
+      metadata: {
+        file_name: file.name,
+        project,
+        hash_prefix: hashPrefix,
+      },
+    });
+
     return jsonOk({
       id: data.id,
       hash_prefix: hashPrefix,
@@ -131,9 +163,13 @@ async function handleCreateProof(req: NextRequest) {
   }
 }
 
-// Apply rate limiting to the POST handler
-export const POST = withRateLimit(handleCreateProof, "/api/proof/create", {
-  capacity: 5, // 5 requests
-  refillRate: 0.5, // 1 token every 2 seconds
-  windowMs: 60000, // 1 minute window
-});
+// Apply rate limiting and idempotency to the POST handler
+export const POST = withRateLimit(
+  withIdempotency(handleCreateProof, 10), // 10 minute idempotency TTL
+  "/api/proof/create",
+  {
+    capacity: 10, // 10 requests per minute
+    refillRate: 10 / 60, // 10 tokens per minute
+    windowMs: 60000, // 1 minute window
+  },
+);

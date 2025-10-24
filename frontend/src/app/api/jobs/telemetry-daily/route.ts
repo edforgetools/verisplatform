@@ -13,12 +13,12 @@ export async function POST(req: Request) {
     if (!validateCronAuth(req)) return new Response("Forbidden", { status: 403 });
 
     const supabase = supabaseAdmin();
-    
+
     // Get counts from telemetry table for the last 24 hours
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
     // Count total telemetry events from yesterday
     const { count: totalEvents, error: countError } = await supabase
       .from("telemetry")
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       return jsonErr(`Failed to count unique users: ${userError.message}`, 500);
     }
 
-    const uniqueUsers = new Set(userData?.map(row => row.user_id)).size;
+    const uniqueUsers = new Set(userData?.map((row) => row.user_id)).size;
 
     // Count events by type
     const { data: eventData, error: eventError } = await supabase
@@ -55,17 +55,18 @@ export async function POST(req: Request) {
       return jsonErr(`Failed to count events by type: ${eventError.message}`, 500);
     }
 
-    const eventBreakdown = eventData?.reduce((acc, row) => {
-      acc[row.event] = (acc[row.event] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>) || {};
+    const eventBreakdown =
+      eventData?.reduce((acc, row) => {
+        acc[row.event] = (acc[row.event] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
 
     // Log the job execution
     const { error } = await supabase.from("telemetry_daily").insert({
       ran_at_utc: new Date().toISOString(),
       ok: true,
     });
-    
+
     if (error) {
       return jsonErr(`Failed to log job execution: ${error.message}`, 500);
     }
