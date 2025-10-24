@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export interface TelemetryDailyJobOptions {
   startDate?: string; // YYYY-MM-DD format
@@ -34,15 +34,11 @@ export async function runTelemetryDailyAggregation(
 
   const start =
     startDate ||
-    new Date(defaultEndDate.getTime() - 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split('T')[0];
-  const end = endDate || defaultEndDate.toISOString().split('T')[0];
+    new Date(defaultEndDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const end = endDate || defaultEndDate.toISOString().split("T")[0];
 
   console.log(
-    `[TelemetryDaily] Processing date range: ${start} to ${end}${
-      dryRun ? ' (DRY RUN)' : ''
-    }`,
+    `[TelemetryDaily] Processing date range: ${start} to ${end}${dryRun ? " (DRY RUN)" : ""}`,
   );
 
   const errors: string[] = [];
@@ -52,23 +48,19 @@ export async function runTelemetryDailyAggregation(
   try {
     // Get all unique events in the date range
     const { data: eventsData, error: eventsError } = await supabaseAdmin()
-      .from('telemetry')
-      .select('event')
-      .gte('created_at', `${start}T00:00:00.000Z`)
-      .lte('created_at', `${end}T23:59:59.999Z`)
-      .not('event', 'is', null);
+      .from("telemetry")
+      .select("event")
+      .gte("created_at", `${start}T00:00:00.000Z`)
+      .lte("created_at", `${end}T23:59:59.999Z`)
+      .not("event", "is", null);
 
     if (eventsError) {
       throw new Error(`Failed to fetch events: ${eventsError.message}`);
     }
 
-    const uniqueEvents = [
-      ...new Set(eventsData?.map((row) => row.event) || []),
-    ];
+    const uniqueEvents = [...new Set(eventsData?.map((row) => row.event) || [])];
     console.log(
-      `[TelemetryDaily] Found ${
-        uniqueEvents.length
-      } unique events: ${uniqueEvents.join(', ')}`,
+      `[TelemetryDaily] Found ${uniqueEvents.length} unique events: ${uniqueEvents.join(", ")}`,
     );
 
     // Process each event for each day in the range
@@ -80,17 +72,17 @@ export async function runTelemetryDailyAggregation(
       currentDate <= endDateObj;
       currentDate.setDate(currentDate.getDate() + 1)
     ) {
-      const dateStr = currentDate.toISOString().split('T')[0];
+      const dateStr = currentDate.toISOString().split("T")[0];
 
       for (const event of uniqueEvents) {
         try {
           // Get aggregated data for this event on this date
           const { data: aggData, error: aggError } = await supabaseAdmin()
-            .from('telemetry')
-            .select('user_id, value, meta')
-            .eq('event', event)
-            .gte('created_at', `${dateStr}T00:00:00.000Z`)
-            .lte('created_at', `${dateStr}T23:59:59.999Z`);
+            .from("telemetry")
+            .select("user_id, value, meta")
+            .eq("event", event)
+            .gte("created_at", `${dateStr}T00:00:00.000Z`)
+            .lte("created_at", `${dateStr}T23:59:59.999Z`);
 
           if (aggError) {
             throw new Error(
@@ -112,7 +104,7 @@ export async function runTelemetryDailyAggregation(
           const meta = aggData
             .filter((row) => row.meta)
             .reduce((acc, row) => {
-              if (typeof row.meta === 'object' && row.meta !== null) {
+              if (typeof row.meta === "object" && row.meta !== null) {
                 return { ...acc, ...row.meta };
               }
               return acc;
@@ -123,7 +115,7 @@ export async function runTelemetryDailyAggregation(
             event,
             count,
             unique_users: uniqueUsers,
-            meta: Object.keys(meta).length > 0 ? meta : {} as Record<string, unknown>,
+            meta: Object.keys(meta).length > 0 ? meta : ({} as Record<string, unknown>),
           };
 
           results.push(result);
@@ -136,7 +128,7 @@ export async function runTelemetryDailyAggregation(
           } else {
             // Upsert into telemetry_daily table
             const { error: upsertError } = await supabaseAdmin()
-              .from('telemetry_daily')
+              .from("telemetry_daily")
               .upsert(
                 {
                   date: dateStr,
@@ -146,14 +138,12 @@ export async function runTelemetryDailyAggregation(
                   meta: Object.keys(meta).length > 0 ? meta : null,
                 },
                 {
-                  onConflict: 'date,event',
+                  onConflict: "date,event",
                 },
               );
 
             if (upsertError) {
-              throw new Error(
-                `Failed to upsert ${event} on ${dateStr}: ${upsertError.message}`,
-              );
+              throw new Error(`Failed to upsert ${event} on ${dateStr}: ${upsertError.message}`);
             }
 
             console.log(
@@ -210,10 +200,7 @@ export async function runTelemetryDailyForDate(date: string, dryRun = false) {
 /**
  * Convenience function to run aggregation for the last N days
  */
-export async function runTelemetryDailyForLastDays(
-  days: number,
-  dryRun = false,
-) {
+export async function runTelemetryDailyForLastDays(days: number, dryRun = false) {
   const endDate = new Date();
   endDate.setDate(endDate.getDate() - 1); // Yesterday
 
@@ -221,8 +208,8 @@ export async function runTelemetryDailyForLastDays(
   startDate.setDate(startDate.getDate() - (days - 1));
 
   return runTelemetryDailyAggregation({
-    startDate: startDate.toISOString().split('T')[0],
-    endDate: endDate.toISOString().split('T')[0],
+    startDate: startDate.toISOString().split("T")[0],
+    endDate: endDate.toISOString().split("T")[0],
     dryRun,
   });
 }

@@ -126,7 +126,10 @@ async function getStripeAccountId(): Promise<string | null> {
     const account = await stripe.accounts.retrieve();
     return account.id;
   } catch (error) {
-    logger.warn({ error: error instanceof Error ? error.message : "Unknown error" }, "Failed to retrieve Stripe account ID");
+    logger.warn(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      "Failed to retrieve Stripe account ID",
+    );
     return null;
   }
 }

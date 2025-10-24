@@ -33,6 +33,9 @@ const customJestConfig = {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(canonical-json|@apidevtools|swagger-parser|z-schema|validator)/)',
+  ],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

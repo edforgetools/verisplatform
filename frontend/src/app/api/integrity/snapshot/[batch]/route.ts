@@ -11,7 +11,10 @@ import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
-async function handleSnapshotIntegrity(req: NextRequest, { params }: { params: Promise<{ batch: string }> }) {
+async function handleSnapshotIntegrity(
+  req: NextRequest,
+  { params }: { params: Promise<{ batch: string }> },
+) {
   try {
     const { batch: batchStr } = await params;
     const batch = parseInt(batchStr, 10);

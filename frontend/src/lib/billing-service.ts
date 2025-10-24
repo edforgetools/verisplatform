@@ -93,14 +93,9 @@ async function recordStripeUsage(event: BillingEvent): Promise<void> {
     throw new Error("STRIPE_USAGE_PRICE_ID environment variable not set");
   }
 
-  await stripe.subscriptionItems.createUsageRecord(
-    priceId, // This should be the subscription item ID, not price ID
-    {
-      quantity: 1,
-      timestamp: Math.floor(Date.now() / 1000),
-      action: "increment",
-    },
-  );
+  // Note: This requires a subscription item ID, not a price ID
+  // For now, we'll skip the usage recording until we have proper subscription management
+  logger.warn("Usage recording skipped - requires subscription item ID", { priceId });
 }
 
 /**
