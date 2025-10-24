@@ -95,7 +95,7 @@ async function recordStripeUsage(event: BillingEvent): Promise<void> {
 
   // Note: This requires a subscription item ID, not a price ID
   // For now, we'll skip the usage recording until we have proper subscription management
-  logger.warn("Usage recording skipped - requires subscription item ID", { priceId });
+  logger.warn({ priceId }, "Usage recording skipped - requires subscription item ID");
 }
 
 /**

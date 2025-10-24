@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://verisplatform.com/schema/proof.v1.json",
   "title": "Veris Proof Schema v1",
   "description": "Canonical proof schema for cryptographic verification",

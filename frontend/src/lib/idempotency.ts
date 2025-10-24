@@ -117,7 +117,7 @@ export async function storeIdempotency(
 /**
  * Get Redis client (if available)
  */
-async function getRedis(): Promise<unknown> {
+async function getRedis(): Promise<import("ioredis").default | null> {
   try {
     const url = process.env.UPSTASH_REDIS_URL || process.env.REDIS_URL;
     if (!url) return null;
@@ -153,7 +153,7 @@ export function withIdempotency<T extends unknown[]>(
         "Returning cached idempotency response",
       );
       return new Response(JSON.stringify(cached.response), {
-        status: cached.status,
+        status: cached.status || 200,
         headers: {
           "Content-Type": "application/json",
           "Idempotency-Key": idempotencyKey,

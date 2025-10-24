@@ -199,7 +199,7 @@ export async function createRegistrySnapshot(
       manifest,
     };
   } catch (error: unknown) {
-    if (error.name !== "NotFound") {
+    if (error instanceof Error && error.name !== "NotFound") {
       throw error;
     }
     // File doesn't exist, proceed with upload
