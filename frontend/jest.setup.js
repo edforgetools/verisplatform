@@ -5,10 +5,14 @@
 global.jest = global.jest || {};
 global.jest.Mock = global.jest.Mock || function () {};
 
-// Mock require for ES modules
+// Mock require for ES modules - allow it in test environment
 global.require =
   global.require ||
-  function () {
+  function (id) {
+    // Allow require for test dependencies
+    if (id && (id.includes('arweave') || id.includes('@upstash') || id.includes('crypto'))) {
+      return {};
+    }
     throw new Error("require() is not available in ES module mode. Use import instead.");
   };
 

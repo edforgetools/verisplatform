@@ -1,0 +1,83 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - link "Veris" [ref=e7] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e8]:
+          - link "Demo" [ref=e9] [cursor=pointer]:
+            - /url: /demo
+          - link "Verify" [ref=e10] [cursor=pointer]:
+            - /url: /verify
+          - link "Billing" [ref=e11] [cursor=pointer]:
+            - /url: /billing
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Registry Integrity" [level=1] [ref=e14]
+        - paragraph [ref=e15]: Cryptographic transparency and integrity verification for the Veris registry
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - heading "System Health" [level=2] [ref=e18]
+          - generic [ref=e19]: HEALTHY
+        - generic [ref=e20]:
+          - generic [ref=e21]: Total Proofs:1,500
+          - generic [ref=e22]: Last Check:1/1/2024, 11:00:00 AM
+        - generic [ref=e23]:
+          - heading "Health Checks:" [level=3] [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: ✅
+              - generic [ref=e28]: Signing Key Present
+            - generic [ref=e29]:
+              - generic [ref=e30]: ✅
+              - generic [ref=e31]: Database Accessible
+            - generic [ref=e32]:
+              - generic [ref=e33]: ✅
+              - generic [ref=e34]: Snapshot Exists
+            - generic [ref=e35]:
+              - generic [ref=e36]: ✅
+              - generic [ref=e37]: Snapshot Recent
+            - generic [ref=e38]:
+              - generic [ref=e39]: ✅
+              - generic [ref=e40]: Arweave Published
+            - generic [ref=e41]:
+              - generic [ref=e42]: ✅
+              - generic [ref=e43]: Snapshot Count Correct
+      - generic [ref=e44]:
+        - heading "Latest Snapshot" [level=2] [ref=e45]
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - text: "Batch:"
+              - generic [ref=e49]: "#1"
+            - generic [ref=e50]:
+              - text: "Schema Version:"
+              - generic [ref=e51]: v1
+            - generic [ref=e52]: Merkle Root:a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+            - generic [ref=e53]: Created:1/1/2024, 11:00:00 AM
+          - generic [ref=e54]:
+            - heading "Links:" [level=3] [ref=e55]
+            - generic [ref=e56]:
+              - link "📄 S3 Manifest" [ref=e58] [cursor=pointer]:
+                - /url: https://test-bucket.s3.us-east-1.amazonaws.com/registry/snapshots/1.manifest.json
+              - link "🔗 Arweave Transaction" [ref=e60] [cursor=pointer]:
+                - /url: https://arweave.net/test-arweave-txid
+          - generic [ref=e61]:
+            - heading "Verification Commands:" [level=3] [ref=e62]
+            - code [ref=e64]: "# Verify registry integrity # Download and verify manifest curl -s \"https://test-bucket.s3.us-east-1.amazonaws.com/registry/snapshots/1.manifest.json\" > manifest.json # Verify signature (requires Veris public key) openssl dgst -sha256 -verify veris-public.pem -signature manifest.json.sig manifest.json # Verify Merkle root echo \"Expected Merkle root: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456\" echo \"Schema version: 1\""
+      - generic [ref=e65]:
+        - heading "Transparency Notice" [level=2] [ref=e66]
+        - generic [ref=e67]:
+          - paragraph [ref=e68]: Veris publishes cryptographic snapshots of issued proofs for transparency. Snapshots and manifests are provided "as is" without warranties or guarantees of completeness. Verification results are informational and not legal advice. Use of this site and API is subject to our Terms and Privacy Policy.
+          - paragraph [ref=e69]:
+            - text: For questions about registry integrity or to report issues, please contact
+            - link "support@verisplatform.com" [ref=e70] [cursor=pointer]:
+              - /url: mailto:support@verisplatform.com
+            - text: .
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e80]
+```

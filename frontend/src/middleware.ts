@@ -2,11 +2,22 @@ import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// Initialize Redis only if environment variables are available
+// Initialize Redis only if environment variables are available and not in test environment
 let redis: Redis | null = null;
 let limiter: Ratelimit | null = null;
 
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+// Skip Redis initialization in test environments or when using placeholder values
+const isTestEnvironment =
+  process.env.NODE_ENV === "test" ||
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.UPSTASH_REDIS_REST_URL?.includes("placeholder") ||
+  process.env.UPSTASH_REDIS_REST_TOKEN?.includes("placeholder");
+
+if (
+  !isTestEnvironment &&
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN
+) {
   try {
     redis = new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
