@@ -379,8 +379,8 @@ export class VerisClient {
     if (detailed) searchParams.set("detailed", "true");
     if (metrics) searchParams.set("metrics", "true");
 
-    const response = await this.request(`/api/health?${searchParams}`);
-    return response;
+    const response = await this.client.get<HealthStatus>(`/api/health?${searchParams}`);
+    return response.data;
   }
 
   /**
@@ -395,8 +395,8 @@ export class VerisClient {
     if (definitions) searchParams.set("definitions", "true");
     if (history) searchParams.set("history", "true");
 
-    const response = await this.request(`/api/slo?${searchParams}`);
-    return response;
+    const response = await this.client.get<SLOStatus>(`/api/slo?${searchParams}`);
+    return response.data;
   }
 
   /**
@@ -410,8 +410,8 @@ export class VerisClient {
     const searchParams = new URLSearchParams({ range, format });
     if (details) searchParams.set("details", "true");
 
-    const response = await this.request(`/api/performance?${searchParams}`);
-    return response;
+    const response = await this.client.get<PerformanceMetrics>(`/api/performance?${searchParams}`);
+    return response.data;
   }
 
   /**
