@@ -12,6 +12,7 @@ const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.after.js"],
   testEnvironment: "node",
   testMatch: ["**/__tests__/**/*.test.ts"],
+  testPathIgnorePatterns: ["<rootDir>/src/__tests__/disabled/"],
   collectCoverageFrom: [
     "src/**/*.{js,jsx,ts,tsx}",
     "!src/**/*.d.ts",

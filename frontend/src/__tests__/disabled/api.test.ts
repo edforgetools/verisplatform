@@ -216,8 +216,8 @@ describe("API Routes", () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data).toHaveProperty("valid");
-      expect(data).toHaveProperty("proof_hash");
+      expect(data.data).toHaveProperty("valid");
+      expect(data.data).toHaveProperty("proof_hash");
     });
 
     it("should handle missing proof ID", async () => {
@@ -247,7 +247,7 @@ describe("API Routes", () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data).toHaveProperty("ok");
+      expect(data.data).toHaveProperty("ok");
     });
   });
 });

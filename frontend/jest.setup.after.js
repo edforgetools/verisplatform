@@ -118,3 +118,25 @@ jest.mock("canonical-json", () => {
     stringifyCopy: mockCanonicalJson,
   };
 });
+
+// Mock logger module
+const mockLogger = {
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+  child: jest.fn(() => mockLogger),
+};
+
+jest.mock("@/lib/logger", () => ({
+  logger: mockLogger,
+  createRequestLogger: jest.fn(() => mockLogger),
+  loggers: {
+    apiRequest: jest.fn(),
+    apiResponse: jest.fn(),
+    apiError: jest.fn(),
+    security: jest.fn(),
+    billing: jest.fn(),
+    telemetry: jest.fn(),
+  },
+}));
