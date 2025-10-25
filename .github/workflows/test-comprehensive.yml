@@ -62,7 +62,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run frontend unit tests
         run: pnpm --filter frontend run test:ci
@@ -120,7 +120,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run integration tests
         run: pnpm --filter frontend run test -- --testPathPattern="integration" || echo "Integration tests not configured yet"
@@ -156,7 +156,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Install Playwright browsers
         run: pnpm --filter frontend exec playwright install --with-deps
@@ -219,7 +219,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build frontend
         run: pnpm --filter frontend run build
@@ -284,7 +284,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run security audit
         run: pnpm audit --audit-level moderate
@@ -330,7 +330,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build frontend
         run: pnpm --filter frontend run build

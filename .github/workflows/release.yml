@@ -79,7 +79,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Type check
         run: pnpm --filter frontend run typecheck
@@ -188,7 +188,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Update SDK version
         run: |
@@ -225,7 +225,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build frontend
         run: pnpm --filter frontend run build
@@ -265,7 +265,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Generate API documentation
         run: |

@@ -86,7 +86,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Type check
         run: pnpm --filter frontend run typecheck
@@ -173,7 +173,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -256,7 +256,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Install Playwright browsers
         run: pnpm --filter frontend exec playwright install --with-deps

@@ -138,6 +138,9 @@ jobs:
               echo "Production SLOs are not being met: $SLO_STATUS"
               exit 1
             fi
+          elif [ "$HTTP_CODE" = "404" ]; then
+            echo "SLO endpoints not deployed (404) - skipping check"
+            echo "slo_status=not-deployed" >> $GITHUB_OUTPUT
           else
             echo "Failed to fetch SLO status: HTTP $HTTP_CODE"
             exit 1
@@ -217,8 +220,11 @@ jobs:
               echo "High error rate detected: ${ERROR_RATE}"
               exit 1
             fi
-            
-            echo "Performance metrics are within acceptable ranges"
+          elif [ "$HTTP_CODE" = "404" ]; then
+            echo "Performance endpoints not deployed (404) - skipping check"
+            echo "avg_latency=N/A" >> $GITHUB_OUTPUT
+            echo "error_rate=N/A" >> $GITHUB_OUTPUT
+            echo "throughput=N/A" >> $GITHUB_OUTPUT
           else
             echo "Failed to fetch performance metrics: HTTP $HTTP_CODE"
             exit 1

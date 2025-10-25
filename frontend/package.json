@@ -87,10 +87,5 @@
     "ts-jest": "^29.1.2",
     "tsx": "^4.19.2",
     "typescript": "^5"
-  },
-  "pnpm": {
-    "overrides": {
-      "validator": "^14.0.0"
-    }
   }
 }
