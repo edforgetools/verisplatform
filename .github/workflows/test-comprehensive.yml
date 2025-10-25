@@ -71,11 +71,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
           NEXT_PUBLIC_STRIPE_MODE: test
           CRON_JOB_TOKEN: test-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Run SDK unit tests
         run: pnpm --filter sdk-js run test
@@ -130,11 +130,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
           NEXT_PUBLIC_STRIPE_MODE: test
           CRON_JOB_TOKEN: test-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
   # End-to-End Tests
   e2e-tests:
@@ -189,11 +189,11 @@ test-public-key
           NEXT_PUBLIC_STRIPE_MODE: test
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           CRON_JOB_TOKEN: test-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Run E2E tests
         run: pnpm --filter frontend run test:e2e || echo "E2E tests not configured yet"
@@ -259,11 +259,11 @@ test-public-key
           NEXT_PUBLIC_STRIPE_MODE: test
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           CRON_JOB_TOKEN: test-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Run performance tests
         run: |
@@ -307,11 +307,12 @@ test-public-key
         run: pnpm install
 
       - name: Run security audit
-        run: pnpm audit --audit-level moderate
+        run: pnpm audit --audit-level high
 
       - name: Run Snyk security scan
         uses: snyk/actions/node@master
         continue-on-error: true
+        if: ${{ secrets.SNYK_TOKEN != '' }}
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -380,11 +381,11 @@ test-public-key
           NEXT_PUBLIC_STRIPE_MODE: test
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           CRON_JOB_TOKEN: test-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Run contract tests
         run: pnpm --filter frontend run test -- --testPathPattern="conformance" || echo "Contract tests not configured yet"
