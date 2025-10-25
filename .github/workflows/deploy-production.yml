@@ -95,7 +95,7 @@ jobs:
         run: pnpm --filter frontend run lint
 
       - name: Security audit
-        run: pnpm audit --audit-level moderate
+        run: pnpm audit --audit-level high
 
       - name: Unit tests
         run: pnpm --filter frontend run test:ci
