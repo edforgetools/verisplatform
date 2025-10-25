@@ -18,63 +18,94 @@ config({ path: ".env.local" });
 // This schema defines the minimum required environment variables for a successful build
 // Some variables are optional for development but required for production
 
-const buildTimeSchema = z.object({
-  // Required for all environments
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url("Invalid Supabase URL"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(10, "Supabase anon key too short"),
-  supabaseservicekey: z.string().min(10, "Supabase service key too short"),
-  STRIPE_SECRET_KEY: z.string().startsWith("sk_", "Invalid Stripe secret key format"),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_", "Invalid Stripe webhook secret format"),
-  VERIS_SIGNING_PRIVATE_KEY: z.string().min(100, "Veris signing private key too short"),
-  VERIS_SIGNING_PUBLIC_KEY: z.string().min(100, "Veris signing public key too short"),
+// Create different schemas for CI vs local development
+const createBuildTimeSchema = (isCI: boolean) => {
+  const baseSchema = {
+    // Required for all environments
+    NEXT_PUBLIC_SUPABASE_URL: isCI 
+      ? z.string().min(1, "Supabase URL required")
+      : z.string().url("Invalid Supabase URL"),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: isCI
+      ? z.string().min(1, "Supabase anon key required")
+      : z.string().min(10, "Supabase anon key too short"),
+    supabaseservicekey: isCI
+      ? z.string().min(1, "Supabase service key required")
+      : z.string().min(10, "Supabase service key too short"),
+    STRIPE_SECRET_KEY: isCI
+      ? z.string().min(1, "Stripe secret key required")
+      : z.string().startsWith("sk_", "Invalid Stripe secret key format"),
+    STRIPE_WEBHOOK_SECRET: isCI
+      ? z.string().min(1, "Stripe webhook secret required")
+      : z.string().startsWith("whsec_", "Invalid Stripe webhook secret format"),
+    VERIS_SIGNING_PRIVATE_KEY: isCI
+      ? z.string().min(1, "Veris signing private key required")
+      : z.string().min(100, "Veris signing private key too short"),
+    VERIS_SIGNING_PUBLIC_KEY: isCI
+      ? z.string().min(1, "Veris signing public key required")
+      : z.string().min(100, "Veris signing public key too short"),
   
-  // CRON authentication (at least one required)
-  CRON_JOB_TOKEN: z.string().min(16, "CRON token must be at least 16 characters").optional(),
-  CRON_SECRET: z.string().min(16, "CRON secret must be at least 16 characters").optional(),
-  
-  // Optional for development, but validated if present
-  NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
-  NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
-  NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: z.string().optional(),
-  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
-  UPSTASH_REDIS_URL: z.string().url("Invalid Upstash Redis URL").optional(),
-  REDIS_URL: z.string().url("Invalid Redis URL").optional(),
-  UPSTASH_REDIS_REST_URL: z.string().url("Invalid Upstash Redis REST URL").optional(),
-  UPSTASH_REDIS_REST_TOKEN: z.string().min(1, "Upstash Redis REST token required").optional(),
-  AWS_REGION: z.string().min(1, "AWS region required").optional(),
-  AWS_ROLE_ARN: z.string().startsWith("arn:aws:iam::", "Invalid AWS role ARN format").optional(),
-  REGISTRY_S3_BUCKET: z.string().min(1, "Registry S3 bucket required").optional(),
-  REGISTRY_S3_STAGING_BUCKET: z.string().min(1, "Registry S3 staging bucket required").optional(),
-  REGISTRY_S3_PRODUCTION_BUCKET: z.string().min(1, "Registry S3 production bucket required").optional(),
-  REGISTRY_S3_PREFIX: z.string().optional(),
-  ARWEAVE_GATEWAY_URL: z.string().url("Invalid Arweave gateway URL").optional(),
-  ARWEAVE_WALLET_JSON: z.string().optional(),
-  SENTRY_DSN: z.string().url("Invalid Sentry DSN").optional(),
-}).refine(
-  (v) => {
-    // At least one CRON authentication method must be provided
-    return !!(v.CRON_JOB_TOKEN || v.CRON_SECRET);
-  },
-  { 
-    message: "Either CRON_JOB_TOKEN or CRON_SECRET must be provided",
-    path: ["CRON_JOB_TOKEN"]
-  },
-).refine(
-  (v) => {
-    // If Redis REST is configured, both URL and token are required
-    if (v.UPSTASH_REDIS_REST_URL || v.UPSTASH_REDIS_REST_TOKEN) {
-      return !!(v.UPSTASH_REDIS_REST_URL && v.UPSTASH_REDIS_REST_TOKEN);
+    // CRON authentication (at least one required)
+    CRON_JOB_TOKEN: isCI
+      ? z.string().min(1, "CRON token required").optional()
+      : z.string().min(16, "CRON token must be at least 16 characters").optional(),
+    CRON_SECRET: isCI
+      ? z.string().min(1, "CRON secret required").optional()
+      : z.string().min(16, "CRON secret must be at least 16 characters").optional(),
+    
+    // Optional for development, but validated if present
+    NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
+    NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
+    NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: z.string().optional(),
+    NEXT_PUBLIC_SITE_URL: isCI
+      ? z.string().min(1, "Site URL required").optional()
+      : z.string().url().optional(),
+    UPSTASH_REDIS_URL: z.string().url("Invalid Upstash Redis URL").optional(),
+    REDIS_URL: z.string().url("Invalid Redis URL").optional(),
+    UPSTASH_REDIS_REST_URL: z.string().url("Invalid Upstash Redis REST URL").optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1, "Upstash Redis REST token required").optional(),
+    AWS_REGION: z.string().min(1, "AWS region required").optional(),
+    AWS_ROLE_ARN: z.string().startsWith("arn:aws:iam::", "Invalid AWS role ARN format").optional(),
+    REGISTRY_S3_BUCKET: z.string().min(1, "Registry S3 bucket required").optional(),
+    REGISTRY_S3_STAGING_BUCKET: z.string().min(1, "Registry S3 staging bucket required").optional(),
+    REGISTRY_S3_PRODUCTION_BUCKET: z.string().min(1, "Registry S3 production bucket required").optional(),
+    REGISTRY_S3_PREFIX: z.string().optional(),
+    ARWEAVE_GATEWAY_URL: z.string().url("Invalid Arweave gateway URL").optional(),
+    ARWEAVE_WALLET_JSON: z.string().optional(),
+    SENTRY_DSN: z.string().url("Invalid Sentry DSN").optional(),
+  };
+
+  return z.object(baseSchema).refine(
+    (v) => {
+      // At least one CRON authentication method must be provided
+      return !!(v.CRON_JOB_TOKEN || v.CRON_SECRET);
+    },
+    { 
+      message: "Either CRON_JOB_TOKEN or CRON_SECRET must be provided",
+      path: ["CRON_JOB_TOKEN"]
+    },
+  ).refine(
+    (v) => {
+      // If Redis REST is configured, both URL and token are required
+      if (v.UPSTASH_REDIS_REST_URL || v.UPSTASH_REDIS_REST_TOKEN) {
+        return !!(v.UPSTASH_REDIS_REST_URL && v.UPSTASH_REDIS_REST_TOKEN);
+      }
+      return true;
+    },
+    {
+      message: "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required when using Upstash Redis REST",
+      path: ["UPSTASH_REDIS_REST_URL"]
     }
-    return true;
-  },
-  {
-    message: "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required when using Upstash Redis REST",
-    path: ["UPSTASH_REDIS_REST_URL"]
-  }
-);
+  );
+};
 
 function validateEnvironment() {
+  // Check if we're in CI environment
+  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+  
   console.log("🔍 Validating environment variables...");
+  if (isCI) {
+    console.log("🏗️  Running in CI mode with relaxed validation");
+  }
   
   const envVars = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -105,6 +136,7 @@ function validateEnvironment() {
     SENTRY_DSN: process.env.SENTRY_DSN,
   };
 
+  const buildTimeSchema = createBuildTimeSchema(isCI);
   const result = buildTimeSchema.safeParse(envVars);
 
   if (!result.success) {
