@@ -63,7 +63,7 @@ jobs:
     name: Full CI Pipeline
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event.inputs.pipeline_type == 'full'
-    needs: quick-validation
+    needs: [quick-validation]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,9 +99,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Build application
         run: pnpm --filter frontend run build
@@ -167,9 +167,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run E2E tests
         run: pnpm --filter frontend run test:e2e

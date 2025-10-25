@@ -73,9 +73,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run SDK unit tests
         run: pnpm --filter sdk-js run test
@@ -132,9 +132,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
   # End-to-End Tests
   e2e-tests:
@@ -181,9 +181,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run E2E tests
         run: pnpm --filter frontend run test:e2e
@@ -241,9 +241,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run performance tests
         run: |
@@ -356,9 +356,9 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_KEY: test-service-key
-          VERIS_SIGNING_PRIVATE_KEY: test-private-key
-          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run contract tests
         run: pnpm --filter frontend run test -- --testPathPattern="conformance"

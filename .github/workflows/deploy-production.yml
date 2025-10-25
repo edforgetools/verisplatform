@@ -106,7 +106,7 @@ jobs:
           CRON_JOB_TOKEN: ${{ secrets.PROD_CRON_JOB_TOKEN }}
           STRIPE_SECRET_KEY: ${{ secrets.PROD_STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.PROD_STRIPE_WEBHOOK_SECRET }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
+          supabaseservicekey: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.PROD_VERIS_SIGNING_PRIVATE_KEY }}
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.PROD_VERIS_SIGNING_PUBLIC_KEY }}
 
@@ -120,7 +120,7 @@ jobs:
           CRON_JOB_TOKEN: ${{ secrets.PROD_CRON_JOB_TOKEN }}
           STRIPE_SECRET_KEY: ${{ secrets.PROD_STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.PROD_STRIPE_WEBHOOK_SECRET }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
+          supabaseservicekey: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.PROD_VERIS_SIGNING_PRIVATE_KEY }}
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.PROD_VERIS_SIGNING_PUBLIC_KEY }}
 
@@ -191,7 +191,7 @@ jobs:
           CRON_JOB_TOKEN: ${{ secrets.PROD_CRON_JOB_TOKEN }}
           STRIPE_SECRET_KEY: ${{ secrets.PROD_STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.PROD_STRIPE_WEBHOOK_SECRET }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
+          supabaseservicekey: ${{ secrets.PROD_SUPABASE_SERVICE_KEY }}
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.PROD_VERIS_SIGNING_PRIVATE_KEY }}
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.PROD_VERIS_SIGNING_PUBLIC_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
@@ -206,7 +206,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./frontend
-          vercel-args: '--prod=true'
+          vercel-args: '--prod'
 
       - name: Wait for deployment
         run: |
