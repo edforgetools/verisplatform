@@ -32,22 +32,33 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
+        if: ${{ secrets.AWS_ROLE_ARN != '' }}
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Create registry snapshot
+        if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
         run: |
           curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-snapshot" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
             -H "Content-Type: application/json"
         id: snapshot
 
+      - name: Skip registry snapshot (no credentials)
+        if: ${{ secrets.API_BASE_URL == '' || secrets.API_TOKEN == '' }}
+        run: |
+          echo "Skipping registry snapshot - API credentials not configured"
+          echo "new_batch=false" >> $GITHUB_OUTPUT
+        id: skip-snapshot
+
       - name: Check if new batch was created
         id: check-batch
         run: |
           if [ "${{ steps.snapshot.outcome }}" = "success" ]; then
             echo "new_batch=true" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.skip-snapshot.outcome }}" = "success" ]; then
+            echo "new_batch=false" >> $GITHUB_OUTPUT
           else
             echo "new_batch=false" >> $GITHUB_OUTPUT
           fi
@@ -67,11 +78,13 @@ jobs:
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
+        if: ${{ secrets.AWS_ROLE_ARN != '' }}
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Get latest batch number
+        if: ${{ secrets.API_BASE_URL != '' }}
         id: get-batch
         run: |
           BATCH=$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.batch // empty')
@@ -82,6 +95,7 @@ jobs:
           fi
 
       - name: Publish to Arweave
+        if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
         run: |
           curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-arweave" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
@@ -89,6 +103,7 @@ jobs:
             -d "{\"batch\": ${{ steps.get-batch.outputs.batch }}}"
 
       - name: Verify Arweave publication
+        if: ${{ secrets.API_BASE_URL != '' }}
         run: |
           curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty'
           if [ -z "$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty')" ]; then
