@@ -1,6 +1,6 @@
 /**
  * Snapshot and Mirror Protocol
- * 
+ *
  * Implements the snapshot and mirror protocol as specified in the MVP checklist:
  * 1. Generate snapshot manifest of registry JSONs
  * 2. Sign manifest
@@ -8,11 +8,12 @@
  * 4. Verify snapshot hash matches original schema
  */
 
-import { createRegistrySnapshot, SnapshotResult } from './registry-snapshot';
-import { publishSnapshotToArweave, isSnapshotPublished } from './arweave-publisher';
-import { supabaseService } from './db';
-import { logger } from './logger';
-import { CanonicalProofV1 } from './proof-schema';
+import { createRegistrySnapshot, SnapshotResult } from "./registry-snapshot";
+import { publishSnapshotToArweave, isSnapshotPublished } from "./arweave-publisher";
+import { supabaseService } from "./db";
+import { logger } from "./logger";
+import { CanonicalProofV1 } from "./proof-schema";
+import { isSnapshotAutomationEnabled, isMirrorsEnabled } from "./env";
 
 export interface SnapshotMirrorResult {
   batch: number;
@@ -39,55 +40,62 @@ export interface MirrorIntegrityCheck {
  */
 export async function createSnapshotAndMirror(
   batch: number,
-  proofs: CanonicalProofV1[]
+  proofs: CanonicalProofV1[],
 ): Promise<SnapshotMirrorResult> {
+  // Feature flag check - snapshot automation disabled by default for MVP
+  if (!isSnapshotAutomationEnabled()) {
+    throw new Error("Snapshot automation is disabled");
+  }
+
   try {
     logger.info(
       {
         batch,
         proofCount: proofs.length,
       },
-      'Creating snapshot and mirroring to Arweave'
+      "Creating snapshot and mirroring to Arweave",
     );
 
     // Step 1: Create registry snapshot
     const snapshotResult = await createRegistrySnapshot(batch, proofs);
-    
+
     logger.info(
       {
         batch,
         s3Url: snapshotResult.s3_url,
         merkleRoot: snapshotResult.merkle_root,
       },
-      'Registry snapshot created'
+      "Registry snapshot created",
     );
 
     // Step 2: Check if already published to Arweave
     const isPublished = await isSnapshotPublished(batch);
-    
+
     let arweaveTxId: string | null = null;
     let arweaveUrl: string | null = null;
 
     if (!isPublished) {
-      // Step 3: Publish to Arweave
-      const arweaveResult = await publishSnapshotToArweave(batch);
-      arweaveTxId = arweaveResult.manifestTxId;
-      arweaveUrl = arweaveResult.manifestUrl;
-      
+      // Step 3: Publish to Arweave (only if mirrors are enabled)
+      if (isMirrorsEnabled()) {
+        const arweaveResult = await publishSnapshotToArweave(batch);
+        arweaveTxId = arweaveResult.manifestTxId;
+        arweaveUrl = arweaveResult.manifestUrl;
+      }
+
       logger.info(
         {
           batch,
           arweaveTxId,
           arweaveUrl,
         },
-        'Snapshot published to Arweave'
+        "Snapshot published to Arweave",
       );
     } else {
       logger.info(
         {
           batch,
         },
-        'Snapshot already published to Arweave'
+        "Snapshot already published to Arweave",
       );
     }
 
@@ -96,18 +104,21 @@ export async function createSnapshotAndMirror(
 
     // Step 5: Store metadata
     const svc = supabaseService();
-    await svc.from('snapshot_meta').upsert({
-      batch,
-      count: proofs.length,
-      merkle_root: snapshotResult.merkle_root,
-      s3_url: snapshotResult.s3_url,
-      arweave_txid: arweaveTxId,
-      arweave_url: arweaveUrl,
-      integrity_verified: integrityVerified,
-      published_at: new Date().toISOString(),
-    }, {
-      onConflict: 'batch',
-    });
+    await svc.from("snapshot_meta").upsert(
+      {
+        batch,
+        count: proofs.length,
+        merkle_root: snapshotResult.merkle_root,
+        s3_url: snapshotResult.s3_url,
+        arweave_txid: arweaveTxId,
+        arweave_url: arweaveUrl,
+        integrity_verified: integrityVerified,
+        published_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "batch",
+      },
+    );
 
     const result: SnapshotMirrorResult = {
       batch,
@@ -125,18 +136,17 @@ export async function createSnapshotAndMirror(
         batch,
         integrityVerified,
       },
-      'Snapshot and mirror protocol completed'
+      "Snapshot and mirror protocol completed",
     );
 
     return result;
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         batch,
       },
-      'Failed to create snapshot and mirror'
+      "Failed to create snapshot and mirror",
     );
     throw error;
   }
@@ -147,15 +157,15 @@ export async function createSnapshotAndMirror(
  */
 export async function verifySnapshotIntegrity(
   batch: number,
-  proofs: CanonicalProofV1[]
+  proofs: CanonicalProofV1[],
 ): Promise<boolean> {
   try {
     // Get snapshot metadata
     const svc = supabaseService();
     const { data: snapshotMeta, error } = await svc
-      .from('snapshot_meta')
-      .select('*')
-      .eq('batch', batch)
+      .from("snapshot_meta")
+      .select("*")
+      .eq("batch", batch)
       .single();
 
     if (error || !snapshotMeta) {
@@ -164,14 +174,14 @@ export async function verifySnapshotIntegrity(
           error: error?.message,
           batch,
         },
-        'Snapshot metadata not found'
+        "Snapshot metadata not found",
       );
       return false;
     }
 
     // Verify S3 integrity
     const s3Integrity = await verifyS3SnapshotIntegrity(batch, proofs);
-    
+
     // Verify Arweave integrity (if published)
     let arweaveIntegrity = true;
     if (snapshotMeta.arweave_txid) {
@@ -191,18 +201,17 @@ export async function verifySnapshotIntegrity(
         hashConsistency,
         overallIntegrity,
       },
-      'Snapshot integrity verification completed'
+      "Snapshot integrity verification completed",
     );
 
     return overallIntegrity;
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         batch,
       },
-      'Failed to verify snapshot integrity'
+      "Failed to verify snapshot integrity",
     );
     return false;
   }
@@ -213,16 +222,16 @@ export async function verifySnapshotIntegrity(
  */
 async function verifyS3SnapshotIntegrity(
   batch: number,
-  proofs: CanonicalProofV1[]
+  proofs: CanonicalProofV1[],
 ): Promise<boolean> {
   try {
     // This would use the existing verifySnapshotIntegrity function from registry-snapshot.ts
     // For now, we'll do a basic check
     const svc = supabaseService();
     const { data: snapshotMeta } = await svc
-      .from('snapshot_meta')
-      .select('merkle_root, count')
-      .eq('batch', batch)
+      .from("snapshot_meta")
+      .select("merkle_root, count")
+      .eq("batch", batch)
       .single();
 
     if (!snapshotMeta) {
@@ -231,14 +240,13 @@ async function verifyS3SnapshotIntegrity(
 
     // Basic validation
     return snapshotMeta.count === proofs.length;
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         batch,
       },
-      'Failed to verify S3 snapshot integrity'
+      "Failed to verify S3 snapshot integrity",
     );
     return false;
   }
@@ -249,37 +257,34 @@ async function verifyS3SnapshotIntegrity(
  */
 async function verifyArweaveSnapshotIntegrity(
   batch: number,
-  arweaveTxId: string
+  arweaveTxId: string,
 ): Promise<boolean> {
   try {
     // This would verify the Arweave transaction and its content
     // For now, we'll do a basic check
-    const arweave = require('arweave').default;
-    const gatewayUrl = process.env.ARWEAVE_GATEWAY_URL || 'https://arweave.net';
-    
+    const arweave = require("arweave").default;
+    const gatewayUrl = process.env.ARWEAVE_GATEWAY_URL || "https://arweave.net";
+
     const arweaveClient = arweave.init({
-      host: gatewayUrl.replace(/^https?:\/\//, ''),
-      port: gatewayUrl.startsWith('https') ? 443 : 80,
-      protocol: gatewayUrl.startsWith('https') ? 'https' : 'http',
+      host: gatewayUrl.replace(/^https?:\/\//, ""),
+      port: gatewayUrl.startsWith("https") ? 443 : 80,
+      protocol: gatewayUrl.startsWith("https") ? "https" : "http",
     });
 
     // Get transaction data
     const transaction = await arweaveClient.transactions.get(arweaveTxId);
-    
+
     if (!transaction) {
       return false;
     }
 
     // Verify transaction tags
     const tags = transaction.tags;
-    const appTag = tags.find((tag: any) => tag.name === 'App')?.value;
-    const typeTag = tags.find((tag: any) => tag.name === 'Type')?.value;
-    const batchTag = tags.find((tag: any) => tag.name === 'Batch')?.value;
+    const appTag = tags.find((tag: any) => tag.name === "App")?.value;
+    const typeTag = tags.find((tag: any) => tag.name === "Type")?.value;
+    const batchTag = tags.find((tag: any) => tag.name === "Batch")?.value;
 
-    return appTag === 'veris' && 
-           typeTag === 'registry-snapshot' && 
-           batchTag === batch.toString();
-
+    return appTag === "veris" && typeTag === "registry-snapshot" && batchTag === batch.toString();
   } catch (error) {
     logger.error(
       {
@@ -287,7 +292,7 @@ async function verifyArweaveSnapshotIntegrity(
         batch,
         arweaveTxId,
       },
-      'Failed to verify Arweave snapshot integrity'
+      "Failed to verify Arweave snapshot integrity",
     );
     return false;
   }
@@ -296,18 +301,15 @@ async function verifyArweaveSnapshotIntegrity(
 /**
  * Verify hash consistency across mirrors
  */
-async function verifyHashConsistency(
-  batch: number,
-  proofs: CanonicalProofV1[]
-): Promise<boolean> {
+async function verifyHashConsistency(batch: number, proofs: CanonicalProofV1[]): Promise<boolean> {
   try {
     // This would compare hashes between S3 and Arweave
     // For now, we'll do a basic validation
     const svc = supabaseService();
     const { data: snapshotMeta } = await svc
-      .from('snapshot_meta')
-      .select('merkle_root')
-      .eq('batch', batch)
+      .from("snapshot_meta")
+      .select("merkle_root")
+      .eq("batch", batch)
       .single();
 
     if (!snapshotMeta) {
@@ -320,14 +322,13 @@ async function verifyHashConsistency(
     // 3. Verify the Merkle root matches across all mirrors
 
     return !!snapshotMeta.merkle_root;
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         batch,
       },
-      'Failed to verify hash consistency'
+      "Failed to verify hash consistency",
     );
     return false;
   }
@@ -336,22 +337,24 @@ async function verifyHashConsistency(
 /**
  * Get all snapshots with their mirror status
  */
-export async function getAllSnapshots(): Promise<Array<{
-  batch: number;
-  count: number;
-  merkle_root: string;
-  s3_url: string;
-  arweave_txid: string | null;
-  arweave_url: string | null;
-  integrity_verified: boolean;
-  published_at: string;
-}>> {
+export async function getAllSnapshots(): Promise<
+  Array<{
+    batch: number;
+    count: number;
+    merkle_root: string;
+    s3_url: string;
+    arweave_txid: string | null;
+    arweave_url: string | null;
+    integrity_verified: boolean;
+    published_at: string;
+  }>
+> {
   const svc = supabaseService();
-  
+
   const { data: snapshots, error } = await svc
-    .from('snapshot_meta')
-    .select('*')
-    .order('batch', { ascending: false });
+    .from("snapshot_meta")
+    .select("*")
+    .order("batch", { ascending: false });
 
   if (error) {
     throw new Error(`Failed to fetch snapshots: ${error.message}`);
@@ -374,16 +377,16 @@ export async function getLatestSnapshot(): Promise<{
   published_at: string;
 } | null> {
   const svc = supabaseService();
-  
+
   const { data: snapshot, error } = await svc
-    .from('snapshot_meta')
-    .select('*')
-    .order('batch', { ascending: false })
+    .from("snapshot_meta")
+    .select("*")
+    .order("batch", { ascending: false })
     .limit(1)
     .single();
 
   if (error) {
-    if (error.code === 'PGRST116') {
+    if (error.code === "PGRST116") {
       return null; // No snapshots found
     }
     throw new Error(`Failed to fetch latest snapshot: ${error.message}`);
@@ -401,23 +404,23 @@ export async function shouldCreateSnapshot(): Promise<{
   nextBatch: number;
 }> {
   const svc = supabaseService();
-  
+
   // Get total proof count
   const { count: totalProofs, error: countError } = await svc
-    .from('proofs')
-    .select('*', { count: 'exact', head: true });
+    .from("proofs")
+    .select("*", { count: "exact", head: true });
 
   if (countError) {
     throw new Error(`Failed to get proof count: ${countError.message}`);
   }
 
   const currentCount = totalProofs || 0;
-  
+
   // Get latest snapshot batch
   const { data: latestSnapshot, error: snapshotError } = await svc
-    .from('snapshot_meta')
-    .select('batch, count')
-    .order('batch', { ascending: false })
+    .from("snapshot_meta")
+    .select("batch, count")
+    .order("batch", { ascending: false })
     .limit(1)
     .single();
 
@@ -446,6 +449,14 @@ export async function createSnapshotIfNeeded(): Promise<{
   count?: number;
   error?: string;
 }> {
+  // Feature flag check - snapshot automation disabled by default for MVP
+  if (!isSnapshotAutomationEnabled()) {
+    return {
+      created: false,
+      error: "Snapshot automation is disabled",
+    };
+  }
+
   try {
     const { shouldCreate, currentCount, nextBatch } = await shouldCreateSnapshot();
 
@@ -458,9 +469,9 @@ export async function createSnapshotIfNeeded(): Promise<{
     // Get proofs for the new snapshot
     const svc = supabaseService();
     const { data: proofs, error } = await svc
-      .from('proofs')
-      .select('proof_json')
-      .order('created_at', { ascending: true })
+      .from("proofs")
+      .select("proof_json")
+      .order("created_at", { ascending: true })
       .limit(1000);
 
     if (error) {
@@ -470,14 +481,12 @@ export async function createSnapshotIfNeeded(): Promise<{
     if (!proofs || proofs.length === 0) {
       return {
         created: false,
-        error: 'No proofs found',
+        error: "No proofs found",
       };
     }
 
     // Convert to CanonicalProofV1 format
-    const canonicalProofs: CanonicalProofV1[] = proofs
-      .map(p => p.proof_json)
-      .filter(Boolean);
+    const canonicalProofs: CanonicalProofV1[] = proofs.map((p) => p.proof_json).filter(Boolean);
 
     // Create snapshot and mirror
     const result = await createSnapshotAndMirror(nextBatch, canonicalProofs);
@@ -487,18 +496,17 @@ export async function createSnapshotIfNeeded(): Promise<{
       batch: result.batch,
       count: result.count,
     };
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
       },
-      'Failed to create snapshot if needed'
+      "Failed to create snapshot if needed",
     );
 
     return {
       created: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }

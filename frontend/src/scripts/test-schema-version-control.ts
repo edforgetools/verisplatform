@@ -1,358 +1,438 @@
 #!/usr/bin/env tsx
 
 /**
- * Test Schema Version Control
- * 
- * This script tests the schema version control system as specified in the MVP checklist:
- * 1. Version proof schema semantically (schema/v1.x.json)
- * 2. Add regression tests validating old proofs under new schema
- * 3. Fail build if any validation mismatch occurs
+ * Comprehensive Schema Version Control Test
+ *
+ * This script tests the complete schema version control system including:
+ * - Schema version management
+ * - Proof validation against different versions
+ * - Schema migration between versions
+ * - Backward compatibility validation
+ * - Regression testing
  */
 
-import { config } from 'dotenv';
-import path from 'path';
-import { 
-  validateProofAgainstLatest,
-  validateProofAgainstVersion,
+import {
   getSchemaVersionInfo,
+  validateProofAgainstVersion,
+  validateProofAgainstLatest,
   runRegressionTests,
   checkRegressionTests,
+} from "../lib/schema-version-control";
+import {
+  migrateProof,
+  getAvailableMigrations,
+  isMigrationAvailable,
+  getMigrationCompatibilityMatrix,
   validateBackwardCompatibility,
-  getSchemaMigrationPath
-} from '../lib/schema-version-control';
-import { issueProofForPayload } from './issuance';
+} from "../lib/schema-migration";
+import { logger } from "../lib/logger";
 
-// Load environment variables
-config({ path: path.join(process.cwd(), '.env.local') });
+// Test proofs for different schema versions
+const TEST_PROOF_V1_0 = {
+  schema_version: 1,
+  hash_algo: "sha256",
+  hash_full: "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+  signed_at: "2024-01-01T00:00:00.000Z",
+  signer_fingerprint: "test-fingerprint-1",
+  subject: {
+    type: "file",
+    namespace: "test",
+    id: "test-file-1",
+  },
+  metadata: {
+    project: "test-project",
+  },
+  signature: "test-signature-1",
+};
 
-async function testSchemaVersionControl() {
-  console.log('🧪 Testing Schema Version Control...\n');
+const TEST_PROOF_V1_1 = {
+  schema_version: 1,
+  hash_algo: "sha256",
+  hash_full: "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567",
+  signed_at: "2024-01-01T00:00:00.000Z",
+  signer_fingerprint: "test-fingerprint-2",
+  subject: {
+    type: "file",
+    namespace: "test",
+    id: "test-file-2",
+    file_name: "test-file-2.txt",
+    file_size: 1024,
+    mime_type: "text/plain",
+  },
+  metadata: {
+    project: "test-project",
+    visibility: "public",
+    tags: ["test", "example"],
+    description: "Test proof for schema v1.1",
+  },
+  signature: "test-signature-2",
+};
+
+async function testSchemaVersionManagement() {
+  console.log("🧪 Testing schema version management...");
 
   try {
-    // Test 1: Get schema version information
-    console.log('1. Getting schema version information...');
     const versionInfo = getSchemaVersionInfo();
-    
-    console.log('✅ Schema version information:');
-    console.log(`   Latest version: ${versionInfo.latestVersion}`);
-    console.log(`   Total versions: ${versionInfo.totalVersions}`);
-    console.log('   Available versions:');
-    versionInfo.versions.forEach(version => {
-      console.log(`   - ${version.version} (${version.isLatest ? 'latest' : 'legacy'}) - ${version.path}`);
+
+    console.log("📊 Schema Version Info:", {
+      totalVersions: versionInfo.totalVersions,
+      latestVersion: versionInfo.latestVersion,
+      versions: versionInfo.versions.map((v) => ({
+        version: v.version,
+        isLatest: v.isLatest,
+        createdAt: v.createdAt,
+      })),
     });
-    console.log('');
 
-    // Test 2: Generate test proof and validate
-    console.log('2. Generating test proof and validating...');
-    const testPayload = 'Schema Version Control Test - ' + new Date().toISOString();
-    const testProof = await issueProofForPayload(testPayload, 'schema-test.txt', {
-      project: 'schema-test',
-      userId: 'test-user',
-    });
-    
-    const proofJson = JSON.parse(require('fs').readFileSync(testProof.registryPath, 'utf8'));
-    
-    // Validate against latest schema
-    const validationResult = validateProofAgainstLatest(proofJson);
-    
-    console.log('✅ Proof validation result:');
-    console.log(`   Valid: ${validationResult.valid}`);
-    console.log(`   Schema Version: ${validationResult.schemaVersion}`);
-    console.log(`   Errors: ${validationResult.errors.length}`);
-    console.log(`   Warnings: ${validationResult.warnings.length}`);
-    
-    if (validationResult.errors.length > 0) {
-      console.log('   Validation errors:');
-      validationResult.errors.forEach(error => {
-        console.log(`   - ${error}`);
-      });
+    // Validate version info structure
+    if (typeof versionInfo.totalVersions !== "number") {
+      throw new Error("totalVersions should be a number");
     }
-    console.log('');
-
-    // Test 3: Validate against specific version
-    console.log('3. Validating against specific schema version...');
-    const specificVersionResult = validateProofAgainstVersion(proofJson, '1.0');
-    
-    console.log('✅ Specific version validation:');
-    console.log(`   Valid: ${specificVersionResult.valid}`);
-    console.log(`   Schema Version: ${specificVersionResult.schemaVersion}`);
-    console.log(`   Errors: ${specificVersionResult.errors.length}`);
-    console.log('');
-
-    // Test 4: Test invalid proof
-    console.log('4. Testing invalid proof validation...');
-    const invalidProof = {
-      schema_version: 2, // Invalid version
-      hash_algo: 'sha256',
-      hash_full: 'invalid-hash',
-      // Missing required fields
-    };
-    
-    const invalidValidationResult = validateProofAgainstLatest(invalidProof);
-    
-    console.log('✅ Invalid proof validation:');
-    console.log(`   Valid: ${invalidValidationResult.valid}`);
-    console.log(`   Errors: ${invalidValidationResult.errors.length}`);
-    if (invalidValidationResult.errors.length > 0) {
-      console.log('   Validation errors:');
-      invalidValidationResult.errors.slice(0, 3).forEach(error => {
-        console.log(`   - ${error}`);
-      });
+    if (typeof versionInfo.latestVersion !== "string") {
+      throw new Error("latestVersion should be a string");
     }
-    console.log('');
+    if (!Array.isArray(versionInfo.versions)) {
+      throw new Error("versions should be an array");
+    }
+    if (versionInfo.versions.length < 2) {
+      throw new Error("Should have at least 2 schema versions");
+    }
 
-    console.log('🎉 Schema version control tests completed!');
+    // Check that we have v1.0 and v1.1
+    const versions = versionInfo.versions.map((v) => v.version);
+    if (!versions.includes("1.0")) {
+      throw new Error("Should have v1.0 schema");
+    }
+    if (!versions.includes("1.1")) {
+      throw new Error("Should have v1.1 schema");
+    }
 
+    // Check that v1.1 is marked as latest
+    const latestVersion = versionInfo.versions.find((v) => v.isLatest);
+    if (!latestVersion || latestVersion.version !== "1.1") {
+      throw new Error("v1.1 should be marked as latest");
+    }
+
+    console.log("✅ Schema version management tests passed");
   } catch (error) {
-    console.error('❌ Schema version control test failed:', error);
-    process.exit(1);
+    console.error("❌ Schema version management tests failed:", error);
+    throw error;
   }
 }
 
-async function testRegressionTests() {
-  console.log('🔄 Testing Regression Tests...\n');
+async function testProofValidation() {
+  console.log("🧪 Testing proof validation...");
 
   try {
-    // Test 1: Run regression tests
-    console.log('1. Running regression tests...');
-    const regressionResults = await runRegressionTests();
-    
-    console.log('✅ Regression test results:');
-    regressionResults.forEach(result => {
-      console.log(`   Schema ${result.schemaVersion}:`);
-      console.log(`     Total Proofs: ${result.totalProofs}`);
-      console.log(`     Valid: ${result.validProofs}`);
-      console.log(`     Invalid: ${result.invalidProofs}`);
-      console.log(`     Passed: ${result.passed ? 'YES' : 'NO'}`);
-      
-      if (result.errors.length > 0) {
-        console.log(`     Errors: ${result.errors.length}`);
-        result.errors.slice(0, 2).forEach(error => {
-          console.log(`       - ${error.proofId}: ${error.errors[0]}`);
-        });
-      }
+    // Test v1.0 proof validation
+    const v1_0_validation = validateProofAgainstVersion(TEST_PROOF_V1_0, "1.0");
+    console.log("📊 v1.0 Proof Validation:", {
+      valid: v1_0_validation.valid,
+      errors: v1_0_validation.errors,
+      warnings: v1_0_validation.warnings,
     });
-    console.log('');
 
-    // Test 2: Check if all regression tests pass
-    console.log('2. Checking regression test status...');
-    const checkResult = await checkRegressionTests();
-    
-    console.log('✅ Regression test check:');
-    console.log(`   All Passed: ${checkResult.allPassed ? 'YES' : 'NO'}`);
-    console.log(`   Total Versions: ${checkResult.summary.totalVersions}`);
-    console.log(`   Passed Versions: ${checkResult.summary.passedVersions}`);
-    console.log(`   Failed Versions: ${checkResult.summary.failedVersions}`);
-    console.log(`   Total Proofs: ${checkResult.summary.totalProofs}`);
-    console.log(`   Total Valid: ${checkResult.summary.totalValid}`);
-    console.log(`   Total Invalid: ${checkResult.summary.totalInvalid}`);
-    console.log('');
-
-    // Test 3: Fail build if validation mismatch
-    if (!checkResult.allPassed) {
-      console.log('❌ Regression tests failed - this would fail the build');
-      console.log('   Failed versions:');
-      checkResult.results
-        .filter(r => !r.passed)
-        .forEach(result => {
-          console.log(`   - ${result.schemaVersion}: ${result.invalidProofs} invalid proofs`);
-        });
-    } else {
-      console.log('✅ All regression tests passed - build would succeed');
+    if (!v1_0_validation.valid) {
+      throw new Error(`v1.0 proof should be valid: ${v1_0_validation.errors.join(", ")}`);
     }
-    console.log('');
 
-    console.log('🎉 Regression test tests completed!');
+    // Test v1.1 proof validation
+    const v1_1_validation = validateProofAgainstVersion(TEST_PROOF_V1_1, "1.1");
+    console.log("📊 v1.1 Proof Validation:", {
+      valid: v1_1_validation.valid,
+      errors: v1_1_validation.errors,
+      warnings: v1_1_validation.warnings,
+    });
 
+    if (!v1_1_validation.valid) {
+      throw new Error(`v1.1 proof should be valid: ${v1_1_validation.errors.join(", ")}`);
+    }
+
+    // Test cross-version validation (v1.0 proof against v1.1 schema)
+    const cross_validation = validateProofAgainstVersion(TEST_PROOF_V1_0, "1.1");
+    console.log("📊 Cross-Version Validation (v1.0 proof vs v1.1 schema):", {
+      valid: cross_validation.valid,
+      errors: cross_validation.errors,
+      warnings: cross_validation.warnings,
+    });
+
+    // v1.0 proof should be valid against v1.1 schema (backward compatibility)
+    if (!cross_validation.valid) {
+      throw new Error(
+        `v1.0 proof should be valid against v1.1 schema: ${cross_validation.errors.join(", ")}`,
+      );
+    }
+
+    // Test latest validation
+    const latest_validation = validateProofAgainstLatest(TEST_PROOF_V1_1);
+    console.log("📊 Latest Validation:", {
+      valid: latest_validation.valid,
+      errors: latest_validation.errors,
+      warnings: latest_validation.warnings,
+    });
+
+    if (!latest_validation.valid) {
+      throw new Error(`Latest proof should be valid: ${latest_validation.errors.join(", ")}`);
+    }
+
+    console.log("✅ Proof validation tests passed");
   } catch (error) {
-    console.error('❌ Regression test failed:', error);
-    process.exit(1);
+    console.error("❌ Proof validation tests failed:", error);
+    throw error;
+  }
+}
+
+async function testSchemaMigration() {
+  console.log("🧪 Testing schema migration...");
+
+  try {
+    // Test migration availability
+    const migrationAvailable = isMigrationAvailable("1.0", "1.1");
+    console.log("📊 Migration Available (1.0 → 1.1):", migrationAvailable);
+
+    if (!migrationAvailable) {
+      throw new Error("Migration from v1.0 to v1.1 should be available");
+    }
+
+    // Test available migrations
+    const availableMigrations = getAvailableMigrations("1.0");
+    console.log("📊 Available Migrations from v1.0:", availableMigrations);
+
+    if (availableMigrations.length === 0) {
+      throw new Error("Should have available migrations from v1.0");
+    }
+
+    // Test migration compatibility matrix
+    const compatibilityMatrix = getMigrationCompatibilityMatrix();
+    console.log("📊 Migration Compatibility Matrix:", compatibilityMatrix);
+
+    if (!compatibilityMatrix["1.0"] || !compatibilityMatrix["1.0"].includes("1.1")) {
+      throw new Error("Compatibility matrix should include 1.0 → 1.1");
+    }
+
+    // Test actual migration
+    const migrationResult = migrateProof(TEST_PROOF_V1_0, "1.0", "1.1");
+    console.log("📊 Migration Result:", {
+      success: migrationResult.success,
+      errors: migrationResult.errors,
+      warnings: migrationResult.warnings,
+      fromVersion: migrationResult.fromVersion,
+      toVersion: migrationResult.toVersion,
+    });
+
+    if (!migrationResult.success) {
+      throw new Error(`Migration should succeed: ${migrationResult.errors.join(", ")}`);
+    }
+
+    // Validate migrated proof
+    const migratedValidation = validateProofAgainstVersion(migrationResult.migratedProof, "1.1");
+    if (!migratedValidation.valid) {
+      throw new Error(`Migrated proof should be valid: ${migratedValidation.errors.join(", ")}`);
+    }
+
+    console.log("✅ Schema migration tests passed");
+  } catch (error) {
+    console.error("❌ Schema migration tests failed:", error);
+    throw error;
   }
 }
 
 async function testBackwardCompatibility() {
-  console.log('🔄 Testing Backward Compatibility...\n');
+  console.log("🧪 Testing backward compatibility...");
 
   try {
-    // Test 1: Validate backward compatibility
-    console.log('1. Validating backward compatibility...');
-    const compatibilityResult = validateBackwardCompatibility();
-    
-    console.log('✅ Backward compatibility check:');
-    console.log(`   Compatible: ${compatibilityResult.compatible ? 'YES' : 'NO'}`);
-    console.log(`   Issues: ${compatibilityResult.issues.length}`);
-    console.log(`   Recommendations: ${compatibilityResult.recommendations.length}`);
-    
-    if (compatibilityResult.issues.length > 0) {
-      console.log('   Issues:');
-      compatibilityResult.issues.forEach(issue => {
-        console.log(`   - ${issue}`);
-      });
-    }
-    
-    if (compatibilityResult.recommendations.length > 0) {
-      console.log('   Recommendations:');
-      compatibilityResult.recommendations.forEach(rec => {
-        console.log(`   - ${rec}`);
-      });
-    }
-    console.log('');
+    // Test backward compatibility validation
+    const compatibility = validateBackwardCompatibility("1.0", "1.1");
+    console.log("📊 Backward Compatibility:", {
+      compatible: compatibility.compatible,
+      issues: compatibility.issues,
+      recommendations: compatibility.recommendations,
+    });
 
-    // Test 2: Test schema migration path
-    console.log('2. Testing schema migration path...');
-    const migrationResult = getSchemaMigrationPath('1.0', '1.0');
-    
-    console.log('✅ Schema migration path:');
-    console.log(`   Can Migrate: ${migrationResult.canMigrate ? 'YES' : 'NO'}`);
-    console.log(`   Migration Steps: ${migrationResult.migrationSteps.length}`);
-    console.log(`   Warnings: ${migrationResult.warnings.length}`);
-    
-    if (migrationResult.migrationSteps.length > 0) {
-      console.log('   Migration steps:');
-      migrationResult.migrationSteps.forEach(step => {
-        console.log(`   - ${step}`);
-      });
+    if (!compatibility.compatible) {
+      throw new Error(`Schemas should be backward compatible: ${compatibility.issues.join(", ")}`);
     }
-    
-    if (migrationResult.warnings.length > 0) {
-      console.log('   Warnings:');
-      migrationResult.warnings.forEach(warning => {
-        console.log(`   - ${warning}`);
-      });
+
+    // Test that v1.0 proof works with v1.1 schema
+    const v1_0_in_v1_1 = validateProofAgainstVersion(TEST_PROOF_V1_0, "1.1");
+    if (!v1_0_in_v1_1.valid) {
+      throw new Error(
+        `v1.0 proof should be valid in v1.1 schema: ${v1_0_in_v1_1.errors.join(", ")}`,
+      );
     }
-    console.log('');
 
-    console.log('🎉 Backward compatibility tests completed!');
-
+    console.log("✅ Backward compatibility tests passed");
   } catch (error) {
-    console.error('❌ Backward compatibility test failed:', error);
-    process.exit(1);
+    console.error("❌ Backward compatibility tests failed:", error);
+    throw error;
   }
 }
 
-async function testSchemaValidation() {
-  console.log('✅ Testing Schema Validation...\n');
+async function testRegressionTests() {
+  console.log("🧪 Testing regression tests...");
 
   try {
-    // Test 1: Test various proof structures
-    console.log('1. Testing various proof structures...');
-    
-    const testCases = [
-      {
-        name: 'Valid proof',
-        proof: {
-          schema_version: 1,
-          hash_algo: 'sha256',
-          hash_full: 'a'.repeat(64),
-          signed_at: new Date().toISOString(),
-          signer_fingerprint: 'test-fingerprint',
-          subject: {
-            type: 'file',
-            namespace: 'veris',
-            id: 'test-id',
-          },
-          metadata: {},
-          signature: 'test-signature',
-        },
-        shouldBeValid: true,
-      },
-      {
-        name: 'Missing required field',
-        proof: {
-          schema_version: 1,
-          hash_algo: 'sha256',
-          // Missing hash_full
-          signed_at: new Date().toISOString(),
-          signer_fingerprint: 'test-fingerprint',
-          subject: {
-            type: 'file',
-            namespace: 'veris',
-            id: 'test-id',
-          },
-          metadata: {},
-          signature: 'test-signature',
-        },
-        shouldBeValid: false,
-      },
-      {
-        name: 'Invalid hash format',
-        proof: {
-          schema_version: 1,
-          hash_algo: 'sha256',
-          hash_full: 'invalid-hash', // Not 64 hex characters
-          signed_at: new Date().toISOString(),
-          signer_fingerprint: 'test-fingerprint',
-          subject: {
-            type: 'file',
-            namespace: 'veris',
-            id: 'test-id',
-          },
-          metadata: {},
-          signature: 'test-signature',
-        },
-        shouldBeValid: false,
-      },
-    ];
-
-    testCases.forEach(testCase => {
-      const result = validateProofAgainstLatest(testCase.proof);
-      const passed = result.valid === testCase.shouldBeValid;
-      
-      console.log(`   ${testCase.name}: ${passed ? 'PASS' : 'FAIL'}`);
-      if (!passed) {
-        console.log(`     Expected: ${testCase.shouldBeValid ? 'valid' : 'invalid'}`);
-        console.log(`     Got: ${result.valid ? 'valid' : 'invalid'}`);
-        if (result.errors.length > 0) {
-          console.log(`     Errors: ${result.errors[0]}`);
-        }
-      }
+    // Run regression tests
+    const regressionResults = await runRegressionTests();
+    console.log("📊 Regression Test Results:", {
+      totalVersions: regressionResults.length,
+      results: regressionResults.map((r) => ({
+        version: r.schemaVersion,
+        totalProofs: r.totalProofs,
+        validProofs: r.validProofs,
+        invalidProofs: r.invalidProofs,
+        passed: r.passed,
+      })),
     });
-    console.log('');
 
-    console.log('🎉 Schema validation tests completed!');
+    // Validate regression test structure
+    if (!Array.isArray(regressionResults)) {
+      throw new Error("Regression results should be an array");
+    }
 
+    for (const result of regressionResults) {
+      if (typeof result.schemaVersion !== "string") {
+        throw new Error("schemaVersion should be a string");
+      }
+      if (typeof result.totalProofs !== "number") {
+        throw new Error("totalProofs should be a number");
+      }
+      if (typeof result.validProofs !== "number") {
+        throw new Error("validProofs should be a number");
+      }
+      if (typeof result.invalidProofs !== "number") {
+        throw new Error("invalidProofs should be a number");
+      }
+      if (typeof result.passed !== "boolean") {
+        throw new Error("passed should be a boolean");
+      }
+    }
+
+    // Test regression check
+    const checkResult = await checkRegressionTests();
+    console.log("📊 Regression Check Result:", {
+      allPassed: checkResult.allPassed,
+      summary: checkResult.summary,
+    });
+
+    if (typeof checkResult.allPassed !== "boolean") {
+      throw new Error("allPassed should be a boolean");
+    }
+    if (!checkResult.summary) {
+      throw new Error("summary should be present");
+    }
+
+    console.log("✅ Regression tests passed");
   } catch (error) {
-    console.error('❌ Schema validation test failed:', error);
-    process.exit(1);
+    console.error("❌ Regression tests failed:", error);
+    throw error;
+  }
+}
+
+async function testSchemaAPIEndpoints() {
+  console.log("🧪 Testing schema API endpoints...");
+
+  try {
+    // Test schema versions endpoint
+    const versionsResponse = await fetch("http://localhost:3000/api/schema/versions", {
+      headers: {
+        Authorization: "Bearer test-token", // This will fail auth, but we can test the endpoint structure
+      },
+    });
+
+    console.log("📊 Schema versions endpoint status:", versionsResponse.status);
+
+    // Test schema validation endpoint
+    const validationResponse = await fetch("http://localhost:3000/api/schema/validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token", // This will fail auth, but we can test the endpoint structure
+      },
+      body: JSON.stringify({
+        proof: TEST_PROOF_V1_0,
+        version: "1.0",
+      }),
+    });
+
+    console.log("📊 Schema validation endpoint status:", validationResponse.status);
+
+    // Test schema migration endpoint
+    const migrationResponse = await fetch("http://localhost:3000/api/schema/migrate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer test-token", // This will fail auth, but we can test the endpoint structure
+      },
+      body: JSON.stringify({
+        proof: TEST_PROOF_V1_0,
+        fromVersion: "1.0",
+        toVersion: "1.1",
+      }),
+    });
+
+    console.log("📊 Schema migration endpoint status:", migrationResponse.status);
+
+    // Test schema regression endpoint
+    const regressionResponse = await fetch(
+      "http://localhost:3000/api/schema/regression?action=check",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer test-token", // This will fail auth, but we can test the endpoint structure
+        },
+      },
+    );
+
+    console.log("📊 Schema regression endpoint status:", regressionResponse.status);
+
+    console.log("✅ Schema API endpoints tests completed");
+  } catch (error) {
+    console.error("❌ Schema API endpoints tests failed:", error);
+    throw error;
   }
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  const command = args[0];
+  console.log("🚀 Starting comprehensive schema version control tests...\n");
 
-  switch (command) {
-    case 'test':
-      await testSchemaVersionControl();
-      break;
-    case 'regression':
-      await testRegressionTests();
-      break;
-    case 'compatibility':
-      await testBackwardCompatibility();
-      break;
-    case 'validation':
-      await testSchemaValidation();
-      break;
-    case 'all':
-      await testSchemaVersionControl();
-      await testRegressionTests();
-      await testBackwardCompatibility();
-      await testSchemaValidation();
-      break;
-    default:
-      console.log('Schema Version Control Test Script');
-      console.log('');
-      console.log('Usage:');
-      console.log('  tsx test-schema-version-control.ts test        - Test basic schema version control');
-      console.log('  tsx test-schema-version-control.ts regression  - Test regression tests');
-      console.log('  tsx test-schema-version-control.ts compatibility - Test backward compatibility');
-      console.log('  tsx test-schema-version-control.ts validation  - Test schema validation');
-      console.log('  tsx test-schema-version-control.ts all         - Run all tests');
-      break;
+  try {
+    await testSchemaVersionManagement();
+    console.log("");
+
+    await testProofValidation();
+    console.log("");
+
+    await testSchemaMigration();
+    console.log("");
+
+    await testBackwardCompatibility();
+    console.log("");
+
+    await testRegressionTests();
+    console.log("");
+
+    await testSchemaAPIEndpoints();
+    console.log("");
+
+    console.log("🎉 All schema version control tests passed!");
+    console.log("\n📋 Test Summary:");
+    console.log("✅ Schema version management");
+    console.log("✅ Proof validation");
+    console.log("✅ Schema migration");
+    console.log("✅ Backward compatibility");
+    console.log("✅ Regression tests");
+    console.log("✅ Schema API endpoints");
+  } catch (error) {
+    console.error("\n💥 Schema version control tests failed:", error);
+    process.exit(1);
   }
 }
 
+// Run the tests
 if (require.main === module) {
-  main();
+  main().catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
 }

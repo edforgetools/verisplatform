@@ -14,13 +14,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const svc = supabaseService();
     const { data: proof, error } = await svc.from("proofs").select("*").eq("id", id).single();
-    if (error) return jsonErr(error.message, 404);
+    if (error) return jsonErr("NOT_FOUND", error.message, "certificate", 404);
 
     // Check entitlement for generating certificates
     try {
       await assertEntitled(proof.user_id, "generate_certificate");
     } catch {
-      return jsonErr("Insufficient permissions to generate certificates", 403);
+      return jsonErr(
+        "AUTH_ERROR",
+        "Insufficient permissions to generate certificates",
+        "certificate",
+        403,
+      );
     }
 
     // Generate verification result
@@ -148,6 +153,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
   } catch (error) {
     capture(error, { route: "/api/proof/[id]/certificate" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "certificate", 500);
   }
 }

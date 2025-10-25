@@ -1,30 +1,54 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
 import { signHash } from "@/lib/crypto-server";
 import { assertEntitled } from "@/lib/entitlements";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
-import { jsonOk, jsonErr } from "@/lib/http";
+import {
+  jsonOk,
+  jsonErr,
+  createAuthError,
+  createValidationError,
+  createInternalError,
+  ErrorCodes,
+} from "@/lib/http";
 import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { generateProofId } from "@/lib/ids";
-import { logger } from "@/lib/logger";
+import { createRequestLogger, logger } from "@/lib/logger";
 import { createCanonicalProof, canonicalizeAndSign } from "@/lib/proof-schema";
 import { recordBillingEvent } from "@/lib/billing-service";
+import { recordProofCreation, recordApiCall } from "@/lib/usage-telemetry";
 import { withIdempotency } from "@/lib/idempotency";
-import { validateCreateProofRequest, validateCreateProofResponse, CreateProofRequest, CreateProofResponse } from "@/types/proof-api";
+import {
+  validateCreateProofRequest,
+  validateCreateProofResponse,
+  CreateProofRequest,
+  CreateProofResponse,
+} from "@/types/proof-api";
+import { getRequestId } from "@/lib/request-id";
+import { withApiMiddleware } from "@/lib/api-middleware";
 
 export const runtime = "nodejs";
 
 async function handleCreateProof(req: NextRequest) {
   let tmpPath: string | null = null;
+  const requestId = getRequestId(req);
+  const requestLogger = createRequestLogger(requestId);
+  const startTime = Date.now();
 
   try {
     // Get authenticated user ID from request
     const authenticatedUserId = await getAuthenticatedUserId(req);
     if (!authenticatedUserId) {
-      logger.warn("Proof creation attempted without authentication");
-      return jsonErr("Authentication required", 401);
+      requestLogger.warn(
+        {
+          event: "auth_required",
+          route: "/api/proof/create",
+        },
+        "Proof creation attempted without authentication",
+      );
+      return createAuthError(requestId);
     }
 
     const form = await req.formData();
@@ -41,43 +65,59 @@ async function handleCreateProof(req: NextRequest) {
         project,
       });
     } catch (error) {
-      logger.warn(
+      requestLogger.warn(
         {
+          event: "validation_failed",
           error: error instanceof Error ? error.message : "Unknown validation error",
+          route: "/api/proof/create",
         },
         "Invalid proof creation request",
       );
-      return jsonErr("Invalid request: file and user_id are required", 400);
+      return createValidationError(requestId, {
+        field: "file",
+        reason: "File and user_id are required",
+      });
     }
 
     // Validate user_id matches authenticated user
     if (validatedRequest.user_id !== authenticatedUserId) {
-      logger.warn(
+      requestLogger.warn(
         {
-          authenticatedUserId,
-          providedUserId: validatedRequest.user_id,
+          event: "user_id_mismatch",
+          route: "/api/proof/create",
         },
         "Proof creation attempted with mismatched user_id",
       );
-      return jsonErr("user_id must match authenticated user", 403);
+      return createValidationError(requestId, {
+        field: "user_id",
+        reason: "User ID does not match authenticated user",
+      });
     }
 
     // Check entitlement for creating proofs
     try {
       await assertEntitled(validatedRequest.user_id, "create_proof");
     } catch {
-      logger.warn(
+      requestLogger.warn(
         {
-          userId: validatedRequest.user_id,
+          event: "insufficient_permissions",
+          route: "/api/proof/create",
         },
         "Proof creation attempted without sufficient permissions",
       );
-      return jsonErr("Insufficient permissions to create proofs", 403);
+      return createValidationError(requestId, {
+        field: "permissions",
+        reason: "Insufficient permissions to create proofs",
+      });
     }
 
     // Stream file to temporary location and compute hash
     // This also validates MIME type against allow-list
-    const { tmpPath: fileTmpPath, hashFull, hashPrefix } = await streamFileToTmp(validatedRequest.file);
+    const {
+      tmpPath: fileTmpPath,
+      hashFull,
+      hashPrefix,
+    } = await streamFileToTmp(validatedRequest.file);
     tmpPath = fileTmpPath;
 
     const ts = new Date().toISOString();
@@ -127,7 +167,7 @@ async function handleCreateProof(req: NextRequest) {
         },
         "Failed to create proof in database",
       );
-      return jsonErr(error.message, 500);
+      return jsonErr("DB_ERROR", error.message, "proof-create", 500);
     }
 
     logger.info(
@@ -166,28 +206,71 @@ async function handleCreateProof(req: NextRequest) {
     try {
       validateCreateProofResponse(response);
     } catch (error) {
-      logger.error(
+      requestLogger.error(
         {
+          event: "response_validation_failed",
           error: error instanceof Error ? error.message : "Unknown validation error",
           proofId: data.id,
+          route: "/api/proof/create",
         },
         "Invalid proof creation response",
       );
-      return jsonErr("Internal server error", 500);
+      return createInternalError(requestId);
     }
 
-    return jsonOk(response);
+    // Log successful proof creation
+    logger.info(
+      {
+        requestId,
+        proofId: data.id,
+        userId: validatedRequest.user_id,
+        fileSize: validatedRequest.file.size,
+      },
+      "Proof created successfully",
+    );
+
+    // Record telemetry metrics
+    try {
+      await Promise.all([
+        recordProofCreation(data.id, validatedRequest.user_id, {
+          file_size: validatedRequest.file.size,
+          file_type: validatedRequest.file.type,
+          project: validatedRequest.project,
+        }),
+        recordApiCall("/api/proof/create", validatedRequest.user_id, {
+          response_time: Date.now() - startTime,
+          success: true,
+          proof_id: data.id,
+        }),
+      ]);
+    } catch (telemetryError) {
+      // Don't fail the request if telemetry fails
+      requestLogger.warn(
+        {
+          event: "telemetry_recording_failed",
+          error:
+            telemetryError instanceof Error ? telemetryError.message : "Unknown telemetry error",
+          proofId: data.id,
+        },
+        "Failed to record telemetry metrics",
+      );
+    }
+
+    return jsonOk(response, requestId);
   } catch (error) {
-    capture(error, { route: "/api/proof/create" });
+    capture(error, { route: "/api/proof/create", requestId });
 
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes("Invalid file type")) {
-        return jsonErr(error.message, 400);
+        return createValidationError(requestId, {
+          field: "file",
+          reason: error.message,
+        });
       }
     }
 
-    return jsonErr("Internal server error", 500);
+    return createInternalError(requestId);
   } finally {
     // Clean up temporary file
     if (tmpPath) {
@@ -196,13 +279,15 @@ async function handleCreateProof(req: NextRequest) {
   }
 }
 
-// Apply rate limiting and idempotency to the POST handler
-export const POST = withRateLimit(
-  withIdempotency(handleCreateProof, 10) as (req: NextRequest) => Promise<NextResponse>, // 10 minute idempotency TTL
+// Apply middleware to the POST handler
+export const POST = withApiMiddleware(
+  withIdempotency(
+    withRateLimit(handleCreateProof, "/api/proof/create", {
+      capacity: 10, // 10 requests per minute
+      refillRate: 10 / 60, // 10 tokens per minute
+      windowMs: 60000, // 1 minute window
+    }),
+    10, // 10 minute idempotency TTL
+  ),
   "/api/proof/create",
-  {
-    capacity: 10, // 10 requests per minute
-    refillRate: 10 / 60, // 10 tokens per minute
-    windowMs: 60000, // 1 minute window
-  },
 );

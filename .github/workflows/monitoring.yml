@@ -1,0 +1,411 @@
+name: Monitoring and Alerting
+
+on:
+  schedule:
+    # Run monitoring checks every 5 minutes
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of monitoring check'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - health
+          - slo
+          - performance
+          - security
+          - uptime
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.18.1"
+  PRODUCTION_URL: "https://verisplatform.com"
+  STAGING_URL: "https://staging.verisplatform.com"
+
+jobs:
+  # Health monitoring
+  health-monitoring:
+    name: Health Monitoring
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'health' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check production health
+        id: prod-health
+        run: |
+          echo "Checking production health..."
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/health_response.json "${{ env.PRODUCTION_URL }}/api/health")
+          HTTP_CODE=${RESPONSE: -3}
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "status=healthy" >> $GITHUB_OUTPUT
+            echo "Production health check passed"
+          else
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
+            echo "Production health check failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Check staging health
+        id: staging-health
+        run: |
+          echo "Checking staging health..."
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/staging_health_response.json "${{ env.STAGING_URL }}/api/health")
+          HTTP_CODE=${RESPONSE: -3}
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "status=healthy" >> $GITHUB_OUTPUT
+            echo "Staging health check passed"
+          else
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
+            echo "Staging health check failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Alert on health issues
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Health Check Failed - ${new Date().toISOString()}`,
+              body: `## Health Check Alert
+              
+              **Environment**: ${{ steps.prod-health.outputs.status == 'unhealthy' && 'Production' || 'Staging' }}
+              **Time**: ${new Date().toISOString()}
+              **Status**: Unhealthy
+              
+              ### Details
+              - Production: ${{ steps.prod-health.outputs.status }}
+              - Staging: ${{ steps.staging-health.outputs.status }}
+              
+              ### Next Steps
+              - [ ] Check application logs
+              - [ ] Verify database connectivity
+              - [ ] Check external service dependencies
+              - [ ] Review recent deployments
+              - [ ] Escalate if needed
+              
+              ### Monitoring Links
+              - [Production Health](https://verisplatform.com/api/health)
+              - [Staging Health](https://staging.verisplatform.com/api/health)
+              - [Monitoring Dashboard](https://verisplatform.com/admin/health)
+              `,
+              labels: ['alert', 'health', 'critical']
+            });
+            
+            console.log(`Created health alert issue: ${issue.data.html_url}`);
+
+  # SLO monitoring
+  slo-monitoring:
+    name: SLO Monitoring
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'slo' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check production SLOs
+        id: prod-slo
+        run: |
+          echo "Checking production SLOs..."
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/slo_response.json "${{ env.PRODUCTION_URL }}/api/slo")
+          HTTP_CODE=${RESPONSE: -3}
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            # Parse SLO status from response
+            SLO_STATUS=$(cat /tmp/slo_response.json | jq -r '.status')
+            echo "slo_status=$SLO_STATUS" >> $GITHUB_OUTPUT
+            
+            if [ "$SLO_STATUS" = "met" ]; then
+              echo "Production SLOs are being met"
+            else
+              echo "Production SLOs are not being met: $SLO_STATUS"
+              exit 1
+            fi
+          else
+            echo "Failed to fetch SLO status: HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Alert on SLO breaches
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ SLO Breach Detected - ${new Date().toISOString()}`,
+              body: `## SLO Breach Alert
+              
+              **Environment**: Production
+              **Time**: ${new Date().toISOString()}
+              **SLO Status**: ${{ steps.prod-slo.outputs.slo_status }}
+              
+              ### Impact
+              Service Level Objectives are not being met. This may indicate:
+              - Performance degradation
+              - Increased error rates
+              - Availability issues
+              
+              ### Next Steps
+              - [ ] Review SLO dashboard for details
+              - [ ] Check performance metrics
+              - [ ] Investigate recent changes
+              - [ ] Implement fixes if needed
+              - [ ] Monitor recovery
+              
+              ### Monitoring Links
+              - [SLO Dashboard](https://verisplatform.com/api/slo)
+              - [Performance Metrics](https://verisplatform.com/api/performance)
+              - [Health Status](https://verisplatform.com/api/health)
+              `,
+              labels: ['alert', 'slo', 'performance']
+            });
+            
+            console.log(`Created SLO breach alert issue: ${issue.data.html_url}`);
+
+  # Performance monitoring
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'performance' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check performance metrics
+        id: performance
+        run: |
+          echo "Checking performance metrics..."
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/performance_response.json "${{ env.PRODUCTION_URL }}/api/performance")
+          HTTP_CODE=${RESPONSE: -3}
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            # Extract key performance metrics
+            AVG_LATENCY=$(cat /tmp/performance_response.json | jq -r '.summary.averageLatency // "N/A"')
+            ERROR_RATE=$(cat /tmp/performance_response.json | jq -r '.summary.errorRate // "N/A"')
+            THROUGHPUT=$(cat /tmp/performance_response.json | jq -r '.summary.throughput // "N/A"')
+            
+            echo "avg_latency=$AVG_LATENCY" >> $GITHUB_OUTPUT
+            echo "error_rate=$ERROR_RATE" >> $GITHUB_OUTPUT
+            echo "throughput=$THROUGHPUT" >> $GITHUB_OUTPUT
+            
+            # Check if metrics are within acceptable ranges
+            if [ "$AVG_LATENCY" != "N/A" ] && [ $(echo "$AVG_LATENCY > 2000" | bc -l) -eq 1 ]; then
+              echo "High latency detected: ${AVG_LATENCY}ms"
+              exit 1
+            fi
+            
+            if [ "$ERROR_RATE" != "N/A" ] && [ $(echo "$ERROR_RATE > 0.01" | bc -l) -eq 1 ]; then
+              echo "High error rate detected: ${ERROR_RATE}"
+              exit 1
+            fi
+            
+            echo "Performance metrics are within acceptable ranges"
+          else
+            echo "Failed to fetch performance metrics: HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Alert on performance issues
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Performance Issue Detected - ${new Date().toISOString()}`,
+              body: `## Performance Alert
+              
+              **Environment**: Production
+              **Time**: ${new Date().toISOString()}
+              
+              ### Current Metrics
+              - **Average Latency**: ${{ steps.performance.outputs.avg_latency }}ms
+              - **Error Rate**: ${{ steps.performance.outputs.error_rate }}
+              - **Throughput**: ${{ steps.performance.outputs.throughput }} req/s
+              
+              ### Thresholds
+              - Latency should be < 2000ms
+              - Error rate should be < 1%
+              
+              ### Next Steps
+              - [ ] Review performance dashboard
+              - [ ] Check for resource constraints
+              - [ ] Analyze recent traffic patterns
+              - [ ] Consider scaling if needed
+              - [ ] Monitor recovery
+              
+              ### Monitoring Links
+              - [Performance Dashboard](https://verisplatform.com/api/performance)
+              - [SLO Status](https://verisplatform.com/api/slo)
+              - [Health Status](https://verisplatform.com/api/health)
+              `,
+              labels: ['alert', 'performance', 'monitoring']
+            });
+            
+            console.log(`Created performance alert issue: ${issue.data.html_url}`);
+
+  # Uptime monitoring
+  uptime-monitoring:
+    name: Uptime Monitoring
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'uptime' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check production uptime
+        id: uptime
+        run: |
+          echo "Checking production uptime..."
+          
+          # Test multiple endpoints
+          ENDPOINTS=("/api/health" "/api/slo" "/api/performance" "/")
+          FAILED_ENDPOINTS=()
+          
+          for endpoint in "${ENDPOINTS[@]}"; do
+            echo "Testing $endpoint..."
+            RESPONSE=$(curl -s -w "%{http_code}" -o /dev/null "${{ env.PRODUCTION_URL }}$endpoint")
+            HTTP_CODE=${RESPONSE: -3}
+            
+            if [ "$HTTP_CODE" != "200" ]; then
+              FAILED_ENDPOINTS+=("$endpoint (HTTP $HTTP_CODE)")
+            fi
+          done
+          
+          if [ ${#FAILED_ENDPOINTS[@]} -eq 0 ]; then
+            echo "status=up" >> $GITHUB_OUTPUT
+            echo "All endpoints are responding correctly"
+          else
+            echo "status=down" >> $GITHUB_OUTPUT
+            echo "Failed endpoints: ${FAILED_ENDPOINTS[*]}"
+            exit 1
+          fi
+
+      - name: Alert on uptime issues
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔴 Uptime Issue Detected - ${new Date().toISOString()}`,
+              body: `## Uptime Alert
+              
+              **Environment**: Production
+              **Time**: ${new Date().toISOString()}
+              **Status**: Down
+              
+              ### Impact
+              One or more critical endpoints are not responding correctly.
+              
+              ### Next Steps
+              - [ ] Check application status
+              - [ ] Verify infrastructure health
+              - [ ] Check for recent deployments
+              - [ ] Review error logs
+              - [ ] Escalate if needed
+              
+              ### Monitoring Links
+              - [Health Check](https://verisplatform.com/api/health)
+              - [Status Page](https://verisplatform.com/status)
+              - [Monitoring Dashboard](https://verisplatform.com/admin/health)
+              `,
+              labels: ['alert', 'uptime', 'critical']
+            });
+            
+            console.log(`Created uptime alert issue: ${issue.data.html_url}`);
+
+  # Security monitoring
+  security-monitoring:
+    name: Security Monitoring
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'security' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check for security vulnerabilities
+        id: security
+        run: |
+          echo "Checking for security vulnerabilities..."
+          
+          # Check for known vulnerabilities in dependencies
+          if command -v pnpm &> /dev/null; then
+            pnpm audit --audit-level moderate > /tmp/security_audit.txt 2>&1 || true
+            VULNERABILITIES=$(grep -c "vulnerabilities found" /tmp/security_audit.txt || echo "0")
+            
+            if [ "$VULNERABILITIES" -gt 0 ]; then
+              echo "status=vulnerable" >> $GITHUB_OUTPUT
+              echo "Security vulnerabilities found: $VULNERABILITIES"
+              exit 1
+            else
+              echo "status=secure" >> $GITHUB_OUTPUT
+              echo "No security vulnerabilities found"
+            fi
+          else
+            echo "pnpm not available, skipping security audit"
+            echo "status=unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Alert on security issues
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔒 Security Vulnerability Detected - ${new Date().toISOString()}`,
+              body: `## Security Alert
+              
+              **Time**: ${new Date().toISOString()}
+              **Status**: Vulnerable
+              
+              ### Impact
+              Security vulnerabilities have been detected in dependencies.
+              
+              ### Next Steps
+              - [ ] Review security audit results
+              - [ ] Update vulnerable dependencies
+              - [ ] Test updates in staging
+              - [ ] Deploy security fixes
+              - [ ] Monitor for new vulnerabilities
+              
+              ### Security Links
+              - [Security Dashboard](https://verisplatform.com/admin/security)
+              - [Dependency Audit](https://github.com/${{ github.repository }}/security/dependabot)
+              - [Security Policy](https://verisplatform.com/security)
+              `,
+              labels: ['alert', 'security', 'vulnerability']
+            });
+            
+            console.log(`Created security alert issue: ${issue.data.html_url}`);
+
+  # Monitoring summary
+  monitoring-summary:
+    name: Monitoring Summary
+    runs-on: ubuntu-latest
+    needs: [health-monitoring, slo-monitoring, performance-monitoring, uptime-monitoring, security-monitoring]
+    if: always()
+    steps:
+      - name: Generate monitoring summary
+        run: |
+          echo "## 📊 Monitoring Summary - $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Health | ${{ needs.health-monitoring.result == 'success' && '✅ Healthy' || '❌ Issues' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SLOs | ${{ needs.slo-monitoring.result == 'success' && '✅ Met' || '❌ Breached' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${{ needs.performance-monitoring.result == 'success' && '✅ Good' || '❌ Issues' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Uptime | ${{ needs.uptime-monitoring.result == 'success' && '✅ Up' || '❌ Down' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security-monitoring.result == 'success' && '✅ Secure' || '❌ Vulnerable' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check overall status
+          if [[ "${{ needs.health-monitoring.result }}" == "success" && 
+                "${{ needs.slo-monitoring.result }}" == "success" && 
+                "${{ needs.performance-monitoring.result }}" == "success" && 
+                "${{ needs.uptime-monitoring.result }}" == "success" && 
+                "${{ needs.security-monitoring.result }}" == "success" ]]; then
+            echo "🎉 **All monitoring checks passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Some monitoring checks failed. Please review the alerts above.**" >> $GITHUB_STEP_SUMMARY
+          fi

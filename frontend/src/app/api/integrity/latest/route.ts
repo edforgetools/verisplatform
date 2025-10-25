@@ -26,33 +26,39 @@ async function handleLatestIntegrity(req: NextRequest) {
 
     if (error || !latestSnapshot) {
       logger.warn({ error: error?.message }, "No snapshots found");
-      return jsonOk({
-        batch: null,
-        merkle_root: null,
-        s3_url: null,
-        arweave_txid: null,
-        schema_version: 1,
-        message: "No snapshots available yet",
-      });
+      return jsonOk(
+        {
+          batch: null,
+          merkle_root: null,
+          s3_url: null,
+          arweave_txid: null,
+          schema_version: 1,
+          message: "No snapshots available yet",
+        },
+        "integrity-latest",
+      );
     }
 
     logger.info({ batch: latestSnapshot.batch }, "Latest integrity snapshot retrieved");
 
-    return jsonOk({
-      batch: latestSnapshot.batch,
-      merkle_root: latestSnapshot.merkle_root,
-      s3_url: latestSnapshot.s3_url,
-      arweave_txid: latestSnapshot.arweave_txid,
-      schema_version: 1,
-      created_at: latestSnapshot.created_at,
-    });
+    return jsonOk(
+      {
+        batch: latestSnapshot.batch,
+        merkle_root: latestSnapshot.merkle_root,
+        s3_url: latestSnapshot.s3_url,
+        arweave_txid: latestSnapshot.arweave_txid,
+        schema_version: 1,
+        created_at: latestSnapshot.created_at,
+      },
+      "integrity-latest",
+    );
   } catch (error) {
     capture(error, { route: "/api/integrity/latest" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Failed to get latest integrity snapshot",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "integrity-latest", 500);
   }
 }
 

@@ -35,7 +35,7 @@ async function handleTelemetryPhase1(req: NextRequest) {
 
     if (proofsError) {
       logger.error({ error: proofsError.message }, "Failed to get proofs count");
-      return jsonErr("Failed to get proofs count", 500);
+      return jsonErr("DB_ERROR", "Failed to get proofs count", "telemetry-phase1", 500);
     }
 
     // Get total verifications (last 1000)
@@ -48,7 +48,7 @@ async function handleTelemetryPhase1(req: NextRequest) {
 
     if (verificationsError) {
       logger.error({ error: verificationsError.message }, "Failed to get verifications");
-      return jsonErr("Failed to get verifications", 500);
+      return jsonErr("DB_ERROR", "Failed to get verifications", "telemetry-phase1", 500);
     }
 
     const verificationsTotal = recentVerifications?.length || 0;
@@ -107,18 +107,21 @@ async function handleTelemetryPhase1(req: NextRequest) {
       "Phase-1 telemetry computed",
     );
 
-    return jsonOk({
-      metrics,
-      gates,
-      computed_at: new Date().toISOString(),
-    });
+    return jsonOk(
+      {
+        metrics,
+        gates,
+        computed_at: new Date().toISOString(),
+      },
+      "telemetry-phase1",
+    );
   } catch (error) {
     capture(error, { route: "/api/jobs/telemetry-phase1" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Phase-1 telemetry job failed",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "telemetry-phase1", 500);
   }
 }
 

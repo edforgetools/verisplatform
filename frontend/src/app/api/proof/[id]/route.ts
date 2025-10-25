@@ -10,10 +10,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     const { id } = await params;
     const svc = supabaseService();
     const { data, error } = await svc.from("proofs").select("*").eq("id", id).single();
-    if (error) return jsonErr(error.message, 404);
-    return jsonOk(data);
+    if (error) return jsonErr("NOT_FOUND", error.message, "proof", 404);
+    return jsonOk(data, "proof");
   } catch (error) {
     capture(error, { route: "/api/proof/[id]" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "proof", 500);
   }
 }

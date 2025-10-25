@@ -9,6 +9,8 @@ import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
 import { logger } from "@/lib/logger";
 import { publishSnapshotToArweave, isSnapshotPublished } from "@/lib/arweave-publisher";
+import { isMirrorsEnabled } from "@/lib/env";
+import { getRequestId } from "@/lib/request-id";
 
 export const runtime = "nodejs";
 
@@ -17,12 +19,20 @@ interface ArweavePublishRequest {
 }
 
 async function handleArweavePublish(req: NextRequest) {
+  const requestId = getRequestId(req);
+
   try {
+    // Feature flag check - mirrors disabled by default for MVP
+    if (!isMirrorsEnabled()) {
+      logger.info({}, "Arweave publish job skipped - feature disabled");
+      return jsonErr("FEATURE_DISABLED", "Mirror functionality is disabled", requestId, 403);
+    }
+
     const body = (await req.json()) as ArweavePublishRequest;
     const { batch } = body;
 
     if (!batch || typeof batch !== "number" || batch <= 0) {
-      return jsonErr("Invalid batch number", 400);
+      return jsonErr("VALIDATION_ERROR", "Invalid batch number", requestId, 400);
     }
 
     const svc = supabaseService();
@@ -36,7 +46,7 @@ async function handleArweavePublish(req: NextRequest) {
 
     if (snapshotError || !snapshot) {
       logger.warn({ batch, error: snapshotError?.message }, "Snapshot not found for batch");
-      return jsonErr("Snapshot not found", 404);
+      return jsonErr("NOT_FOUND", "Snapshot not found", requestId, 404);
     }
 
     // Check if already published to Arweave
@@ -45,21 +55,27 @@ async function handleArweavePublish(req: NextRequest) {
         { batch, arweave_txid: snapshot.arweave_txid },
         "Snapshot already published to Arweave",
       );
-      return jsonOk({
-        batch,
-        arweave_txid: snapshot.arweave_txid,
-        status: "already_published",
-      });
+      return jsonOk(
+        {
+          batch,
+          arweave_txid: snapshot.arweave_txid,
+          status: "already_published",
+        },
+        requestId,
+      );
     }
 
     // Check if already published (idempotency check)
     const alreadyPublished = await isSnapshotPublished(batch);
     if (alreadyPublished) {
       logger.info({ batch }, "Snapshot already exists on Arweave");
-      return jsonOk({
-        batch,
-        status: "already_exists_on_arweave",
-      });
+      return jsonOk(
+        {
+          batch,
+          status: "already_exists_on_arweave",
+        },
+        requestId,
+      );
     }
 
     // Publish to Arweave
@@ -76,7 +92,7 @@ async function handleArweavePublish(req: NextRequest) {
         { error: updateError.message, batch },
         "Failed to update snapshot with Arweave transaction ID",
       );
-      return jsonErr("Failed to update snapshot metadata", 500);
+      return jsonErr("INTERNAL_ERROR", "Failed to update snapshot metadata", requestId, 500);
     }
 
     logger.info(
@@ -90,22 +106,25 @@ async function handleArweavePublish(req: NextRequest) {
       "Snapshot published to Arweave successfully",
     );
 
-    return jsonOk({
-      batch: publishResult.batch,
-      arweave_txid: publishResult.manifestTxId,
-      manifest_txid: publishResult.manifestTxId,
-      jsonl_txid: publishResult.jsonlTxId,
-      manifest_url: publishResult.manifestUrl,
-      jsonl_url: publishResult.jsonlUrl,
-      status: "published",
-    });
+    return jsonOk(
+      {
+        batch: publishResult.batch,
+        arweave_txid: publishResult.manifestTxId,
+        manifest_txid: publishResult.manifestTxId,
+        jsonl_txid: publishResult.jsonlTxId,
+        manifest_url: publishResult.manifestUrl,
+        jsonl_url: publishResult.jsonlUrl,
+        status: "published",
+      },
+      requestId,
+    );
   } catch (error) {
     capture(error, { route: "/api/jobs/registry-arweave" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Arweave publish job failed",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", requestId, 500);
   }
 }
 

@@ -6,6 +6,7 @@ import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
 import { logger } from "@/lib/logger";
+import { getRequestId } from "@/lib/request-id";
 
 export const runtime = "nodejs";
 
@@ -25,12 +26,14 @@ interface StripeProductWithPrices {
  * Requires admin authentication.
  */
 async function handleGetStripePrices(req: NextRequest) {
+  const requestId = getRequestId(req);
+
   try {
     // Check admin authentication
     const isAdmin = await isAdminUser(req);
     if (!isAdmin) {
       logger.warn("Non-admin user attempted to access Stripe prices endpoint");
-      return jsonErr("Admin access required", 403);
+      return jsonErr("AUTH_ERROR", "Admin access required", requestId, 403);
     }
 
     // Fetch all active products from Stripe
@@ -96,7 +99,7 @@ async function handleGetStripePrices(req: NextRequest) {
       "Admin accessed Stripe prices list",
     );
 
-    return jsonOk(response);
+    return jsonOk(response, requestId);
   } catch (error) {
     logger.error(
       {
@@ -107,7 +110,7 @@ async function handleGetStripePrices(req: NextRequest) {
     );
 
     capture(error, { route: "/api/admin/stripe/prices" });
-    return jsonErr("Failed to fetch Stripe prices", 500);
+    return jsonErr("INTERNAL_ERROR", "Failed to fetch Stripe prices", requestId, 500);
   }
 }
 

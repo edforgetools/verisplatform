@@ -27,7 +27,12 @@ export async function POST(req: Request) {
       .lt("created_at", cutoffDateStr);
 
     if (countError) {
-      return jsonErr(`Failed to count old proofs: ${countError.message}`, 500);
+      return jsonErr(
+        "DB_ERROR",
+        `Failed to count old proofs: ${countError.message}`,
+        "proof-gc",
+        500,
+      );
     }
 
     // Count proofs by visibility before deletion
@@ -37,7 +42,12 @@ export async function POST(req: Request) {
       .lt("created_at", cutoffDateStr);
 
     if (visibilityError) {
-      return jsonErr(`Failed to count proofs by visibility: ${visibilityError.message}`, 500);
+      return jsonErr(
+        "DB_ERROR",
+        `Failed to count proofs by visibility: ${visibilityError.message}`,
+        "proof-gc",
+        500,
+      );
     }
 
     // Group by visibility
@@ -54,7 +64,12 @@ export async function POST(req: Request) {
       .lt("created_at", cutoffDateStr);
 
     if (deleteError) {
-      return jsonErr(`Failed to delete old proofs: ${deleteError.message}`, 500);
+      return jsonErr(
+        "DB_ERROR",
+        `Failed to delete old proofs: ${deleteError.message}`,
+        "proof-gc",
+        500,
+      );
     }
 
     // Log the cleanup operation
@@ -67,15 +82,18 @@ export async function POST(req: Request) {
       console.warn("Failed to log proof-gc operation:", logError.message);
     }
 
-    return jsonOk({
-      status: "ok",
-      deleted_count: totalOldProofs || 0,
-      retention_days: retentionDays,
-      cutoff_date: cutoffDateStr,
-      visibility_breakdown: visibilityBreakdown,
-    });
+    return jsonOk(
+      {
+        status: "ok",
+        deleted_count: totalOldProofs || 0,
+        retention_days: retentionDays,
+        cutoff_date: cutoffDateStr,
+        visibility_breakdown: visibilityBreakdown,
+      },
+      "proof-gc",
+    );
   } catch (error) {
     capture(error, { route: "/api/jobs/proof-gc" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "proof-gc", 500);
   }
 }

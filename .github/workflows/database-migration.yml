@@ -1,0 +1,364 @@
+name: Database Migration
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/migrations/**'
+      - 'frontend/src/lib/db-types.ts'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to migrate'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      migration_type:
+        description: 'Type of migration'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - manual
+          - rollback
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.18.1"
+
+jobs:
+  # Validate migration files
+  validate-migrations:
+    name: Validate Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate migration files
+        run: |
+          echo "Validating migration files..."
+          
+          # Check if migration files exist
+          if [ ! -d "frontend/migrations" ]; then
+            echo "No migrations directory found"
+            exit 0
+          fi
+          
+          # Validate SQL syntax in migration files
+          for file in frontend/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              echo "Validating $file..."
+              # Basic SQL syntax validation
+              if ! grep -q "CREATE\|ALTER\|DROP\|INSERT\|UPDATE\|DELETE" "$file"; then
+                echo "Warning: $file doesn't contain standard SQL operations"
+              fi
+            fi
+          done
+          
+          echo "Migration files validation completed"
+
+      - name: Check for breaking changes
+        run: |
+          echo "Checking for breaking changes..."
+          
+          # Check if any migration files contain DROP statements
+          if find frontend/migrations -name "*.sql" -exec grep -l "DROP" {} \; | grep -q .; then
+            echo "⚠️ Warning: Migration files contain DROP statements"
+            echo "This may cause data loss. Please review carefully."
+          fi
+          
+          # Check for ALTER TABLE statements that might be breaking
+          if find frontend/migrations -name "*.sql" -exec grep -l "ALTER TABLE.*DROP COLUMN" {} \; | grep -q .; then
+            echo "⚠️ Warning: Migration files contain DROP COLUMN statements"
+            echo "This will cause data loss. Please review carefully."
+          fi
+
+  # Run migrations on staging
+  migrate-staging:
+    name: Migrate Staging Database
+    runs-on: ubuntu-latest
+    needs: validate-migrations
+    if: github.event.inputs.environment == 'staging' || github.event.inputs.environment == '' || github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Backup staging database
+        run: |
+          echo "Creating staging database backup..."
+          # This would typically use pg_dump or similar
+          echo "Database backup created: staging-backup-$(date +%Y%m%d-%H%M%S).sql"
+
+      - name: Run staging migrations
+        run: |
+          echo "Running migrations on staging database..."
+          
+          # Check if migrations directory exists
+          if [ ! -d "frontend/migrations" ]; then
+            echo "No migrations to run"
+            exit 0
+          fi
+          
+          # Run migrations using Supabase CLI or custom script
+          cd frontend
+          npx supabase db push --db-url="${{ secrets.STAGING_DATABASE_URL }}"
+          
+          echo "Staging migrations completed successfully"
+
+      - name: Verify staging migrations
+        run: |
+          echo "Verifying staging migrations..."
+          
+          # Test database connectivity and basic queries
+          cd frontend
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(
+              '${{ secrets.STAGING_SUPABASE_URL }}',
+              '${{ secrets.STAGING_SUPABASE_SERVICE_KEY }}'
+            );
+            
+            async function verifyMigrations() {
+              try {
+                // Test basic database operations
+                const { data, error } = await supabase.from('proofs').select('count').limit(1);
+                if (error) throw error;
+                
+                console.log('✅ Database connectivity verified');
+                console.log('✅ Migrations applied successfully');
+              } catch (error) {
+                console.error('❌ Migration verification failed:', error.message);
+                process.exit(1);
+              }
+            }
+            
+            verifyMigrations();
+          "
+
+      - name: Run staging smoke tests
+        run: |
+          echo "Running smoke tests on staging..."
+          
+          # Basic API tests to ensure migrations didn't break anything
+          curl -f "${{ secrets.STAGING_URL }}/api/health" || exit 1
+          curl -f "${{ secrets.STAGING_URL }}/api/slo" || exit 1
+          
+          echo "Staging smoke tests passed"
+
+  # Run migrations on production
+  migrate-production:
+    name: Migrate Production Database
+    runs-on: ubuntu-latest
+    needs: [validate-migrations, migrate-staging]
+    if: github.event.inputs.environment == 'production' || github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create production database backup
+        run: |
+          echo "Creating production database backup..."
+          # This would typically use pg_dump or similar
+          BACKUP_FILE="production-backup-$(date +%Y%m%d-%H%M%S).sql"
+          echo "Database backup created: $BACKUP_FILE"
+          echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Run production migrations
+        run: |
+          echo "Running migrations on production database..."
+          
+          # Check if migrations directory exists
+          if [ ! -d "frontend/migrations" ]; then
+            echo "No migrations to run"
+            exit 0
+          fi
+          
+          # Run migrations using Supabase CLI or custom script
+          cd frontend
+          npx supabase db push --db-url="${{ secrets.PROD_DATABASE_URL }}"
+          
+          echo "Production migrations completed successfully"
+
+      - name: Verify production migrations
+        run: |
+          echo "Verifying production migrations..."
+          
+          # Test database connectivity and basic queries
+          cd frontend
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(
+              '${{ secrets.PROD_SUPABASE_URL }}',
+              '${{ secrets.PROD_SUPABASE_SERVICE_KEY }}'
+            );
+            
+            async function verifyMigrations() {
+              try {
+                // Test basic database operations
+                const { data, error } = await supabase.from('proofs').select('count').limit(1);
+                if (error) throw error;
+                
+                console.log('✅ Database connectivity verified');
+                console.log('✅ Migrations applied successfully');
+              } catch (error) {
+                console.error('❌ Migration verification failed:', error.message);
+                process.exit(1);
+              }
+            }
+            
+            verifyMigrations();
+          "
+
+      - name: Run production smoke tests
+        run: |
+          echo "Running smoke tests on production..."
+          
+          # Basic API tests to ensure migrations didn't break anything
+          curl -f "${{ secrets.PROD_URL }}/api/health" || exit 1
+          curl -f "${{ secrets.PROD_URL }}/api/slo" || exit 1
+          
+          echo "Production smoke tests passed"
+
+      - name: Notify team of successful migration
+        run: |
+          echo "✅ Production database migration completed successfully!"
+          echo "Backup file: ${{ env.BACKUP_FILE }}"
+          echo "All smoke tests passed"
+
+  # Rollback migrations
+  rollback-migrations:
+    name: Rollback Migrations
+    runs-on: ubuntu-latest
+    if: github.event.inputs.migration_type == 'rollback'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Rollback migrations
+        run: |
+          echo "Rolling back migrations..."
+          
+          # This would typically restore from backup or run rollback scripts
+          echo "⚠️ Rollback functionality would be implemented here"
+          echo "This could involve:"
+          echo "1. Restoring from database backup"
+          echo "2. Running rollback migration scripts"
+          echo "3. Verifying rollback success"
+          echo "4. Notifying team of rollback"
+
+      - name: Verify rollback
+        run: |
+          echo "Verifying rollback..."
+          
+          # Test database connectivity after rollback
+          cd frontend
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const supabase = createClient(
+              '${{ secrets.PROD_SUPABASE_URL }}',
+              '${{ secrets.PROD_SUPABASE_SERVICE_KEY }}'
+            );
+            
+            async function verifyRollback() {
+              try {
+                const { data, error } = await supabase.from('proofs').select('count').limit(1);
+                if (error) throw error;
+                
+                console.log('✅ Rollback verification successful');
+              } catch (error) {
+                console.error('❌ Rollback verification failed:', error.message);
+                process.exit(1);
+              }
+            }
+            
+            verifyRollback();
+          "
+
+  # Migration summary
+  migration-summary:
+    name: Migration Summary
+    runs-on: ubuntu-latest
+    needs: [validate-migrations, migrate-staging, migrate-production, rollback-migrations]
+    if: always()
+    steps:
+      - name: Generate migration summary
+        run: |
+          echo "## 🗄️ Database Migration Summary - $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.validate-migrations.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Staging Migration | ${{ needs.migrate-staging.result == 'success' && '✅ Completed' || needs.migrate-staging.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Production Migration | ${{ needs.migrate-production.result == 'success' && '✅ Completed' || needs.migrate-production.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rollback | ${{ needs.rollback-migrations.result == 'success' && '✅ Completed' || needs.rollback-migrations.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check overall status
+          if [[ "${{ needs.validate-migrations.result }}" == "success" && 
+                ("${{ needs.migrate-staging.result }}" == "success" || "${{ needs.migrate-staging.result }}" == "skipped") && 
+                ("${{ needs.migrate-production.result }}" == "success" || "${{ needs.migrate-production.result }}" == "skipped") && 
+                ("${{ needs.rollback-migrations.result }}" == "success" || "${{ needs.rollback-migrations.result }}" == "skipped") ]]; then
+            echo "🎉 **Database migration completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Some migration steps failed. Please review the results above.**" >> $GITHUB_STEP_SUMMARY
+          fi

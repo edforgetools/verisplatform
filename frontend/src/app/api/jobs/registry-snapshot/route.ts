@@ -10,11 +10,21 @@ import { jsonOk, jsonErr } from "@/lib/http";
 import { logger } from "@/lib/logger";
 import { createRegistrySnapshot } from "@/lib/registry-snapshot";
 import { CanonicalProofV1 } from "@/lib/proof-schema";
+import { isSnapshotAutomationEnabled } from "@/lib/env";
+import { getRequestId } from "@/lib/request-id";
 
 export const runtime = "nodejs";
 
 async function handleRegistrySnapshot(req: NextRequest) {
+  const requestId = getRequestId(req);
+
   try {
+    // Feature flag check - snapshot automation disabled by default for MVP
+    if (!isSnapshotAutomationEnabled()) {
+      logger.info({}, "Registry snapshot job skipped - feature disabled");
+      return new Response(null, { status: 204 });
+    }
+
     // Check if this is a manual trigger or scheduled job
     const authHeader = req.headers.get("authorization");
     const isManual = authHeader?.startsWith("Bearer ");
@@ -33,7 +43,7 @@ async function handleRegistrySnapshot(req: NextRequest) {
 
     if (countError) {
       logger.error({ error: countError.message }, "Failed to get total proof count");
-      return jsonErr("Failed to get proof count", 500);
+      return jsonErr("INTERNAL_ERROR", "Failed to get proof count", requestId, 500);
     }
 
     if (!totalProofs || totalProofs % 1000 !== 0) {
@@ -71,7 +81,7 @@ async function handleRegistrySnapshot(req: NextRequest) {
         { error: proofsError.message, batch, startId, endId },
         "Failed to fetch proofs for batch",
       );
-      return jsonErr("Failed to fetch proofs", 500);
+      return jsonErr("INTERNAL_ERROR", "Failed to fetch proofs", requestId, 500);
     }
 
     if (!proofs || proofs.length !== 1000) {
@@ -79,7 +89,7 @@ async function handleRegistrySnapshot(req: NextRequest) {
         { batch, expectedCount: 1000, actualCount: proofs?.length || 0 },
         "Incorrect number of proofs for batch",
       );
-      return jsonErr("Incorrect proof count for batch", 500);
+      return jsonErr("INTERNAL_ERROR", "Incorrect proof count for batch", requestId, 500);
     }
 
     // Extract canonical proofs from proof_json
@@ -94,7 +104,7 @@ async function handleRegistrySnapshot(req: NextRequest) {
         { batch, expectedCount: 1000, actualCount: canonicalProofs.length },
         "Some proofs missing canonical JSON",
       );
-      return jsonErr("Some proofs missing canonical JSON", 500);
+      return jsonErr("INTERNAL_ERROR", "Some proofs missing canonical JSON", requestId, 500);
     }
 
     // Create snapshot
@@ -111,7 +121,7 @@ async function handleRegistrySnapshot(req: NextRequest) {
 
     if (insertError) {
       logger.error({ error: insertError.message, batch }, "Failed to store snapshot metadata");
-      return jsonErr("Failed to store snapshot metadata", 500);
+      return jsonErr("INTERNAL_ERROR", "Failed to store snapshot metadata", requestId, 500);
     }
 
     logger.info(
@@ -124,20 +134,23 @@ async function handleRegistrySnapshot(req: NextRequest) {
       "Registry snapshot created successfully",
     );
 
-    return jsonOk({
-      batch: snapshotResult.batch,
-      count: snapshotResult.count,
-      merkle_root: snapshotResult.merkle_root,
-      s3_url: snapshotResult.s3_url,
-      created_at: new Date().toISOString(),
-    });
+    return jsonOk(
+      {
+        batch: snapshotResult.batch,
+        count: snapshotResult.count,
+        merkle_root: snapshotResult.merkle_root,
+        s3_url: snapshotResult.s3_url,
+        created_at: new Date().toISOString(),
+      },
+      requestId,
+    );
   } catch (error) {
     capture(error, { route: "/api/jobs/registry-snapshot" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Registry snapshot job failed",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", requestId, 500);
   }
 }
 

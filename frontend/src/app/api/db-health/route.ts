@@ -8,10 +8,10 @@ export async function GET() {
   try {
     const supa = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, ENV.server.supabaseservicekey);
     const { error } = await supa.from("app_users").select("count").limit(1);
-    if (error) return jsonErr(error.message, 500);
-    return jsonOk({ ok: true });
+    if (error) return jsonErr("DB_ERROR", error.message, "db-health", 500);
+    return jsonOk({ ok: true }, "db-health");
   } catch (error) {
     capture(error, { route: "/api/db-health" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "db-health", 500);
   }
 }

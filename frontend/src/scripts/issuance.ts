@@ -234,4 +234,4 @@ if (require.main === module) {
   main();
 }
 
-export { IssuanceResult, IssuanceOptions };
+export type { IssuanceResult, IssuanceOptions };

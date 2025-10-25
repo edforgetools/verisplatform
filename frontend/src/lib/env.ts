@@ -66,6 +66,20 @@ const serverSchema = z
 
     // Verification
     VERIFICATION_TIMESTAMP_TOLERANCE_MS: z.string().transform(Number).optional(),
+
+    // Feature Flags (default off for MVP)
+    ENABLE_MIRRORS: z
+      .string()
+      .transform((val) => val === "true")
+      .optional(),
+    ENABLE_SNAPSHOT_AUTOMATION: z
+      .string()
+      .transform((val) => val === "true")
+      .optional(),
+    ENABLE_NONESSENTIAL_CRON: z
+      .string()
+      .transform((val) => val === "true")
+      .optional(),
   })
   .refine(
     (v) => {
@@ -132,6 +146,9 @@ function createEnv() {
     SENTRY_DSN: process.env.SENTRY_DSN,
     INTERNAL_KEY: process.env.INTERNAL_KEY,
     VERIFICATION_TIMESTAMP_TOLERANCE_MS: process.env.VERIFICATION_TIMESTAMP_TOLERANCE_MS,
+    ENABLE_MIRRORS: process.env.ENABLE_MIRRORS,
+    ENABLE_SNAPSHOT_AUTOMATION: process.env.ENABLE_SNAPSHOT_AUTOMATION,
+    ENABLE_NONESSENTIAL_CRON: process.env.ENABLE_NONESSENTIAL_CRON,
   });
 
   // Handle validation errors
@@ -191,7 +208,10 @@ try {
         ARWEAVE_WALLET_JSON: '{"kty":"EC","crv":"P-256","x":"test","y":"test","d":"test"}',
         SENTRY_DSN: "https://test@sentry.io/test",
         INTERNAL_KEY: "test-internal-key",
-        VERIFICATION_TIMESTAMP_TOLERANCE_MS: "300000",
+        VERIFICATION_TIMESTAMP_TOLERANCE_MS: 300000,
+        ENABLE_MIRRORS: false,
+        ENABLE_SNAPSHOT_AUTOMATION: false,
+        ENABLE_NONESSENTIAL_CRON: false,
       },
     };
   } else {
@@ -251,4 +271,19 @@ export function validateInternalAuth(request: Request): boolean {
     return false;
   }
   return request.headers.get("x-internal-key") === internalKey;
+}
+
+/**
+ * Feature flag helpers - all default to false for MVP
+ */
+export function isMirrorsEnabled(): boolean {
+  return ENV.server.ENABLE_MIRRORS === true;
+}
+
+export function isSnapshotAutomationEnabled(): boolean {
+  return ENV.server.ENABLE_SNAPSHOT_AUTOMATION === true;
+}
+
+export function isNonessentialCronEnabled(): boolean {
+  return ENV.server.ENABLE_NONESSENTIAL_CRON === true;
 }

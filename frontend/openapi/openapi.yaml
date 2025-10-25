@@ -425,6 +425,71 @@ paths:
                     type: string
                     format: date-time
 
+  /api/registry/search:
+    get:
+      summary: Search for proofs by hash
+      description: Search for proofs in the registry using their hash
+      operationId: searchProofsByHash
+      parameters:
+        - name: hash
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-f0-9]{64}$"
+          description: SHA256 hash to search for
+      responses:
+        "200":
+          description: Proof found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proof"
+        "404":
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/registry/{id}:
+    get:
+      summary: Get proof by ID from registry
+      description: Retrieve a proof from the registry by its ID
+      operationId: getProofFromRegistry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Proof identifier
+      responses:
+        "200":
+          description: Proof details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proof"
+        "404":
+          description: Proof not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /api/stripe/create-checkout:
     post:
       summary: Create Stripe checkout session
@@ -486,6 +551,1158 @@ paths:
           description: Webhook processed successfully
         "400":
           description: Invalid webhook payload
+
+  /api/billing/metrics:
+    get:
+      summary: Get billing metrics for authenticated user
+      description: Retrieve usage metrics and billing statistics for the authenticated user
+      operationId: getBillingMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+          description: Number of days to include in metrics
+      responses:
+        "200":
+          description: Billing metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalEvents:
+                    type: integer
+                    description: Total number of events in the period
+                  billableEvents:
+                    type: integer
+                    description: Number of billable events
+                  freeEvents:
+                    type: integer
+                    description: Number of free events
+                  billableEventTypes:
+                    type: array
+                    items:
+                      type: string
+                    description: Types of events that are billable
+                  eventsByType:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                    description: Count of events by type
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/billing/history:
+    get:
+      summary: Get billing event history for authenticated user
+      description: Retrieve paginated billing event history for the authenticated user
+      operationId: getBillingHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of events to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of events to skip
+      responses:
+        "200":
+          description: Billing history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        event_id:
+                          type: string
+                        event_type:
+                          type: string
+                        stripe_subscription_id:
+                          type: string
+                          nullable: true
+                        user_id:
+                          type: string
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                      total:
+                        type: integer
+                      hasMore:
+                        type: boolean
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/telemetry/metrics:
+    get:
+      summary: Get telemetry metrics for capacity planning
+      description: Retrieve comprehensive usage metrics and statistics for capacity planning
+      operationId: getTelemetryMetrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["today", "week", "month"]
+            default: "today"
+          description: Time period for metrics
+      responses:
+        "200":
+          description: Telemetry metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  today:
+                    type: object
+                    properties:
+                      total_proofs:
+                        type: integer
+                      total_verifications:
+                        type: integer
+                      total_api_calls:
+                        type: integer
+                      unique_users:
+                        type: integer
+                      daily_average:
+                        type: object
+                        properties:
+                          proofs:
+                            type: integer
+                          verifications:
+                            type: integer
+                          api_calls:
+                            type: integer
+                      weekly_trend:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                            proofs:
+                              type: integer
+                            verifications:
+                              type: integer
+                            api_calls:
+                              type: integer
+                  this_week:
+                    type: object
+                    properties:
+                      total_proofs:
+                        type: integer
+                      total_verifications:
+                        type: integer
+                      total_api_calls:
+                        type: integer
+                      unique_users:
+                        type: integer
+                      daily_average:
+                        type: object
+                        properties:
+                          proofs:
+                            type: integer
+                          verifications:
+                            type: integer
+                          api_calls:
+                            type: integer
+                      weekly_trend:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                            proofs:
+                              type: integer
+                            verifications:
+                              type: integer
+                            api_calls:
+                              type: integer
+                  this_month:
+                    type: object
+                    properties:
+                      total_proofs:
+                        type: integer
+                      total_verifications:
+                        type: integer
+                      total_api_calls:
+                        type: integer
+                      unique_users:
+                        type: integer
+                      daily_average:
+                        type: object
+                        properties:
+                          proofs:
+                            type: integer
+                          verifications:
+                            type: integer
+                          api_calls:
+                            type: integer
+                      weekly_trend:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                            proofs:
+                              type: integer
+                            verifications:
+                              type: integer
+                            api_calls:
+                              type: integer
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/telemetry/capacity:
+    get:
+      summary: Get capacity planning metrics
+      description: Retrieve system capacity and performance metrics for scaling decisions
+      operationId: getCapacityMetrics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Capacity metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_load:
+                    type: object
+                    properties:
+                      requests_per_minute:
+                        type: integer
+                      active_users:
+                        type: integer
+                      system_health:
+                        type: string
+                        enum: ["healthy", "warning", "critical"]
+                  capacity_planning:
+                    type: object
+                    properties:
+                      projected_growth:
+                        type: integer
+                        description: Projected growth percentage
+                      recommended_scaling:
+                        type: string
+                        description: Scaling recommendation
+                      bottleneck_analysis:
+                        type: array
+                        items:
+                          type: string
+                        description: Identified bottlenecks
+                  performance_metrics:
+                    type: object
+                    properties:
+                      average_response_time:
+                        type: integer
+                        description: Average response time in milliseconds
+                      error_rate:
+                        type: number
+                        description: Error rate percentage
+                      uptime_percentage:
+                        type: number
+                        description: System uptime percentage
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/telemetry/export:
+    get:
+      summary: Export telemetry data
+      description: Export telemetry data in JSON or CSV format for analysis
+      operationId: exportTelemetryData
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["json", "csv"]
+            default: "json"
+          description: Export format
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+          description: Number of days to export
+      responses:
+        "200":
+          description: Telemetry data exported successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JSON export format
+            text/csv:
+              schema:
+                type: string
+                description: CSV export format
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/snapshots:
+    get:
+      summary: Get registry snapshots
+      description: Retrieve paginated list of registry snapshots
+      operationId: getSnapshots
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of snapshots to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of snapshots to skip
+      responses:
+        "200":
+          description: Snapshots retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshots:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        batch:
+                          type: integer
+                        count:
+                          type: integer
+                        merkle_root:
+                          type: string
+                        s3_url:
+                          type: string
+                        arweave_txid:
+                          type: string
+                          nullable: true
+                        arweave_url:
+                          type: string
+                          nullable: true
+                        integrity_verified:
+                          type: boolean
+                        published_at:
+                          type: string
+                          format: date-time
+                        created_at:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                      total:
+                        type: integer
+                      hasMore:
+                        type: boolean
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/jobs/snapshot-automation:
+    get:
+      summary: Snapshot automation job
+      description: Execute snapshot automation tasks
+      operationId: snapshotAutomation
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["check", "status", "verify", "stats", "cleanup"]
+            default: "check"
+          description: Action to perform
+        - name: keep
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: Number of batches to keep during cleanup
+      responses:
+        "200":
+          description: Snapshot automation completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden - cron authentication required
+    post:
+      summary: Trigger snapshot automation job
+      description: Manually trigger snapshot automation tasks
+      operationId: triggerSnapshotAutomation
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["check", "status", "verify", "stats", "cleanup"]
+            default: "check"
+          description: Action to perform
+        - name: keep
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+          description: Number of batches to keep during cleanup
+      responses:
+        "200":
+          description: Snapshot automation triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden - cron authentication required
+
+  /api/schema/versions:
+    get:
+      summary: Get schema versions
+      description: Retrieve information about available schema versions
+      operationId: getSchemaVersions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Schema versions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        version:
+                          type: string
+                        isLatest:
+                          type: boolean
+                        createdAt:
+                          type: string
+                          format: date-time
+                        path:
+                          type: string
+                  latestVersion:
+                    type: string
+                  totalVersions:
+                    type: integer
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/schema/validate:
+    post:
+      summary: Validate proof against schema
+      description: Validate a proof against a specific schema version or latest
+      operationId: validateProof
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                proof:
+                  type: object
+                  description: Proof object to validate
+                version:
+                  type: string
+                  description: Schema version to validate against (optional, defaults to latest)
+              required:
+                - proof
+      responses:
+        "200":
+          description: Proof validation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+                  schemaVersion:
+                    type: string
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/schema/migrate:
+    get:
+      summary: Get available migrations
+      description: Get available migration paths from a source schema version
+      operationId: getAvailableMigrations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: fromVersion
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Source schema version
+      responses:
+        "200":
+          description: Available migrations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  availableMigrations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        toVersion:
+                          type: string
+                        description:
+                          type: string
+                        available:
+                          type: boolean
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Migrate proof between schema versions
+      description: Migrate a proof from one schema version to another
+      operationId: migrateProof
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                proof:
+                  type: object
+                  description: Proof object to migrate
+                fromVersion:
+                  type: string
+                  description: Source schema version
+                toVersion:
+                  type: string
+                  description: Target schema version
+              required:
+                - proof
+                - fromVersion
+                - toVersion
+      responses:
+        "200":
+          description: Proof migration completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  migratedProof:
+                    type: object
+                    description: Migrated proof object
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  fromVersion:
+                    type: string
+                  toVersion:
+                    type: string
+        "400":
+          description: Invalid request or migration not available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/schema/regression:
+    get:
+      summary: Run schema regression tests
+      description: Execute regression tests to validate schema backward compatibility
+      operationId: runSchemaRegressionTests
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["run", "check"]
+            default: "run"
+          description: Action to perform
+      responses:
+        "200":
+          description: Regression tests completed
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "403":
+          description: Forbidden - cron authentication required
+    post:
+      summary: Trigger schema regression tests
+      description: Manually trigger schema regression tests
+      operationId: triggerSchemaRegressionTests
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["run", "check"]
+            default: "run"
+          description: Action to perform
+      responses:
+        "200":
+          description: Regression tests triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "403":
+          description: Forbidden - cron authentication required
+
+  /api/jobs/recovery-audit:
+    get:
+      summary: Recovery audit job
+      description: Execute recovery audit tasks
+      operationId: recoveryAudit
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["check", "run", "status", "history", "results", "cross-mirror"]
+            default: "check"
+          description: Action to perform
+        - name: enhanced
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Use enhanced recovery audit mode
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of results to return (for history/results actions)
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Audit date for results/cross-mirror actions
+      responses:
+        "200":
+          description: Recovery audit completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden - cron authentication required
+    post:
+      summary: Trigger recovery audit job
+      description: Manually trigger recovery audit tasks
+      operationId: triggerRecoveryAudit
+      parameters:
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["check", "run", "status", "history", "results", "cross-mirror"]
+            default: "check"
+          description: Action to perform
+        - name: enhanced
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Use enhanced recovery audit mode
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of results to return (for history/results actions)
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Audit date for results/cross-mirror actions
+      responses:
+        "200":
+          description: Recovery audit triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response varies by action
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden - cron authentication required
+
+  /api/health:
+    get:
+      summary: System health check
+      description: |
+        Comprehensive system health check endpoint that validates all critical system components.
+        Returns detailed health status for database, signing keys, S3 mirrors, and snapshots.
+      operationId: healthCheck
+      parameters:
+        - name: detailed
+          in: query
+          description: Include detailed health information
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: metrics
+          in: query
+          description: Include performance metrics
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Health check completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, critical]
+                    description: Overall system health status
+                  checks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HealthCheckResult"
+                    description: Individual health check results
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: When the health check was performed
+                  metrics:
+                    type: object
+                    description: Performance metrics (if requested)
+                    properties:
+                      responseTime:
+                        type: number
+                        description: Health check response time in milliseconds
+                      checksPerformed:
+                        type: integer
+                        description: Number of health checks performed
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      tags:
+        - Health & Monitoring
+
+  /api/slo:
+    get:
+      summary: Service Level Objectives status
+      description: |
+        Get current status of all Service Level Objectives (SLOs) including availability,
+        latency, error rates, and data integrity metrics.
+      operationId: getSLOStatus
+      parameters:
+        - name: definitions
+          in: query
+          description: Include SLO definitions
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: history
+          in: query
+          description: Include historical SLO data
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: window
+          in: query
+          description: Time window for SLO calculation
+          required: false
+          schema:
+            type: string
+            enum: [1h, 24h, 7d, 30d]
+            default: 24h
+      responses:
+        "200":
+          description: SLO status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [met, warning, breach]
+                    description: Overall SLO status
+                  reports:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SLOReport"
+                    description: Individual SLO reports
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: When the SLO report was generated
+                  definitions:
+                    type: object
+                    description: SLO definitions (if requested)
+                    properties:
+                      AVAILABILITY_TARGET:
+                        type: number
+                        description: Target availability percentage
+                      PROOF_ISSUANCE_LATENCY_P95:
+                        type: number
+                        description: Target P95 latency for proof issuance in milliseconds
+                      ERROR_RATE_TARGET:
+                        type: number
+                        description: Target error rate percentage
+                  history:
+                    type: array
+                    description: Historical SLO data (if requested)
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        status:
+                          type: string
+                          enum: [met, warning, breach]
+                        reports:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/SLOReport"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      tags:
+        - Health & Monitoring
+
+  /api/performance:
+    get:
+      summary: Performance metrics
+      description: |
+        Get comprehensive performance metrics including throughput, latency, error rates,
+        and system resource utilization.
+      operationId: getPerformanceMetrics
+      parameters:
+        - name: range
+          in: query
+          description: Time range for metrics
+          required: false
+          schema:
+            type: string
+            enum: [1h, 24h, 7d, 30d]
+            default: 24h
+        - name: details
+          in: query
+          description: Include detailed performance breakdown
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: format
+          in: query
+          description: Response format
+          required: false
+          schema:
+            type: string
+            enum: [json, prometheus]
+            default: json
+      responses:
+        "200":
+          description: Performance metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PerformanceMetric"
+                    description: Performance metrics
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: When the metrics were generated
+                  range:
+                    type: string
+                    description: Time range for the metrics
+                  summary:
+                    type: object
+                    description: Performance summary
+                    properties:
+                      totalRequests:
+                        type: integer
+                        description: Total requests in the time range
+                      averageLatency:
+                        type: number
+                        description: Average latency in milliseconds
+                      errorRate:
+                        type: number
+                        description: Error rate percentage
+                      throughput:
+                        type: number
+                        description: Requests per second
+            text/plain:
+              schema:
+                type: string
+                description: Prometheus format metrics
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      tags:
+        - Health & Monitoring
 
 components:
   securitySchemes:
@@ -634,6 +1851,97 @@ components:
           type: string
           description: Optional project name
 
+    HealthCheckResult:
+      type: object
+      required:
+        - name
+        - status
+        - responseTimeMs
+        - lastChecked
+      properties:
+        name:
+          type: string
+          description: Name of the health check
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: Health check status
+        responseTimeMs:
+          type: number
+          description: Response time in milliseconds
+        lastChecked:
+          type: string
+          format: date-time
+          description: When the check was last performed
+        details:
+          type: object
+          description: Additional details about the check
+        error:
+          type: string
+          description: Error message if the check failed
+
+    SLOReport:
+      type: object
+      required:
+        - name
+        - target
+        - current
+        - status
+        - window
+        - trend
+      properties:
+        name:
+          type: string
+          description: Name of the SLO
+        target:
+          type: string
+          description: Target value for the SLO
+        current:
+          type: string
+          description: Current value
+        status:
+          type: string
+          enum: [meeting, warning, breach]
+          description: SLO status
+        window:
+          type: string
+          description: Time window for the SLO
+        trend:
+          type: string
+          enum: [improving, stable, degrading]
+          description: Trend direction
+        details:
+          type: object
+          description: Additional SLO details
+
+    PerformanceMetric:
+      type: object
+      required:
+        - name
+        - value
+        - unit
+        - timestamp
+      properties:
+        name:
+          type: string
+          description: Name of the metric
+        value:
+          type: number
+          description: Metric value
+        unit:
+          type: string
+          description: Unit of measurement
+        timestamp:
+          type: string
+          format: date-time
+          description: When the metric was recorded
+        description:
+          type: string
+          description: Description of the metric
+        meta:
+          type: object
+          description: Additional metadata
+
 tags:
   - name: Proofs
     description: Proof creation and management
@@ -643,3 +1951,5 @@ tags:
     description: Registry integrity and transparency
   - name: Billing
     description: Stripe billing integration
+  - name: Health & Monitoring
+    description: System health, SLOs, and performance monitoring

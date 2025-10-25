@@ -1,6 +1,6 @@
 /**
  * S3 Registry Service
- * 
+ *
  * Implements the Network Trust Registry as specified in the MVP checklist:
  * 1. Connects to AWS via OIDC (role VerisRegistryWriter-GitHub)
  * 2. Uploads proof JSON to both staging and production buckets
@@ -14,7 +14,6 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
-  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sha256 } from "./crypto-server";
@@ -72,7 +71,7 @@ function getRegistryConfig(): RegistryConfig {
 
   if (!stagingBucket || !productionBucket || !region) {
     throw new Error(
-      "Missing required environment variables: REGISTRY_S3_STAGING_BUCKET, REGISTRY_S3_PRODUCTION_BUCKET, AWS_REGION"
+      "Missing required environment variables: REGISTRY_S3_STAGING_BUCKET, REGISTRY_S3_PRODUCTION_BUCKET, AWS_REGION",
     );
   }
 
@@ -90,7 +89,7 @@ function getRegistryConfig(): RegistryConfig {
  */
 export async function uploadProofToRegistry(
   proof: CanonicalProofV1,
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<UploadResult> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
@@ -121,7 +120,7 @@ export async function uploadProofToRegistry(
         uploadedAt,
         schemaVersion: proof.schema_version.toString(),
       },
-    })
+    }),
   );
 
   // Upload to production bucket
@@ -137,7 +136,7 @@ export async function uploadProofToRegistry(
         uploadedAt,
         schemaVersion: proof.schema_version.toString(),
       },
-    })
+    }),
   );
 
   const stagingUrl = `https://${registryConfig.stagingBucket}.s3.${registryConfig.region}.amazonaws.com/${key}`;
@@ -150,7 +149,7 @@ export async function uploadProofToRegistry(
       productionUrl,
       checksum,
     },
-    "Proof uploaded to registry"
+    "Proof uploaded to registry",
   );
 
   return {
@@ -168,7 +167,7 @@ export async function uploadProofToRegistry(
 export async function downloadProofFromRegistry(
   proofId: string,
   useProduction: boolean = true,
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<CanonicalProofV1> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
@@ -181,7 +180,7 @@ export async function downloadProofFromRegistry(
       new GetObjectCommand({
         Bucket: bucket,
         Key: key,
-      })
+      }),
     );
 
     if (!Body) {
@@ -205,7 +204,7 @@ export async function downloadProofFromRegistry(
         key,
         error: error instanceof Error ? error.message : error,
       },
-      "Failed to download proof from registry"
+      "Failed to download proof from registry",
     );
     throw error;
   }
@@ -218,7 +217,7 @@ export async function validateUploadIntegrity(
   proofId: string,
   expectedChecksum: string,
   useProduction: boolean = true,
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<boolean> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
@@ -232,7 +231,7 @@ export async function validateUploadIntegrity(
       new HeadObjectCommand({
         Bucket: bucket,
         Key: key,
-      })
+      }),
     );
 
     const remoteChecksum = Metadata?.checksum;
@@ -242,7 +241,7 @@ export async function validateUploadIntegrity(
     }
 
     const isValid = remoteChecksum === expectedChecksum;
-    
+
     if (!isValid) {
       logger.error(
         {
@@ -250,7 +249,7 @@ export async function validateUploadIntegrity(
           expectedChecksum,
           remoteChecksum,
         },
-        "Checksum mismatch detected"
+        "Checksum mismatch detected",
       );
     }
 
@@ -263,7 +262,7 @@ export async function validateUploadIntegrity(
         key,
         error: error instanceof Error ? error.message : error,
       },
-      "Failed to validate upload integrity"
+      "Failed to validate upload integrity",
     );
     return false;
   }
@@ -273,7 +272,7 @@ export async function validateUploadIntegrity(
  * Run integrity check comparing schema.json hash to canonical schema
  */
 export async function runIntegrityCheck(
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<IntegrityCheckResult> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
@@ -287,7 +286,7 @@ export async function runIntegrityCheck(
       new GetObjectCommand({
         Bucket: registryConfig.productionBucket,
         Key: schemaKey,
-      })
+      }),
     );
 
     if (!Body) {
@@ -306,7 +305,7 @@ export async function runIntegrityCheck(
 
     if (!isValid) {
       mismatches.push(
-        `Schema hash mismatch: registry=${schemaHash}, canonical=${canonicalSchemaHash}`
+        `Schema hash mismatch: registry=${schemaHash}, canonical=${canonicalSchemaHash}`,
       );
     }
 
@@ -321,7 +320,7 @@ export async function runIntegrityCheck(
       {
         error: error instanceof Error ? error.message : error,
       },
-      "Failed to run integrity check"
+      "Failed to run integrity check",
     );
 
     return {
@@ -336,9 +335,7 @@ export async function runIntegrityCheck(
 /**
  * Upload canonical schema to registry
  */
-export async function uploadCanonicalSchema(
-  config?: Partial<RegistryConfig>
-): Promise<void> {
+export async function uploadCanonicalSchema(config?: Partial<RegistryConfig>): Promise<void> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
 
@@ -360,7 +357,7 @@ export async function uploadCanonicalSchema(
           schemaVersion: "1",
           uploadedAt: new Date().toISOString(),
         },
-      })
+      }),
     ),
     s3Client.send(
       new PutObjectCommand({
@@ -372,7 +369,7 @@ export async function uploadCanonicalSchema(
           schemaVersion: "1",
           uploadedAt: new Date().toISOString(),
         },
-      })
+      }),
     ),
   ]);
 
@@ -384,7 +381,7 @@ export async function uploadCanonicalSchema(
  */
 export async function listRegistryProofs(
   useProduction: boolean = true,
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<string[]> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
@@ -403,7 +400,7 @@ export async function listRegistryProofs(
           Bucket: bucket,
           Prefix: prefix,
           ContinuationToken: continuationToken,
-        })
+        }),
       );
 
       if (Contents) {
@@ -428,7 +425,7 @@ export async function listRegistryProofs(
         prefix,
         error: error instanceof Error ? error.message : error,
       },
-      "Failed to list registry proofs"
+      "Failed to list registry proofs",
     );
     throw error;
   }
@@ -441,7 +438,7 @@ export async function getProofSignedUrl(
   proofId: string,
   expiresIn: number = 3600, // 1 hour
   useProduction: boolean = true,
-  config?: Partial<RegistryConfig>
+  config?: Partial<RegistryConfig>,
 ): Promise<string> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);

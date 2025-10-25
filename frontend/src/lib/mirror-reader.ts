@@ -7,6 +7,7 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { CanonicalProofV1 } from "./proof-schema";
 import { verifyCanonicalProof } from "./proof-schema";
 import { supabaseService } from "./db";
+import { isMirrorsEnabled } from "./env";
 
 /**
  * Create S3 client for reading from mirror
@@ -34,6 +35,10 @@ function createS3Client(): S3Client {
  * Fetch proof JSON from S3 by ID
  */
 export async function fetchProofFromS3(proofId: string): Promise<CanonicalProofV1 | null> {
+  // Feature flag check - mirrors disabled by default for MVP
+  if (!isMirrorsEnabled()) {
+    return null;
+  }
   const bucket = process.env.REGISTRY_S3_BUCKET;
   const prefix = process.env.REGISTRY_S3_PREFIX || "registry/";
 
@@ -106,6 +111,10 @@ export async function fetchProofFromS3(proofId: string): Promise<CanonicalProofV
  * Fetch proof JSON from S3 by hash
  */
 export async function fetchProofFromS3ByHash(hash: string): Promise<CanonicalProofV1 | null> {
+  // Feature flag check - mirrors disabled by default for MVP
+  if (!isMirrorsEnabled()) {
+    return null;
+  }
   const bucket = process.env.REGISTRY_S3_BUCKET;
   const prefix = process.env.REGISTRY_S3_PREFIX || "registry/";
 
@@ -190,6 +199,19 @@ export async function verifyProofFromMirror(proofId: string): Promise<{
   source_registry: string;
   errors: string[];
 }> {
+  // Feature flag check - mirrors disabled by default for MVP
+  if (!isMirrorsEnabled()) {
+    return {
+      schema_version: 1,
+      proof_hash: "",
+      valid: false,
+      verified_at: new Date().toISOString(),
+      signer_fp: null,
+      source_registry: "mirror_disabled",
+      errors: ["Mirror functionality is disabled"],
+    };
+  }
+
   try {
     const proof = await fetchProofFromS3(proofId);
 

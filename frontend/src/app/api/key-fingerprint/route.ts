@@ -8,11 +8,16 @@ export async function GET() {
   try {
     const fingerprint = getKeyFingerprint();
     if (!fingerprint) {
-      return jsonErr("Failed to generate key fingerprint", 500);
+      return jsonErr(
+        "INTERNAL_ERROR",
+        "Failed to generate key fingerprint",
+        "key-fingerprint",
+        500,
+      );
     }
-    return jsonOk({ fingerprint });
+    return jsonOk({ fingerprint }, "key-fingerprint");
   } catch (error) {
     capture(error, { route: "/api/key-fingerprint" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "key-fingerprint", 500);
   }
 }

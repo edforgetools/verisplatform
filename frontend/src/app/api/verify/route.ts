@@ -8,6 +8,8 @@ import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { logger } from "@/lib/logger";
 import { downloadProofFromRegistry } from "@/lib/s3-registry";
 import { verifyCanonicalProof } from "@/lib/proof-schema";
+import { recordProofVerification, recordApiCall } from "@/lib/usage-telemetry";
+import { getRequestId } from "@/lib/request-id";
 import { ENV } from "@/lib/env";
 
 export const runtime = "nodejs";
@@ -65,6 +67,7 @@ function validateTimestampWindow(issuedAt: string): { valid: boolean; error?: st
  */
 async function handleVerify(req: NextRequest): Promise<NextResponse> {
   const startTime = Date.now();
+  const requestId = getRequestId(req);
   let tmpPath: string | null = null;
 
   try {
@@ -74,7 +77,7 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
 
     // Handle hash-based verification (primary method)
     if (hash) {
-      return await verifyByHash(hash, startTime);
+      return await verifyByHash(hash, startTime, requestId);
     }
 
     // Handle file-based verification
@@ -83,14 +86,19 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
       const file = form.get("file") as File | null;
 
       if (!file) {
-        return jsonErr("File is required for file-based verification", 400);
+        return jsonErr(
+          "VALIDATION_ERROR",
+          "File is required for file-based verification",
+          requestId,
+          400,
+        );
       }
 
       // Stream file to temporary location and compute hash
       const { tmpPath: fileTmpPath, hashFull } = await streamFileToTmp(file);
       tmpPath = fileTmpPath;
 
-      return await verifyByHash(hashFull, startTime);
+      return await verifyByHash(hashFull, startTime, requestId);
     }
 
     // Handle JSON body verification
@@ -98,11 +106,11 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
       const body = await req.json();
 
       if (body.hash) {
-        return await verifyByHash(body.hash, startTime);
+        return await verifyByHash(body.hash, startTime, requestId);
       }
     }
 
-    return jsonErr("Hash parameter or file is required", 400);
+    return jsonErr("VALIDATION_ERROR", "Hash parameter or file is required", requestId, 400);
   } catch (error) {
     const latency = Date.now() - startTime;
     capture(error, { route: "/api/verify", latency });
@@ -115,7 +123,7 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
       "Verification endpoint error",
     );
 
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", requestId, 500);
   } finally {
     // Clean up temporary file if it was created
     if (tmpPath) {
@@ -127,7 +135,11 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
 /**
  * Verify proof by hash - tries multiple sources
  */
-async function verifyByHash(hash: string, startTime: number): Promise<NextResponse> {
+async function verifyByHash(
+  hash: string,
+  startTime: number,
+  requestId: string,
+): Promise<NextResponse> {
   const errors: string[] = [];
   let result: VerificationResult | null = null;
 
@@ -135,7 +147,7 @@ async function verifyByHash(hash: string, startTime: number): Promise<NextRespon
   try {
     result = await verifyFromS3Registry(hash);
     if (result.valid) {
-      return returnVerificationResult(result, startTime);
+      return await returnVerificationResult(result, startTime, hash, requestId);
     }
     errors.push(...result.errors);
   } catch (error) {
@@ -146,7 +158,7 @@ async function verifyByHash(hash: string, startTime: number): Promise<NextRespon
   try {
     result = await verifyFromDatabase(hash);
     if (result.valid) {
-      return returnVerificationResult(result, startTime);
+      return await returnVerificationResult(result, startTime, hash, requestId);
     }
     errors.push(...result.errors);
   } catch (error) {
@@ -172,7 +184,7 @@ async function verifyByHash(hash: string, startTime: number): Promise<NextRespon
     "Proof verification failed from all sources",
   );
 
-  return jsonOk(failureResult);
+  return jsonOk(failureResult, requestId);
 }
 
 /**
@@ -292,7 +304,12 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
 /**
  * Return verification result with proper formatting
  */
-function returnVerificationResult(result: VerificationResult, startTime: number): NextResponse {
+async function returnVerificationResult(
+  result: VerificationResult,
+  startTime: number,
+  proofId: string,
+  requestId: string,
+): Promise<NextResponse> {
   const totalLatency = Date.now() - startTime;
 
   // Log success metrics
@@ -305,13 +322,44 @@ function returnVerificationResult(result: VerificationResult, startTime: number)
     "Proof verification completed",
   );
 
-  return jsonOk({
-    valid: result.valid,
-    signer: result.signer,
-    issued_at: result.issued_at,
-    latency_ms: totalLatency,
-    errors: result.errors,
-  });
+  // Record telemetry metrics
+  try {
+    await Promise.all([
+      recordProofVerification(proofId || "unknown", undefined, {
+        verification_method: "hash",
+        success: result.valid,
+        latency_ms: totalLatency,
+        signer: result.signer,
+        errors: result.errors,
+      }),
+      recordApiCall("/api/verify", undefined, {
+        response_time: totalLatency,
+        success: result.valid,
+        verification_method: "hash",
+      }),
+    ]);
+  } catch (telemetryError) {
+    // Don't fail the request if telemetry fails
+    logger.warn(
+      {
+        event: "telemetry_recording_failed",
+        error: telemetryError instanceof Error ? telemetryError.message : "Unknown telemetry error",
+        proofId: proofId,
+      },
+      "Failed to record telemetry metrics",
+    );
+  }
+
+  return jsonOk(
+    {
+      valid: result.valid,
+      signer: result.signer,
+      issued_at: result.issued_at,
+      latency_ms: totalLatency,
+      errors: result.errors,
+    },
+    requestId,
+  );
 }
 
 // Apply rate limiting to the GET handler

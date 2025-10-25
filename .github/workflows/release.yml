@@ -1,0 +1,333 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.0)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      pre_release:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.18.1"
+
+jobs:
+  # Determine version
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          
+          # Remove 'v' prefix if present
+          VERSION=${VERSION#v}
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Determined version: $VERSION"
+
+  # Pre-release checks
+  pre-release-checks:
+    name: Pre-release Checks
+    runs-on: ubuntu-latest
+    needs: determine-version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter frontend run typecheck
+
+      - name: Lint check
+        run: pnpm --filter frontend run lint
+
+      - name: Security audit
+        run: pnpm audit --audit-level moderate
+
+      - name: Unit tests
+        run: pnpm --filter frontend run test:ci
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          CRON_JOB_TOKEN: test-cron-token
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          SUPABASE_SERVICE_KEY: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: test-private-key
+          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+
+      - name: Build application
+        run: pnpm --filter frontend run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          NEXT_PUBLIC_SITE_URL: https://verisplatform.com
+
+      - name: Build SDK
+        run: pnpm --filter sdk-js run build
+
+  # Create release
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [determine-version, pre-release-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Generate changelog from git commits
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --max-count=20)
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.determine-version.outputs.tag }}
+          release_name: Release ${{ needs.determine-version.outputs.tag }}
+          body: |
+            ## Changes in this Release
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## Installation
+            
+            ```bash
+            npm install @veris/sdk-js@${{ needs.determine-version.outputs.version }}
+            ```
+            
+            ## Documentation
+            
+            - [API Documentation](https://verisplatform.com/docs/api)
+            - [SDK Documentation](https://verisplatform.com/docs/sdk)
+            - [Getting Started Guide](https://verisplatform.com/docs/getting-started)
+          draft: false
+          prerelease: ${{ github.event.inputs.pre_release == 'true' }}
+
+  # Build and publish SDK
+  publish-sdk:
+    name: Publish SDK
+    runs-on: ubuntu-latest
+    needs: [determine-version, pre-release-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Update SDK version
+        run: |
+          cd packages/sdk-js
+          npm version ${{ needs.determine-version.outputs.version }} --no-git-tag-version
+
+      - name: Build SDK
+        run: pnpm --filter sdk-js run build
+
+      - name: Publish SDK to npm
+        run: |
+          cd packages/sdk-js
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # Build and upload frontend assets
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: [determine-version, pre-release-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter frontend run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://verisplatform.com
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_STRIPE_MODE: live
+          NEXT_PUBLIC_SITE_URL: https://verisplatform.com
+
+      - name: Upload frontend assets to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./frontend/.next/
+          asset_name: frontend-build-${{ needs.determine-version.outputs.tag }}.tar.gz
+          asset_content_type: application/gzip
+
+  # Update documentation
+  update-docs:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    needs: [determine-version, pre-release-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate API documentation
+        run: |
+          # Generate OpenAPI documentation
+          npx swagger-codegen-cli generate -i frontend/openapi/openapi.yaml -l html2 -o docs/api
+
+      - name: Update version in documentation
+        run: |
+          # Update version in README and other docs
+          sed -i "s/version: [0-9]\+\.[0-9]\+\.[0-9]\+/version: ${{ needs.determine-version.outputs.version }}/g" README.md
+          sed -i "s/version: [0-9]\+\.[0-9]\+\.[0-9]\+/version: ${{ needs.determine-version.outputs.version }}/g" frontend/openapi/openapi.yaml
+
+      - name: Commit documentation updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md frontend/openapi/openapi.yaml docs/
+          git commit -m "docs: update version to ${{ needs.determine-version.outputs.version }}" || exit 0
+          git push
+
+  # Post-release tasks
+  post-release:
+    name: Post-release Tasks
+    runs-on: ubuntu-latest
+    needs: [determine-version, create-release, publish-sdk, build-frontend, update-docs]
+    steps:
+      - name: Notify team
+        run: |
+          echo "Release ${{ needs.determine-version.outputs.tag }} has been successfully created!"
+          echo "SDK published to npm: @veris/sdk-js@${{ needs.determine-version.outputs.version }}"
+          echo "Frontend assets uploaded to release"
+          echo "Documentation updated"
+
+      - name: Create deployment issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Deploy Release ${{ needs.determine-version.outputs.tag }}`,
+              body: `## Release ${{ needs.determine-version.outputs.tag }} Ready for Deployment
+              
+              This release has been successfully built and tested. It's ready for deployment to production.
+              
+              ### Release Details
+              - **Version**: ${{ needs.determine-version.outputs.version }}
+              - **Tag**: ${{ needs.determine-version.outputs.tag }}
+              - **SDK**: Published to npm as @veris/sdk-js@${{ needs.determine-version.outputs.version }}
+              - **Frontend**: Built and ready for deployment
+              
+              ### Next Steps
+              - [ ] Deploy to staging environment
+              - [ ] Run smoke tests on staging
+              - [ ] Deploy to production
+              - [ ] Monitor production metrics
+              - [ ] Close this issue
+              
+              ### Release Notes
+              See the [release page](https://github.com/${{ github.repository }}/releases/tag/${{ needs.determine-version.outputs.tag }}) for detailed changelog.
+              `,
+              labels: ['deployment', 'release']
+            });
+            
+            console.log(`Created deployment issue: ${issue.data.html_url}`);

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     // Validate internal authentication
     if (!validateInternalAuth(req)) {
       logger.warn("Unauthorized access attempt to internal status page");
-      return jsonErr("Unauthorized", 401);
+      return jsonErr("AUTH_ERROR", "Unauthorized", "internal-status", 401);
     }
 
     const startTime = Date.now();
@@ -66,9 +66,9 @@ export async function GET(req: NextRequest) {
 
     logger.info({ status }, "Internal status page accessed");
 
-    return jsonOk(status);
+    return jsonOk(status, "internal-status");
   } catch (error) {
     logger.error({ error }, "Failed to get internal status");
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "internal-status", 500);
   }
 }

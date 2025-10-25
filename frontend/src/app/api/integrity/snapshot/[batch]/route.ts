@@ -20,7 +20,7 @@ async function handleSnapshotIntegrity(
     const batch = parseInt(batchStr, 10);
 
     if (isNaN(batch) || batch <= 0) {
-      return jsonErr("Invalid batch number", 400);
+      return jsonErr("VALIDATION_ERROR", "Invalid batch number", "integrity-snapshot", 400);
     }
 
     const svc = supabaseService();
@@ -34,7 +34,7 @@ async function handleSnapshotIntegrity(
 
     if (error || !snapshot) {
       logger.warn({ batch, error: error?.message }, "Snapshot not found");
-      return jsonErr("Snapshot not found", 404);
+      return jsonErr("NOT_FOUND", "Snapshot not found", "integrity-snapshot", 404);
     }
 
     // Construct URLs for the snapshot artifacts
@@ -53,31 +53,34 @@ async function handleSnapshotIntegrity(
 
     logger.info({ batch }, "Snapshot integrity data retrieved");
 
-    return jsonOk({
-      batch: snapshot.batch,
-      count: snapshot.count,
-      merkle_root: snapshot.merkle_root,
-      schema_version: 1,
-      created_at: snapshot.created_at,
-      urls: {
-        s3: {
-          manifest: manifestUrl,
-          jsonl: jsonlUrl,
+    return jsonOk(
+      {
+        batch: snapshot.batch,
+        count: snapshot.count,
+        merkle_root: snapshot.merkle_root,
+        schema_version: 1,
+        created_at: snapshot.created_at,
+        urls: {
+          s3: {
+            manifest: manifestUrl,
+            jsonl: jsonlUrl,
+          },
+          arweave: {
+            manifest: arweaveManifestUrl,
+            jsonl: arweaveJsonlUrl,
+          },
         },
-        arweave: {
-          manifest: arweaveManifestUrl,
-          jsonl: arweaveJsonlUrl,
-        },
+        arweave_txid: snapshot.arweave_txid,
       },
-      arweave_txid: snapshot.arweave_txid,
-    });
+      "integrity-snapshot",
+    );
   } catch (error) {
     capture(error, { route: "/api/integrity/snapshot/[batch]" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Failed to get snapshot integrity data",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "integrity-snapshot", 500);
   }
 }
 

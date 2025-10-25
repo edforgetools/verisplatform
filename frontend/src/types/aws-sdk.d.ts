@@ -15,6 +15,7 @@ declare module "@aws-sdk/client-s3" {
       Body?: any;
       ContentType?: string;
       ContentEncoding?: string;
+      Metadata?: Record<string, string>;
     });
   }
 
@@ -23,7 +24,7 @@ declare module "@aws-sdk/client-s3" {
   }
 
   export class ListObjectsV2Command {
-    constructor(input: { Bucket: string; Prefix?: string });
+    constructor(input: { Bucket: string; Prefix?: string; ContinuationToken?: string });
   }
 }
 

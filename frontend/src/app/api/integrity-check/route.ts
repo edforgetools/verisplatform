@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
       .limit(1000); // Process in batches
 
     if (fetchError) {
-      return jsonErr(fetchError.message, 500);
+      return jsonErr("FETCH_ERROR", fetchError.message, "integrity-check", 500);
     }
 
     if (!proofs) {
-      return jsonErr("No proofs found", 404);
+      return jsonErr("NOT_FOUND", "No proofs found", "integrity-check", 404);
     }
 
     // Check each proof's signature integrity
@@ -62,14 +62,17 @@ export async function POST(req: NextRequest) {
       meta: { errors_count: errors.length },
     });
 
-    return jsonOk({
-      success: true,
-      checked,
-      errors: errors.length,
-      error_details: errors,
-    });
+    return jsonOk(
+      {
+        success: true,
+        checked,
+        errors: errors.length,
+        error_details: errors,
+      },
+      "integrity-check",
+    );
   } catch (error) {
     capture(error, { route: "/api/integrity-check" });
-    return jsonErr("Integrity check failed", 500);
+    return jsonErr("INTERNAL_ERROR", "Integrity check failed", "integrity-check", 500);
   }
 }

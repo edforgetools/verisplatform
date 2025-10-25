@@ -34,24 +34,29 @@ export async function POST(req: NextRequest) {
     const { priceId, userId, customerEmail } = await req.json();
 
     if (!priceId) {
-      return jsonErr("priceId is required", 400);
+      return jsonErr("VALIDATION_ERROR", "priceId is required", "stripe-create-checkout", 400);
     }
 
     // Validate priceId against allowlist
     const validPriceIds = getValidPriceIds();
     if (!validPriceIds.has(priceId)) {
-      return jsonErr("Invalid priceId", 400);
+      return jsonErr("VALIDATION_ERROR", "Invalid priceId", "stripe-create-checkout", 400);
     }
 
     if (!userId) {
-      return jsonErr("userId is required", 400);
+      return jsonErr("VALIDATION_ERROR", "userId is required", "stripe-create-checkout", 400);
     }
 
     // Check entitlement for creating checkout sessions
     try {
       await assertEntitled(userId, "create_checkout");
     } catch {
-      return jsonErr("Insufficient permissions to create checkout sessions", 403);
+      return jsonErr(
+        "AUTH_ERROR",
+        "Insufficient permissions to create checkout sessions",
+        "stripe-create-checkout",
+        403,
+      );
     }
 
     const stripe = getStripe();
@@ -65,13 +70,18 @@ export async function POST(req: NextRequest) {
       metadata: { user_id: userId },
     });
 
-    return jsonOk({ url: session.url });
+    return jsonOk({ url: session.url }, "stripe-create-checkout");
   } catch (error) {
     capture(error, { route: "/api/stripe/create-checkout" });
-    return jsonErr("Failed to create checkout session", 500);
+    return jsonErr(
+      "INTERNAL_ERROR",
+      "Failed to create checkout session",
+      "stripe-create-checkout",
+      500,
+    );
   }
 }
 
 export function GET() {
-  return jsonOk({ ok: true });
+  return jsonOk({ ok: true }, "stripe-create-checkout");
 }

@@ -17,7 +17,7 @@ export interface SchemaVersion {
   version: string;
   path: string;
   schema: any;
-  validator: Ajv.ValidateFunction;
+  validator: any;
   isLatest: boolean;
   createdAt: string;
 }
@@ -59,11 +59,11 @@ export class SchemaVersionManager {
     try {
       // Load v1.0 schema
       const v1_0 = require("../schema/proof.v1.json");
-      this.addSchema("1.0", "../schema/proof.v1.json", v1_0, true);
+      this.addSchema("1.0", "../schema/proof.v1.json", v1_0, false);
 
-      // Future schemas would be loaded here
-      // const v1_1 = require('../schema/proof.v1.1.json');
-      // this.addSchema('1.1', '../schema/proof.v1.1.json', v1_1, true);
+      // Load v1.1 schema (latest)
+      const v1_1 = require("../schema/proof.v1.1.json");
+      this.addSchema("1.1", "../schema/proof.v1.1.json", v1_1, true);
 
       logger.info(
         {
@@ -149,7 +149,7 @@ export class SchemaVersionManager {
 
     return {
       valid: isValid,
-      errors: errors.map((error) => `${error.instancePath}: ${error.message}`),
+      errors: errors.map((error: any) => `${error.instancePath}: ${error.message}`),
       warnings: [],
       schemaVersion: version,
     };

@@ -23,14 +23,14 @@ async function handleStripeWebhook(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
     logger.error("Missing stripe-signature header");
-    return jsonErr("Missing stripe-signature header", 400);
+    return jsonErr("VALIDATION_ERROR", "Missing stripe-signature header", "stripe-webhook", 400);
   }
 
   // Read raw body using Next 15 App Router method
   const text = await req.text();
   if (!text) {
     logger.error("Empty webhook body");
-    return jsonErr("Empty webhook body", 400);
+    return jsonErr("VALIDATION_ERROR", "Empty webhook body", "stripe-webhook", 400);
   }
 
   const buf = Buffer.from(text);
@@ -51,7 +51,12 @@ async function handleStripeWebhook(req: NextRequest) {
       },
       "Webhook signature verification failed",
     );
-    return jsonErr(`Webhook signature verification failed: ${errorMessage}`, 400);
+    return jsonErr(
+      "AUTH_ERROR",
+      `Webhook signature verification failed: ${errorMessage}`,
+      "stripe-webhook",
+      400,
+    );
   }
 
   // Validate event structure
@@ -64,7 +69,7 @@ async function handleStripeWebhook(req: NextRequest) {
       },
       "Invalid webhook event structure",
     );
-    return jsonErr("Invalid webhook event structure", 400);
+    return jsonErr("VALIDATION_ERROR", "Invalid webhook event structure", "stripe-webhook", 400);
   }
 
   // Filter allowed events for security
@@ -76,7 +81,7 @@ async function handleStripeWebhook(req: NextRequest) {
       },
       "Received disallowed webhook event",
     );
-    return jsonOk({ received: true });
+    return jsonOk({ received: true }, "stripe-webhook");
   }
 
   const svc = supabaseService();
@@ -96,7 +101,7 @@ async function handleStripeWebhook(req: NextRequest) {
       },
       "Event already processed, skipping",
     );
-    return jsonOk({ received: true, alreadyProcessed: true });
+    return jsonOk({ received: true, alreadyProcessed: true }, "stripe-webhook");
   }
 
   try {
@@ -113,7 +118,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "checkout.session.completed missing required fields",
         );
-        return jsonOk({ received: true });
+        return jsonOk({ received: true }, "stripe-webhook");
       }
 
       const billingRecord: BillingInsert = {
@@ -159,7 +164,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "customer.subscription.updated missing subscription id",
         );
-        return jsonOk({ received: true });
+        return jsonOk({ received: true }, "stripe-webhook");
       }
 
       // Update billing record by subscription ID
@@ -180,7 +185,12 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for subscription.updated",
         );
-        return jsonErr("Failed to update billing for subscription.updated", 500);
+        return jsonErr(
+          "DB_ERROR",
+          "Failed to update billing for subscription.updated",
+          "stripe-webhook",
+          500,
+        );
       }
 
       // Log successful event processing
@@ -211,7 +221,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "customer.subscription.deleted missing subscription id",
         );
-        return jsonOk({ received: true });
+        return jsonOk({ received: true }, "stripe-webhook");
       }
 
       // Update billing record to cancelled status
@@ -232,7 +242,12 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for subscription.deleted",
         );
-        return jsonErr("Failed to update billing for subscription.deleted", 500);
+        return jsonErr(
+          "DB_ERROR",
+          "Failed to update billing for subscription.deleted",
+          "stripe-webhook",
+          500,
+        );
       }
 
       // Log successful event processing
@@ -268,7 +283,7 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "invoice.payment_failed missing subscription",
         );
-        return jsonOk({ received: true });
+        return jsonOk({ received: true }, "stripe-webhook");
       }
 
       const subscriptionIdString =
@@ -292,7 +307,12 @@ async function handleStripeWebhook(req: NextRequest) {
           },
           "Failed to update billing for invoice.payment_failed",
         );
-        return jsonErr("Failed to update billing for invoice.payment_failed", 500);
+        return jsonErr(
+          "DB_ERROR",
+          "Failed to update billing for invoice.payment_failed",
+          "stripe-webhook",
+          500,
+        );
       }
 
       // Log successful event processing
@@ -312,11 +332,14 @@ async function handleStripeWebhook(req: NextRequest) {
     }
 
     // Fast 200 response for handled events
-    return jsonOk({
-      received: true,
-      eventId: event.id,
-      eventType: event.type,
-    });
+    return jsonOk(
+      {
+        received: true,
+        eventId: event.id,
+        eventType: event.type,
+      },
+      "stripe-webhook",
+    );
   } catch (error) {
     capture(error, {
       route: "/api/stripe/webhook",
@@ -334,7 +357,7 @@ async function handleStripeWebhook(req: NextRequest) {
     );
 
     // Return 500 to allow Stripe to retry failed webhooks
-    return jsonErr("Webhook processing failed", 500);
+    return jsonErr("INTERNAL_ERROR", "Webhook processing failed", "stripe-webhook", 500);
   }
 }
 

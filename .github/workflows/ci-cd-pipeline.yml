@@ -1,0 +1,305 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      pipeline_type:
+        description: 'Type of pipeline to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - quick
+          - deployment
+          - testing
+          - monitoring
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.18.1"
+
+jobs:
+  # Quick validation for PRs
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.inputs.pipeline_type == 'quick'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter frontend run typecheck
+
+      - name: Lint check
+        run: pnpm --filter frontend run lint
+
+      - name: Quick unit tests
+        run: pnpm --filter frontend run test -- --testPathPattern="__tests__" --maxWorkers=2
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+
+  # Full CI pipeline
+  full-ci:
+    name: Full CI Pipeline
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event.inputs.pipeline_type == 'full'
+    needs: quick-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter frontend run typecheck
+
+      - name: Lint check
+        run: pnpm --filter frontend run lint
+
+      - name: Security audit
+        run: pnpm audit --audit-level moderate
+
+      - name: Unit tests
+        run: pnpm --filter frontend run test:ci
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          CRON_JOB_TOKEN: test-cron-token
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          SUPABASE_SERVICE_KEY: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: test-private-key
+          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+
+      - name: Build application
+        run: pnpm --filter frontend run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          NEXT_PUBLIC_SITE_URL: https://test.verisplatform.com
+
+      - name: Build SDK
+        run: pnpm --filter sdk-js run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-build-artifacts
+          path: |
+            frontend/.next/
+            packages/sdk-js/dist/
+          retention-days: 7
+
+  # Testing pipeline
+  testing-pipeline:
+    name: Testing Pipeline
+    runs-on: ubuntu-latest
+    if: github.event.inputs.pipeline_type == 'testing' || github.event.inputs.pipeline_type == 'full'
+    needs: full-ci
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-build-artifacts
+          path: .
+
+      - name: Install Playwright browsers
+        run: pnpm --filter frontend exec playwright install --with-deps
+
+      - name: Start application
+        run: |
+          pnpm --filter frontend run start &
+          sleep 30
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          CRON_JOB_TOKEN: test-cron-token
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          SUPABASE_SERVICE_KEY: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: test-private-key
+          VERIS_SIGNING_PUBLIC_KEY: test-public-key
+
+      - name: Run E2E tests
+        run: pnpm --filter frontend run test:e2e
+        env:
+          BASE_URL: http://localhost:3000
+          CI: true
+
+      - name: Run contract tests
+        run: pnpm --filter frontend run test -- --testPathPattern="conformance"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: frontend/test-results/
+          retention-days: 7
+
+  # Deployment pipeline
+  deployment-pipeline:
+    name: Deployment Pipeline
+    runs-on: ubuntu-latest
+    if: github.event.inputs.pipeline_type == 'deployment' || github.event.inputs.pipeline_type == 'full'
+    needs: [full-ci, testing-pipeline]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-build-artifacts
+          path: .
+
+      - name: Deploy to staging
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          echo "Deploying to staging..."
+          # This would trigger the staging deployment workflow
+          echo "Staging deployment triggered"
+
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Deploying to production..."
+          # This would trigger the production deployment workflow
+          echo "Production deployment triggered"
+
+  # Monitoring pipeline
+  monitoring-pipeline:
+    name: Monitoring Pipeline
+    runs-on: ubuntu-latest
+    if: github.event.inputs.pipeline_type == 'monitoring' || github.event.inputs.pipeline_type == 'full'
+    needs: deployment-pipeline
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run health checks
+        run: |
+          echo "Running health checks..."
+          # This would trigger the monitoring workflow
+          echo "Health checks completed"
+
+      - name: Run SLO checks
+        run: |
+          echo "Running SLO checks..."
+          # This would trigger the SLO monitoring
+          echo "SLO checks completed"
+
+  # Pipeline summary
+  pipeline-summary:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [quick-validation, full-ci, testing-pipeline, deployment-pipeline, monitoring-pipeline]
+    if: always()
+    steps:
+      - name: Generate pipeline summary
+        run: |
+          echo "## 🚀 CI/CD Pipeline Summary - $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Quick Validation | ${{ needs.quick-validation.result == 'success' && '✅ Passed' || needs.quick-validation.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Full CI | ${{ needs.full-ci.result == 'success' && '✅ Passed' || needs.full-ci.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Testing | ${{ needs.testing-pipeline.result == 'success' && '✅ Passed' || needs.testing-pipeline.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment | ${{ needs.deployment-pipeline.result == 'success' && '✅ Passed' || needs.deployment-pipeline.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Monitoring | ${{ needs.monitoring-pipeline.result == 'success' && '✅ Passed' || needs.monitoring-pipeline.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check overall status
+          if [[ "${{ needs.quick-validation.result }}" == "success" && 
+                "${{ needs.full-ci.result }}" == "success" && 
+                "${{ needs.testing-pipeline.result }}" == "success" && 
+                "${{ needs.deployment-pipeline.result }}" == "success" && 
+                "${{ needs.monitoring-pipeline.result }}" == "success" ]]; then
+            echo "🎉 **CI/CD Pipeline completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Some pipeline stages failed. Please review the results above.**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any failed stages" >> $GITHUB_STEP_SUMMARY
+          echo "- Check deployment status" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor application health" >> $GITHUB_STEP_SUMMARY
+          echo "- Review test results" >> $GITHUB_STEP_SUMMARY

@@ -1,6 +1,6 @@
 /**
  * Deployment and Governance System
- * 
+ *
  * Implements deployment and governance as specified in the MVP checklist:
  * 1. Deploy all services via Vercel
  * 2. Configure OIDC trust for GitHub and Vercel
@@ -8,11 +8,11 @@
  * 4. Add environment variable rotation policy
  */
 
-import { logger } from './logger';
-import { supabaseService } from './db';
+import { logger } from "./logger";
+import { supabaseService } from "./db";
 
 export interface DeploymentConfig {
-  environment: 'development' | 'staging' | 'production';
+  environment: "development" | "staging" | "production";
   version: string;
   commitHash: string;
   branch: string;
@@ -27,7 +27,7 @@ export interface DeploymentConfig {
 }
 
 export interface DeploymentStatus {
-  status: 'pending' | 'deploying' | 'success' | 'failed' | 'rolled_back';
+  status: "pending" | "deploying" | "success" | "failed" | "rolled_back";
   message: string;
   timestamp: string;
   details?: Record<string, unknown>;
@@ -41,7 +41,7 @@ export interface GovernancePolicy {
   violations: Array<{
     resource: string;
     violation: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
+    severity: "low" | "medium" | "high" | "critical";
     timestamp: string;
   }>;
 }
@@ -50,11 +50,14 @@ export interface GovernancePolicy {
  * Get current deployment configuration
  */
 export function getDeploymentConfig(): DeploymentConfig {
-  const environment = (process.env.NODE_ENV || 'development') as 'development' | 'staging' | 'production';
-  const version = process.env.VERCEL_GIT_COMMIT_SHA || 'unknown';
-  const commitHash = process.env.VERCEL_GIT_COMMIT_SHA || 'unknown';
-  const branch = process.env.VERCEL_GIT_COMMIT_REF || 'unknown';
-  const deployedBy = process.env.VERCEL_GIT_COMMIT_AUTHOR_NAME || 'unknown';
+  const environment = (process.env.NODE_ENV || "development") as
+    | "development"
+    | "staging"
+    | "production";
+  const version = process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
+  const commitHash = process.env.VERCEL_GIT_COMMIT_SHA || "unknown";
+  const branch = process.env.VERCEL_GIT_COMMIT_REF || "unknown";
+  const deployedBy = process.env.VERCEL_GIT_COMMIT_AUTHOR_NAME || "unknown";
 
   return {
     environment,
@@ -64,8 +67,8 @@ export function getDeploymentConfig(): DeploymentConfig {
     deployedAt: new Date().toISOString(),
     deployedBy,
     vercelDeploymentId: process.env.VERCEL_DEPLOYMENT_ID,
-    awsRegion: process.env.AWS_REGION || 'us-east-1',
-    s3Bucket: process.env.REGISTRY_S3_PRODUCTION_BUCKET || 'veris-registry-prod',
+    awsRegion: process.env.AWS_REGION || "us-east-1",
+    s3Bucket: process.env.REGISTRY_S3_PRODUCTION_BUCKET || "veris-registry-prod",
     oidcEnabled: !!process.env.VERCEL_OIDC_TOKEN,
     encryptionEnabled: true, // Assume enabled if we're using S3
     versioningEnabled: true, // Assume enabled if we're using S3
@@ -78,8 +81,8 @@ export function getDeploymentConfig(): DeploymentConfig {
 export async function recordDeployment(config: DeploymentConfig): Promise<void> {
   try {
     const svc = supabaseService();
-    
-    await svc.from('deployment_logs').insert({
+
+    await svc.from("deployment_logs").insert({
       environment: config.environment,
       version: config.version,
       commit_hash: config.commitHash,
@@ -101,16 +104,15 @@ export async function recordDeployment(config: DeploymentConfig): Promise<void> 
         commitHash: config.commitHash,
         branch: config.branch,
       },
-      'Deployment recorded'
+      "Deployment recorded",
     );
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         config,
       },
-      'Failed to record deployment'
+      "Failed to record deployment",
     );
     throw error;
   }
@@ -119,29 +121,29 @@ export async function recordDeployment(config: DeploymentConfig): Promise<void> 
 /**
  * Get deployment history
  */
-export async function getDeploymentHistory(
-  limit: number = 50
-): Promise<Array<{
-  id: string;
-  environment: string;
-  version: string;
-  commit_hash: string;
-  branch: string;
-  deployed_at: string;
-  deployed_by: string;
-  vercel_deployment_id: string | null;
-  aws_region: string;
-  s3_bucket: string;
-  oidc_enabled: boolean;
-  encryption_enabled: boolean;
-  versioning_enabled: boolean;
-}>> {
+export async function getDeploymentHistory(limit: number = 50): Promise<
+  Array<{
+    id: string;
+    environment: string;
+    version: string;
+    commit_hash: string;
+    branch: string;
+    deployed_at: string;
+    deployed_by: string;
+    vercel_deployment_id: string | null;
+    aws_region: string;
+    s3_bucket: string;
+    oidc_enabled: boolean;
+    encryption_enabled: boolean;
+    versioning_enabled: boolean;
+  }>
+> {
   const svc = supabaseService();
-  
+
   const { data: deployments, error } = await svc
-    .from('deployment_logs')
-    .select('*')
-    .order('deployed_at', { ascending: false })
+    .from("deployment_logs")
+    .select("*")
+    .order("deployed_at", { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -168,22 +170,22 @@ export async function checkOIDCTrust(): Promise<{
   const enabled = !!oidcToken;
 
   if (!enabled) {
-    issues.push('OIDC token not found in environment variables');
-    recommendations.push('Configure VERCEL_OIDC_TOKEN environment variable');
+    issues.push("OIDC token not found in environment variables");
+    recommendations.push("Configure VERCEL_OIDC_TOKEN environment variable");
   }
 
   // Check for AWS role ARN
   const roleArn = process.env.AWS_ROLE_ARN;
   if (!roleArn) {
-    issues.push('AWS role ARN not configured');
-    recommendations.push('Configure AWS_ROLE_ARN environment variable');
+    issues.push("AWS role ARN not configured");
+    recommendations.push("Configure AWS_ROLE_ARN environment variable");
   }
 
   // Check for AWS region
   const region = process.env.AWS_REGION;
   if (!region) {
-    issues.push('AWS region not configured');
-    recommendations.push('Configure AWS_REGION environment variable');
+    issues.push("AWS region not configured");
+    recommendations.push("Configure AWS_REGION environment variable");
   }
 
   const configured = enabled && !!roleArn && !!region;
@@ -213,13 +215,13 @@ export async function checkS3Configuration(): Promise<{
   const productionBucket = process.env.REGISTRY_S3_PRODUCTION_BUCKET;
 
   if (!stagingBucket) {
-    issues.push('Staging S3 bucket not configured');
-    recommendations.push('Configure REGISTRY_S3_STAGING_BUCKET environment variable');
+    issues.push("Staging S3 bucket not configured");
+    recommendations.push("Configure REGISTRY_S3_STAGING_BUCKET environment variable");
   }
 
   if (!productionBucket) {
-    issues.push('Production S3 bucket not configured');
-    recommendations.push('Configure REGISTRY_S3_PRODUCTION_BUCKET environment variable');
+    issues.push("Production S3 bucket not configured");
+    recommendations.push("Configure REGISTRY_S3_PRODUCTION_BUCKET environment variable");
   }
 
   // For now, assume versioning and encryption are enabled if buckets are configured
@@ -228,13 +230,13 @@ export async function checkS3Configuration(): Promise<{
   const encryptionEnabled = !!stagingBucket && !!productionBucket;
 
   if (!versioningEnabled) {
-    issues.push('S3 versioning not enabled');
-    recommendations.push('Enable versioning on S3 buckets');
+    issues.push("S3 versioning not enabled");
+    recommendations.push("Enable versioning on S3 buckets");
   }
 
   if (!encryptionEnabled) {
-    issues.push('S3 encryption not enabled');
-    recommendations.push('Enable AES256 encryption on S3 buckets');
+    issues.push("S3 encryption not enabled");
+    recommendations.push("Enable AES256 encryption on S3 buckets");
   }
 
   return {
@@ -260,18 +262,18 @@ export async function checkEnvironmentVariableRotation(): Promise<{
 
   // Check for sensitive environment variables
   const sensitiveVars = [
-    'VERIS_SIGNING_PRIVATE_KEY',
-    'VERIS_SIGNING_PUBLIC_KEY',
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
-    'supabaseservicekey',
+    "VERIS_SIGNING_PRIVATE_KEY",
+    "VERIS_SIGNING_PUBLIC_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "supabaseservicekey",
   ];
 
-  const missingVars = sensitiveVars.filter(varName => !process.env[varName]);
-  
+  const missingVars = sensitiveVars.filter((varName) => !process.env[varName]);
+
   if (missingVars.length > 0) {
-    issues.push(`Missing sensitive environment variables: ${missingVars.join(', ')}`);
-    recommendations.push('Configure all required sensitive environment variables');
+    issues.push(`Missing sensitive environment variables: ${missingVars.join(", ")}`);
+    recommendations.push("Configure all required sensitive environment variables");
   }
 
   // For now, assume rotation is not implemented
@@ -281,8 +283,8 @@ export async function checkEnvironmentVariableRotation(): Promise<{
   const nextRotation = null;
 
   if (!rotationEnabled) {
-    issues.push('Environment variable rotation not implemented');
-    recommendations.push('Implement automated environment variable rotation');
+    issues.push("Environment variable rotation not implemented");
+    recommendations.push("Implement automated environment variable rotation");
   }
 
   return {
@@ -298,10 +300,10 @@ export async function checkEnvironmentVariableRotation(): Promise<{
  * Run governance checks
  */
 export async function runGovernanceChecks(): Promise<{
-  overallStatus: 'healthy' | 'warning' | 'critical';
+  overallStatus: "healthy" | "warning" | "critical";
   checks: Array<{
     name: string;
-    status: 'pass' | 'fail' | 'warning';
+    status: "pass" | "fail" | "warning";
     issues: string[];
     recommendations: string[];
   }>;
@@ -312,13 +314,18 @@ export async function runGovernanceChecks(): Promise<{
     warningChecks: number;
   };
 }> {
-  const checks = [];
+  const checks: Array<{
+    name: string;
+    status: "pass" | "fail" | "warning";
+    issues: string[];
+    recommendations: string[];
+  }> = [];
 
   // Check OIDC trust
   const oidcCheck = await checkOIDCTrust();
   checks.push({
-    name: 'OIDC Trust Configuration',
-    status: oidcCheck.configured ? 'pass' : 'fail',
+    name: "OIDC Trust Configuration",
+    status: oidcCheck.configured ? "pass" : "fail",
     issues: oidcCheck.issues,
     recommendations: oidcCheck.recommendations,
   });
@@ -326,8 +333,8 @@ export async function runGovernanceChecks(): Promise<{
   // Check S3 configuration
   const s3Check = await checkS3Configuration();
   checks.push({
-    name: 'S3 Configuration',
-    status: s3Check.versioningEnabled && s3Check.encryptionEnabled ? 'pass' : 'warning',
+    name: "S3 Configuration",
+    status: s3Check.versioningEnabled && s3Check.encryptionEnabled ? "pass" : "warning",
     issues: s3Check.issues,
     recommendations: s3Check.recommendations,
   });
@@ -335,8 +342,8 @@ export async function runGovernanceChecks(): Promise<{
   // Check environment variable rotation
   const rotationCheck = await checkEnvironmentVariableRotation();
   checks.push({
-    name: 'Environment Variable Rotation',
-    status: rotationCheck.rotationEnabled ? 'pass' : 'warning',
+    name: "Environment Variable Rotation",
+    status: rotationCheck.rotationEnabled ? "pass" : "warning",
     issues: rotationCheck.issues,
     recommendations: rotationCheck.recommendations,
   });
@@ -344,19 +351,19 @@ export async function runGovernanceChecks(): Promise<{
   // Calculate summary
   const summary = {
     totalChecks: checks.length,
-    passedChecks: checks.filter(c => c.status === 'pass').length,
-    failedChecks: checks.filter(c => c.status === 'fail').length,
-    warningChecks: checks.filter(c => c.status === 'warning').length,
+    passedChecks: checks.filter((c) => c.status === "pass").length,
+    failedChecks: checks.filter((c) => c.status === "fail").length,
+    warningChecks: checks.filter((c) => c.status === "warning").length,
   };
 
   // Determine overall status
-  let overallStatus: 'healthy' | 'warning' | 'critical';
+  let overallStatus: "healthy" | "warning" | "critical";
   if (summary.failedChecks > 0) {
-    overallStatus = 'critical';
+    overallStatus = "critical";
   } else if (summary.warningChecks > 0) {
-    overallStatus = 'warning';
+    overallStatus = "warning";
   } else {
-    overallStatus = 'healthy';
+    overallStatus = "healthy";
   }
 
   return {
@@ -373,14 +380,14 @@ export async function storeGovernanceViolations(
   violations: Array<{
     resource: string;
     violation: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
+    severity: "low" | "medium" | "high" | "critical";
     timestamp: string;
-  }>
+  }>,
 ): Promise<void> {
   try {
     const svc = supabaseService();
-    
-    const governanceLogs = violations.map(violation => ({
+
+    const governanceLogs = violations.map((violation) => ({
       resource: violation.resource,
       violation: violation.violation,
       severity: violation.severity,
@@ -388,22 +395,21 @@ export async function storeGovernanceViolations(
       created_at: new Date().toISOString(),
     }));
 
-    await svc.from('governance_violations').insert(governanceLogs);
+    await svc.from("governance_violations").insert(governanceLogs);
 
     logger.info(
       {
         violationCount: violations.length,
       },
-      'Governance violations stored'
+      "Governance violations stored",
     );
-
   } catch (error) {
     logger.error(
       {
         error: error instanceof Error ? error.message : error,
         violationCount: violations.length,
       },
-      'Failed to store governance violations'
+      "Failed to store governance violations",
     );
     throw error;
   }
@@ -412,22 +418,22 @@ export async function storeGovernanceViolations(
 /**
  * Get governance violations
  */
-export async function getGovernanceViolations(
-  limit: number = 100
-): Promise<Array<{
-  id: string;
-  resource: string;
-  violation: string;
-  severity: string;
-  timestamp: string;
-  created_at: string;
-}>> {
+export async function getGovernanceViolations(limit: number = 100): Promise<
+  Array<{
+    id: string;
+    resource: string;
+    violation: string;
+    severity: string;
+    timestamp: string;
+    created_at: string;
+  }>
+> {
   const svc = supabaseService();
-  
+
   const { data: violations, error } = await svc
-    .from('governance_violations')
-    .select('*')
-    .order('timestamp', { ascending: false })
+    .from("governance_violations")
+    .select("*")
+    .order("timestamp", { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -486,33 +492,33 @@ export async function getDeploymentReadiness(): Promise<{
 
   // Check basic configuration
   if (!config.oidcEnabled) {
-    issues.push('OIDC not enabled');
-    recommendations.push('Enable OIDC trust for GitHub and Vercel');
+    issues.push("OIDC not enabled");
+    recommendations.push("Enable OIDC trust for GitHub and Vercel");
   }
 
   if (!config.encryptionEnabled) {
-    issues.push('S3 encryption not enabled');
-    recommendations.push('Enable AES256 encryption on S3');
+    issues.push("S3 encryption not enabled");
+    recommendations.push("Enable AES256 encryption on S3");
   }
 
   if (!config.versioningEnabled) {
-    issues.push('S3 versioning not enabled');
-    recommendations.push('Enable versioning on S3');
+    issues.push("S3 versioning not enabled");
+    recommendations.push("Enable versioning on S3");
   }
 
   // Check environment variables
   const requiredEnvVars = [
-    'VERIS_SIGNING_PRIVATE_KEY',
-    'VERIS_SIGNING_PUBLIC_KEY',
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
-    'supabaseservicekey',
+    "VERIS_SIGNING_PRIVATE_KEY",
+    "VERIS_SIGNING_PUBLIC_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "supabaseservicekey",
   ];
 
-  const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
   if (missingEnvVars.length > 0) {
-    issues.push(`Missing environment variables: ${missingEnvVars.join(', ')}`);
-    recommendations.push('Configure all required environment variables');
+    issues.push(`Missing environment variables: ${missingEnvVars.join(", ")}`);
+    recommendations.push("Configure all required environment variables");
   }
 
   const ready = issues.length === 0;

@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://verisplatform.com/schema/proof.v1.1.json",
+  "title": "Veris Proof Schema v1.1",
+  "description": "Enhanced proof schema with additional metadata fields and improved validation",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version number (maintained for backward compatibility)"
+    },
+    "hash_algo": {
+      "type": "string",
+      "const": "sha256",
+      "description": "Hash algorithm used"
+    },
+    "hash_full": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Full SHA256 hash as lowercase hex string"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp in UTC (Z suffix)"
+    },
+    "signer_fingerprint": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "description": "Base64url encoded SHA256 of public key DER"
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Subject type identifier"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Subject namespace"
+        },
+        "id": {
+          "type": "string",
+          "description": "Subject identifier"
+        },
+        "file_name": {
+          "type": "string",
+          "description": "Original file name (optional, for backward compatibility)"
+        },
+        "file_size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "File size in bytes (optional, for backward compatibility)"
+        },
+        "mime_type": {
+          "type": "string",
+          "description": "MIME type of the file (optional, for backward compatibility)"
+        }
+      },
+      "required": ["type", "namespace", "id"],
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Project identifier"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private", "restricted"],
+          "description": "Proof visibility level"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional tags for categorization"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of the proof"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional expiration timestamp"
+        }
+      },
+      "description": "Additional metadata",
+      "additionalProperties": true
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/=]+$",
+      "description": "Base64 encoded RSA-SHA256 signature"
+    }
+  },
+  "required": [
+    "schema_version",
+    "hash_algo",
+    "hash_full",
+    "signed_at",
+    "signer_fingerprint",
+    "subject",
+    "metadata",
+    "signature"
+  ],
+  "additionalProperties": false
+}

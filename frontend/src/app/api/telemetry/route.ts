@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const { event, value, meta, userId } = await req.json();
 
     if (!event) {
-      return jsonErr("event is required", 400);
+      return jsonErr("VALIDATION_ERROR", "event is required", "telemetry", 400);
     }
 
     // Check entitlement for telemetry tracking (only if userId is provided)
@@ -19,7 +19,12 @@ export async function POST(req: NextRequest) {
       try {
         await assertEntitled(userId, "telemetry_tracking");
       } catch {
-        return jsonErr("Insufficient permissions to track telemetry", 403);
+        return jsonErr(
+          "AUTH_ERROR",
+          "Insufficient permissions to track telemetry",
+          "telemetry",
+          403,
+        );
       }
     }
 
@@ -32,12 +37,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      return jsonErr(error.message, 500);
+      return jsonErr("DB_ERROR", error.message, "telemetry", 500);
     }
 
-    return jsonOk({ success: true });
+    return jsonOk({ success: true }, "telemetry");
   } catch (error) {
     capture(error, { route: "/api/telemetry" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "telemetry", 500);
   }
 }

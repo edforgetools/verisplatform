@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="141" failures="35" errors="0" time="3.027">
+  <testsuite name="Public Verification Route" errors="0" failures="21" skipped="0" timestamp="2025-10-25T00:02:07" time="0.531" tests="21">
+    <testcase classname="Public Verification Route Valid Inputs should verify a valid proof from S3 registry" name="Public Verification Route Valid Inputs should verify a valid proof from S3 registry" time="0.091">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;test-hash-123&quot;, true
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:113:45)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Valid Inputs should verify a valid proof from database fallback" name="Public Verification Route Valid Inputs should verify a valid proof from database fallback" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;test-hash-123&quot;, &quot;valid-signature&quot;
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:154:35)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Valid Inputs should verify a valid uploaded file" name="Public Verification Route Valid Inputs should verify a valid uploaded file" time="0.008">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {Symbol(kHandle): {}, Symbol(kLength): 12, Symbol(kType): &quot;application/pdf&quot;}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:197:35)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Tampered Inputs should reject proof with invalid signature" name="Public Verification Route Tampered Inputs should reject proof with invalid signature" time="0.004">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Signature verification failed&quot;], &quot;issued_at&quot;: &quot;2025-10-25T00:02:07.771Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:232:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Tampered Inputs should reject proof with tampered content" name="Public Verification Route Tampered Inputs should reject proof with tampered content" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Signature verification failed&quot;], &quot;issued_at&quot;: &quot;2025-10-25T00:02:07.775Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:263:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Tampered Inputs should reject database proof with invalid signature" name="Public Verification Route Tampered Inputs should reject database proof with invalid signature" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Signature verification failed&quot;], &quot;issued_at&quot;: &quot;2025-10-25T00:02:07.778Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:302:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Expired Inputs should reject proof with expired timestamp" name="Public Verification Route Expired Inputs should reject proof with expired timestamp" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Timestamp outside tolerance window (25h &gt; 24h)&quot;], &quot;issued_at&quot;: &quot;2025-10-23T23:02:07.781Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:335:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Expired Inputs should reject proof with future timestamp" name="Public Verification Route Expired Inputs should reject proof with future timestamp" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Timestamp outside tolerance window (25h &gt; 24h)&quot;], &quot;issued_at&quot;: &quot;2025-10-26T01:02:07.783Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:366:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Expired Inputs should reject proof with invalid timestamp format" name="Public Verification Route Expired Inputs should reject proof with invalid timestamp format" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Invalid timestamp format&quot;], &quot;issued_at&quot;: &quot;invalid-timestamp&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:397:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Missing Inputs should handle missing hash parameter" name="Public Verification Route Missing Inputs should handle missing hash parameter" time="0.001">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;Hash parameter or file is required&quot;, 400
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:412:27)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Missing Inputs should handle missing file in multipart request" name="Public Verification Route Missing Inputs should handle missing file in multipart request" time="0.001">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;File is required for file-based verification&quot;, 400
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:425:27)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Missing Inputs should handle proof not found in S3 registry" name="Public Verification Route Missing Inputs should handle proof not found in S3 registry" time="0.007">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;S3 registry error: Proof not found&quot;], &quot;issued_at&quot;: Any&lt;String&gt;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:434:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Missing Inputs should handle proof not found in database" name="Public Verification Route Missing Inputs should handle proof not found in database" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;S3 registry error: Not found&quot;, &quot;Database error: Proof not found in database&quot;], &quot;issued_at&quot;: Any&lt;String&gt;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:465:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Missing Inputs should handle missing signature in database proof" name="Public Verification Route Missing Inputs should handle missing signature in database proof" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Signature verification failed&quot;], &quot;issued_at&quot;: &quot;2025-10-25T00:02:07.802Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:503:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Error Handling should handle S3 registry download errors" name="Public Verification Route Error Handling should handle S3 registry download errors" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;S3 registry error: S3 connection failed&quot;], &quot;issued_at&quot;: Any&lt;String&gt;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:520:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Error Handling should handle database connection errors" name="Public Verification Route Error Handling should handle database connection errors" time="0.003">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;S3 registry error: Not found&quot;, &quot;Database error: Database connection failed&quot;], &quot;issued_at&quot;: Any&lt;String&gt;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:541:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Error Handling should handle file upload errors" name="Public Verification Route Error Handling should handle file upload errors" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;Internal server error&quot;, 500
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:563:27)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Error Handling should handle JSON parsing errors" name="Public Verification Route Error Handling should handle JSON parsing errors" time="0.001">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: &quot;Internal server error&quot;, 500
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:574:27)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Response Format should return correct response format for valid proof" name="Public Verification Route Response Format should return correct response format for valid proof" time="0.005">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [], &quot;issued_at&quot;: &quot;2024-01-01T12:00:00.000Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: true}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:609:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Response Format should return correct response format for invalid proof" name="Public Verification Route Response Format should return correct response format for invalid proof" time="0.004">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [&quot;Signature verification failed&quot;], &quot;issued_at&quot;: &quot;2024-01-01T12:00:00.000Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: false}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:642:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+    <testcase classname="Public Verification Route Latency Measurement should measure and return latency in milliseconds" name="Public Verification Route Latency Measurement should measure and return latency in milliseconds" time="0.002">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;errors&quot;: [], &quot;issued_at&quot;: &quot;2025-10-25T00:02:07.824Z&quot;, &quot;latency_ms&quot;: Any&lt;Number&gt;, &quot;signer&quot;: &quot;test-fingerprint-123&quot;, &quot;valid&quot;: true}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/verify-route.test.ts:669:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Proof Issuance API Contract" errors="0" failures="10" skipped="0" timestamp="2025-10-25T00:02:07" time="0.237" tests="19">
+    <testcase classname="Proof Issuance API Contract Request DTOs should validate valid CreateProofRequest" name="Proof Issuance API Contract Request DTOs should validate valid CreateProofRequest" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Request DTOs should reject CreateProofRequest without file" name="Proof Issuance API Contract Request DTOs should reject CreateProofRequest without file" time="0.007">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Request DTOs should reject CreateProofRequest without user_id" name="Proof Issuance API Contract Request DTOs should reject CreateProofRequest without user_id" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Request DTOs should accept CreateProofRequest without optional project" name="Proof Issuance API Contract Request DTOs should accept CreateProofRequest without optional project" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Response DTOs should validate valid CreateProofResponse" name="Proof Issuance API Contract Response DTOs should validate valid CreateProofResponse" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Response DTOs should reject CreateProofResponse with invalid hash format" name="Proof Issuance API Contract Response DTOs should reject CreateProofResponse with invalid hash format" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Response DTOs should reject CreateProofResponse without required fields" name="Proof Issuance API Contract Response DTOs should reject CreateProofResponse without required fields" time="0">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Response DTOs should accept CreateProofResponse without optional url" name="Proof Issuance API Contract Response DTOs should accept CreateProofResponse without optional url" time="0.001">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should return 401 when not authenticated" name="Proof Issuance API Contract API Endpoint should return 401 when not authenticated" time="0.002">
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should return 400 when file is missing" name="Proof Issuance API Contract API Endpoint should return 400 when file is missing" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 400
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:278:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should return 400 when user_id is missing" name="Proof Issuance API Contract API Endpoint should return 400 when user_id is missing" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 400
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:291:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should return 403 when user_id doesn&apos;t match authenticated user" name="Proof Issuance API Contract API Endpoint should return 403 when user_id doesn&apos;t match authenticated user" time="0">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 403
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:305:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should return 403 when user lacks permissions" name="Proof Issuance API Contract API Endpoint should return 403 when user lacks permissions" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 403
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:321:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should successfully create proof and return proper response format" name="Proof Issuance API Contract API Endpoint should successfully create proof and return proper response format" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 200
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:336:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should handle database errors gracefully" name="Proof Issuance API Contract API Endpoint should handle database errors gracefully" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 500
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:384:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should record billing event on successful proof creation" name="Proof Issuance API Contract API Endpoint should record billing event on successful proof creation" time="0.001">
+      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: {&quot;metadata&quot;: {&quot;file_name&quot;: &quot;test.txt&quot;, &quot;hash_prefix&quot;: &quot;a1b2c3d4&quot;, &quot;project&quot;: null}, &quot;proofId&quot;: &quot;proof123&quot;, &quot;success&quot;: true, &quot;type&quot;: &quot;proof.create&quot;, &quot;userId&quot;: &quot;user123&quot;}
+
+Number of calls: 0
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:399:38)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract API Endpoint should clean up temporary files" name="Proof Issuance API Contract API Endpoint should clean up temporary files" time="0.001">
+      <failure>Error: expect(received).toHaveBeenCalledWith(...expected)
+
+Matcher error: received value must be a mock or spy function
+
+Received has type:  function
+Received has value: [Function cleanupTmpFile]
+    at Object.toHaveBeenCalledWith (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:424:30)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Input Validation should validate file type and size" name="Proof Issuance API Contract Input Validation should validate file type and size" time="0.002">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 400
+Received: 401
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:442:31)</failure>
+    </testcase>
+    <testcase classname="Proof Issuance API Contract Response Validation should validate response before sending" name="Proof Issuance API Contract Response Validation should validate response before sending" time="0.001">
+      <failure>Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 500
+Received: 429
+    at Object.toBe (/Users/edbrooks/veris/frontend/src/__tests__/proof-issuance.test.ts:463:31)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="API Routes" errors="0" failures="4" skipped="0" timestamp="2025-10-25T00:02:08" time="0.119" tests="5">
+    <testcase classname="API Routes Proof Creation should create a proof successfully" name="API Routes Proof Creation should create a proof successfully" time="0.033">
+      <failure>TypeError: (0 , _logger.createRequestLogger) is not a function
+    at /Users/edbrooks/veris/frontend/src/lib/api-middleware.ts:22:46
+    at Object.POST (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:173:30)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:454:9)</failure>
+    </testcase>
+    <testcase classname="API Routes Proof Creation should handle missing file content" name="API Routes Proof Creation should handle missing file content" time="0.002">
+      <failure>TypeError: (0 , _logger.createRequestLogger) is not a function
+    at /Users/edbrooks/veris/frontend/src/lib/api-middleware.ts:22:46
+    at Object.POST (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:193:30)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:454:9)</failure>
+    </testcase>
+    <testcase classname="API Routes Proof Verification should verify a proof successfully" name="API Routes Proof Verification should verify a proof successfully" time="0.009">
+      <failure>Error: expect(received).toHaveProperty(path)
+
+Expected path: &quot;valid&quot;
+Received path: []
+
+Received value: {&quot;data&quot;: {&quot;errors&quot;: [], &quot;proof_hash&quot;: &quot;test-hash&quot;, &quot;schema_version&quot;: 1, &quot;signer_fp&quot;: &quot;veris-signing-key&quot;, &quot;source_registry&quot;: &quot;primary&quot;, &quot;valid&quot;: true, &quot;verified_at&quot;: &quot;2025-10-25T00:02:08.211Z&quot;}, &quot;meta&quot;: {&quot;timestamp&quot;: &quot;2025-10-25T00:02:08.211Z&quot;}}
+    at Object.toHaveProperty (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:219:20)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:454:9)</failure>
+    </testcase>
+    <testcase classname="API Routes Proof Verification should handle missing proof ID" name="API Routes Proof Verification should handle missing proof ID" time="0.003">
+    </testcase>
+    <testcase classname="API Routes Health Check should return health status" name="API Routes Health Check should return health status" time="0.011">
+      <failure>Error: expect(received).toHaveProperty(path)
+
+Expected path: &quot;ok&quot;
+Received path: []
+
+Received value: {&quot;data&quot;: {&quot;ok&quot;: true}, &quot;meta&quot;: {&quot;timestamp&quot;: &quot;2025-10-25T00:02:08.231Z&quot;}}
+    at Object.toHaveProperty (/Users/edbrooks/veris/frontend/src/__tests__/api.test.ts:250:20)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processImmediate (node:internal/timers:454:9)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Proof Schema v1" errors="0" failures="0" skipped="1" timestamp="2025-10-25T00:02:08" time="0.054" tests="9">
+    <testcase classname="Proof Schema v1 createCanonicalProof should create a valid canonical proof" name="Proof Schema v1 createCanonicalProof should create a valid canonical proof" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 createCanonicalProof should include required fields" name="Proof Schema v1 createCanonicalProof should include required fields" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 canonicalizeAndSign should canonicalize and sign a proof" name="Proof Schema v1 canonicalizeAndSign should canonicalize and sign a proof" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 validateCanonicalProof should validate a correct proof" name="Proof Schema v1 validateCanonicalProof should validate a correct proof" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="Proof Schema v1 validateCanonicalProof should reject invalid proof structure" name="Proof Schema v1 validateCanonicalProof should reject invalid proof structure" time="0">
+    </testcase>
+    <testcase classname="Proof Schema v1 verifyCanonicalProof should verify a valid proof" name="Proof Schema v1 verifyCanonicalProof should verify a valid proof" time="0.001">
+    </testcase>
+    <testcase classname="Proof Schema v1 verifyCanonicalProof should reject proof with invalid signature" name="Proof Schema v1 verifyCanonicalProof should reject proof with invalid signature" time="0">
+    </testcase>
+    <testcase classname="Proof Schema v1 getCanonicalJsonString should return canonical JSON string" name="Proof Schema v1 getCanonicalJsonString should return canonical JSON string" time="0">
+    </testcase>
+    <testcase classname="Proof Schema v1 getCanonicalHash should return canonical hash" name="Proof Schema v1 getCanonicalHash should return canonical hash" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Telemetry Daily Aggregation" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:08" time="0.047" tests="4">
+    <testcase classname="Telemetry Daily Aggregation should have basic functionality" name="Telemetry Daily Aggregation should have basic functionality" time="0.001">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle dry run mode" name="Telemetry Daily Aggregation should handle dry run mode" time="0.006">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle invalid date format" name="Telemetry Daily Aggregation should handle invalid date format" time="0.005">
+    </testcase>
+    <testcase classname="Telemetry Daily Aggregation should handle missing environment variables" name="Telemetry Daily Aggregation should handle missing environment variables" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Proof API DTOs" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:08" time="0.047" tests="17">
+    <testcase classname="Proof API DTOs CreateProofRequestSchema should validate valid request" name="Proof API DTOs CreateProofRequestSchema should validate valid request" time="0.001">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofRequestSchema should reject request without file" name="Proof API DTOs CreateProofRequestSchema should reject request without file" time="0.004">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofRequestSchema should reject request without user_id" name="Proof API DTOs CreateProofRequestSchema should reject request without user_id" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofRequestSchema should accept request without optional project" name="Proof API DTOs CreateProofRequestSchema should accept request without optional project" time="0.001">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofResponseSchema should validate valid response" name="Proof API DTOs CreateProofResponseSchema should validate valid response" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofResponseSchema should reject response with invalid hash format" name="Proof API DTOs CreateProofResponseSchema should reject response with invalid hash format" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofResponseSchema should reject response without required fields" name="Proof API DTOs CreateProofResponseSchema should reject response without required fields" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CreateProofResponseSchema should accept response without optional url" name="Proof API DTOs CreateProofResponseSchema should accept response without optional url" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs ProofSubjectSchema should validate valid subject" name="Proof API DTOs ProofSubjectSchema should validate valid subject" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs ProofSubjectSchema should reject subject without required fields" name="Proof API DTOs ProofSubjectSchema should reject subject without required fields" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs ProofMetadataSchema should validate valid metadata" name="Proof API DTOs ProofMetadataSchema should validate valid metadata" time="0.001">
+    </testcase>
+    <testcase classname="Proof API DTOs ProofMetadataSchema should accept empty metadata" name="Proof API DTOs ProofMetadataSchema should accept empty metadata" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CanonicalProofV1Schema should validate valid canonical proof" name="Proof API DTOs CanonicalProofV1Schema should validate valid canonical proof" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs CanonicalProofV1Schema should reject proof with invalid hash format" name="Proof API DTOs CanonicalProofV1Schema should reject proof with invalid hash format" time="0.001">
+    </testcase>
+    <testcase classname="Proof API DTOs CanonicalProofV1Schema should reject proof with wrong schema version" name="Proof API DTOs CanonicalProofV1Schema should reject proof with wrong schema version" time="0.001">
+    </testcase>
+    <testcase classname="Proof API DTOs Validation helper functions should validate CreateProofRequest using helper function" name="Proof API DTOs Validation helper functions should validate CreateProofRequest using helper function" time="0">
+    </testcase>
+    <testcase classname="Proof API DTOs Validation helper functions should validate CreateProofResponse using helper function" name="Proof API DTOs Validation helper functions should validate CreateProofResponse using helper function" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Billing Rules" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:08" time="0.035" tests="11">
+    <testcase classname="Billing Rules shouldBill should bill for successful proof creation" name="Billing Rules shouldBill should bill for successful proof creation" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for failed proof creation" name="Billing Rules shouldBill should not bill for failed proof creation" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for proof verification (verification is free)" name="Billing Rules shouldBill should not bill for proof verification (verification is free)" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for failed proof verification" name="Billing Rules shouldBill should not bill for failed proof verification" time="0">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for unknown event types" name="Billing Rules shouldBill should not bill for unknown event types" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules shouldBill should not bill for events without proof ID" name="Billing Rules shouldBill should not bill for events without proof ID" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should return all pricing rules" name="Billing Rules getPricingRules should return all pricing rules" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules getPricingRules should include rules for all event types" name="Billing Rules getPricingRules should include rules for all event types" time="0">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should calculate billing summary correctly" name="Billing Rules getBillingSummary should calculate billing summary correctly" time="0.001">
+    </testcase>
+    <testcase classname="Billing Rules getBillingSummary should handle empty events array" name="Billing Rules getBillingSummary should handle empty events array" time="0">
+    </testcase>
+    <testcase classname="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" name="Billing Rules Property-based testing should only bill for successful proof creation with proof ID" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification Logic - Standalone Tests" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:08" time="0.027" tests="15">
+    <testcase classname="Verification Logic - Standalone Tests Timestamp Validation should validate timestamp within tolerance window" name="Verification Logic - Standalone Tests Timestamp Validation should validate timestamp within tolerance window" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Timestamp Validation should reject timestamp outside tolerance window" name="Verification Logic - Standalone Tests Timestamp Validation should reject timestamp outside tolerance window" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Timestamp Validation should reject invalid timestamp format" name="Verification Logic - Standalone Tests Timestamp Validation should reject invalid timestamp format" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Timestamp Validation should handle future timestamps correctly" name="Verification Logic - Standalone Tests Timestamp Validation should handle future timestamps correctly" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Response Format Validation should return correct response format for valid proof" name="Verification Logic - Standalone Tests Response Format Validation should return correct response format for valid proof" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Response Format Validation should return correct response format for invalid proof" name="Verification Logic - Standalone Tests Response Format Validation should return correct response format for invalid proof" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Response Format Validation should return correct response format for missing proof" name="Verification Logic - Standalone Tests Response Format Validation should return correct response format for missing proof" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Latency Measurement should measure latency in milliseconds" name="Verification Logic - Standalone Tests Latency Measurement should measure latency in milliseconds" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Latency Measurement should handle zero latency" name="Verification Logic - Standalone Tests Latency Measurement should handle zero latency" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Error Handling should handle multiple error conditions" name="Verification Logic - Standalone Tests Error Handling should handle multiple error conditions" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Error Handling should handle no errors for valid proof" name="Verification Logic - Standalone Tests Error Handling should handle no errors for valid proof" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Input Validation should validate hash format" name="Verification Logic - Standalone Tests Input Validation should validate hash format" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Input Validation should validate file input" name="Verification Logic - Standalone Tests Input Validation should validate file input" time="0">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Input Validation should validate request parameters" name="Verification Logic - Standalone Tests Input Validation should validate request parameters" time="0.002">
+    </testcase>
+    <testcase classname="Verification Logic - Standalone Tests Proof Structure Validation should validate canonical proof structure" name="Verification Logic - Standalone Tests Proof Structure Validation should validate canonical proof structure" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification Conformance" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:08" time="0.512" tests="8">
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" name="Verification Conformance Primary vs Mirror Conformance should return identical response format for same proof" time="0.041">
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" name="Verification Conformance Primary vs Mirror Conformance should handle proof not found in mirror" time="0.008">
+    </testcase>
+    <testcase classname="Verification Conformance Primary vs Mirror Conformance should handle verification failure" name="Verification Conformance Primary vs Mirror Conformance should handle verification failure" time="0.019">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should maintain consistent field types" name="Verification Conformance Response Format Consistency should maintain consistent field types" time="0.031">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" name="Verification Conformance Response Format Consistency should use ISO8601 timestamp format" time="0.001">
+    </testcase>
+    <testcase classname="Verification Conformance Response Format Consistency should handle error responses consistently" name="Verification Conformance Response Format Consistency should handle error responses consistently" time="0.002">
+    </testcase>
+    <testcase classname="Verification Conformance Data Integrity should preserve proof data integrity" name="Verification Conformance Data Integrity should preserve proof data integrity" time="0.001">
+    </testcase>
+    <testcase classname="Verification Conformance Data Integrity should handle compressed data correctly" name="Verification Conformance Data Integrity should handle compressed data correctly" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Verification Logic" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:09" time="1.161" tests="9">
+    <testcase classname="Verification Logic Timestamp Validation should validate timestamp within tolerance window" name="Verification Logic Timestamp Validation should validate timestamp within tolerance window" time="0.004">
+    </testcase>
+    <testcase classname="Verification Logic Timestamp Validation should reject timestamp outside tolerance window" name="Verification Logic Timestamp Validation should reject timestamp outside tolerance window" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic Timestamp Validation should reject invalid timestamp format" name="Verification Logic Timestamp Validation should reject invalid timestamp format" time="0">
+    </testcase>
+    <testcase classname="Verification Logic S3 Registry Verification should verify valid proof from S3 registry" name="Verification Logic S3 Registry Verification should verify valid proof from S3 registry" time="0.002">
+    </testcase>
+    <testcase classname="Verification Logic S3 Registry Verification should reject proof with invalid signature from S3 registry" name="Verification Logic S3 Registry Verification should reject proof with invalid signature from S3 registry" time="0.001">
+    </testcase>
+    <testcase classname="Verification Logic Database Verification should verify valid proof from database" name="Verification Logic Database Verification should verify valid proof from database" time="0.006">
+    </testcase>
+    <testcase classname="Verification Logic Database Verification should reject proof with invalid signature from database" name="Verification Logic Database Verification should reject proof with invalid signature from database" time="0.002">
+    </testcase>
+    <testcase classname="Verification Logic Response Format should return correct response format" name="Verification Logic Response Format should return correct response format" time="0.014">
+    </testcase>
+    <testcase classname="Verification Logic Response Format should return correct error response format" name="Verification Logic Response Format should return correct error response format" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="Security Headers" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:10" time="0.085" tests="12">
+    <testcase classname="Security Headers Content Security Policy should have strict CSP configuration" name="Security Headers Content Security Policy should have strict CSP configuration" time="0.002">
+    </testcase>
+    <testcase classname="Security Headers Content Security Policy should allow necessary external resources" name="Security Headers Content Security Policy should allow necessary external resources" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have proper security headers" name="Security Headers Security Headers Configuration should have proper security headers" time="0.005">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have strict frame options" name="Security Headers Security Headers Configuration should have strict frame options" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should prevent MIME type sniffing" name="Security Headers Security Headers Configuration should prevent MIME type sniffing" time="0">
+    </testcase>
+    <testcase classname="Security Headers Security Headers Configuration should have strict referrer policy" name="Security Headers Security Headers Configuration should have strict referrer policy" time="0">
+    </testcase>
+    <testcase classname="Security Headers Permissions Policy should restrict dangerous permissions" name="Security Headers Permissions Policy should restrict dangerous permissions" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers HTTPS Configuration should enforce HTTPS" name="Security Headers HTTPS Configuration should enforce HTTPS" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers HTTPS Configuration should have proper HSTS configuration" name="Security Headers HTTPS Configuration should have proper HSTS configuration" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Content Type Security should prevent content type sniffing" name="Security Headers Content Type Security should prevent content type sniffing" time="0.001">
+    </testcase>
+    <testcase classname="Security Headers Content Type Security should have proper content type validation" name="Security Headers Content Type Security should have proper content type validation" time="0">
+    </testcase>
+    <testcase classname="Security Headers CORS Configuration should have strict CORS policy" name="Security Headers CORS Configuration should have strict CORS policy" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Phase-1 Telemetry" errors="0" failures="0" skipped="0" timestamp="2025-10-25T00:02:10" time="0.048" tests="11">
+    <testcase classname="Phase-1 Telemetry Quality Gates should calculate metrics correctly" name="Phase-1 Telemetry Quality Gates should calculate metrics correctly" time="0.002">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should pass issued gate when threshold is met" name="Phase-1 Telemetry Quality Gates should pass issued gate when threshold is met" time="0.002">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should fail issued gate when threshold is not met" name="Phase-1 Telemetry Quality Gates should fail issued gate when threshold is not met" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should fail success ratio gate when threshold is not met" name="Phase-1 Telemetry Quality Gates should fail success ratio gate when threshold is not met" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should calculate success ratio correctly" name="Phase-1 Telemetry Quality Gates should calculate success ratio correctly" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Quality Gates should handle edge cases" name="Phase-1 Telemetry Quality Gates should handle edge cases" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should collect proof issuance data" name="Phase-1 Telemetry Data Collection should collect proof issuance data" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should collect verification data" name="Phase-1 Telemetry Data Collection should collect verification data" time="0.001">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Data Collection should handle database errors gracefully" name="Phase-1 Telemetry Data Collection should handle database errors gracefully" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness should be ready when all gates pass" name="Phase-1 Telemetry Phase-1 Readiness should be ready when all gates pass" time="0">
+    </testcase>
+    <testcase classname="Phase-1 Telemetry Phase-1 Readiness should not be ready when any gate fails" name="Phase-1 Telemetry Phase-1 Readiness should not be ready when any gate fails" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>

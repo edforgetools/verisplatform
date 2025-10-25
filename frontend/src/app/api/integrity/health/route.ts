@@ -117,20 +117,23 @@ async function handleIntegrityHealth(req: NextRequest) {
       "Integrity health check completed",
     );
 
-    return jsonOk({
-      status,
-      total_proofs: totalProofs || 0,
-      checks: healthChecks,
-      issues,
-      timestamp: new Date().toISOString(),
-    });
+    return jsonOk(
+      {
+        status,
+        total_proofs: totalProofs || 0,
+        checks: healthChecks,
+        issues,
+        timestamp: new Date().toISOString(),
+      },
+      "integrity-health",
+    );
   } catch (error) {
     capture(error, { route: "/api/integrity/health" });
     logger.error(
       { error: error instanceof Error ? error.message : "Unknown error" },
       "Integrity health check failed",
     );
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", "integrity-health", 500);
   }
 }
 

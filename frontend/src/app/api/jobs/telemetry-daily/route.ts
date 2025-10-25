@@ -1,15 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { validateCronAuth } from "@/lib/auth-server";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
+import { isNonessentialCronEnabled } from "@/lib/env";
+import { getRequestId } from "@/lib/request-id";
 
 export async function GET() {
   return new NextResponse("ok", { status: 200 });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const requestId = getRequestId(req);
+
   try {
+    // Feature flag check - nonessential cron disabled by default for MVP
+    if (!isNonessentialCronEnabled()) {
+      return new Response("Nonessential cron jobs are disabled", { status: 403 });
+    }
+
     if (!validateCronAuth(req)) return new Response("Forbidden", { status: 403 });
 
     const supabase = supabaseAdmin();
@@ -27,7 +36,12 @@ export async function POST(req: Request) {
       .lte("created_at", `${yesterdayStr}T23:59:59.999Z`);
 
     if (countError) {
-      return jsonErr(`Failed to count telemetry events: ${countError.message}`, 500);
+      return jsonErr(
+        "INTERNAL_ERROR",
+        `Failed to count telemetry events: ${countError.message}`,
+        requestId,
+        500,
+      );
     }
 
     // Count unique users from yesterday
@@ -39,7 +53,12 @@ export async function POST(req: Request) {
       .not("user_id", "is", null);
 
     if (userError) {
-      return jsonErr(`Failed to count unique users: ${userError.message}`, 500);
+      return jsonErr(
+        "INTERNAL_ERROR",
+        `Failed to count unique users: ${userError.message}`,
+        requestId,
+        500,
+      );
     }
 
     const uniqueUsers = new Set(userData?.map((row) => row.user_id)).size;
@@ -52,7 +71,12 @@ export async function POST(req: Request) {
       .lte("created_at", `${yesterdayStr}T23:59:59.999Z`);
 
     if (eventError) {
-      return jsonErr(`Failed to count events by type: ${eventError.message}`, 500);
+      return jsonErr(
+        "INTERNAL_ERROR",
+        `Failed to count events by type: ${eventError.message}`,
+        requestId,
+        500,
+      );
     }
 
     const eventBreakdown =
@@ -68,18 +92,26 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      return jsonErr(`Failed to log job execution: ${error.message}`, 500);
+      return jsonErr(
+        "INTERNAL_ERROR",
+        `Failed to log job execution: ${error.message}`,
+        requestId,
+        500,
+      );
     }
 
-    return jsonOk({
-      status: "ok",
-      date: yesterdayStr,
-      total_events: totalEvents || 0,
-      unique_users: uniqueUsers,
-      event_breakdown: eventBreakdown,
-    });
+    return jsonOk(
+      {
+        status: "ok",
+        date: yesterdayStr,
+        total_events: totalEvents || 0,
+        unique_users: uniqueUsers,
+        event_breakdown: eventBreakdown,
+      },
+      requestId,
+    );
   } catch (error) {
     capture(error, { route: "/api/jobs/telemetry-daily" });
-    return jsonErr("Internal server error", 500);
+    return jsonErr("INTERNAL_ERROR", "Internal server error", requestId, 500);
   }
 }

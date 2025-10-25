@@ -58,7 +58,12 @@ async function handleVerifyProof(req: NextRequest) {
       const proofId = form.get("proof_id") as string | null;
 
       if (!file) {
-        return jsonErr("File is required for file-based verification", 400);
+        return jsonErr(
+          "VALIDATION_ERROR",
+          "File is required for file-based verification",
+          "proof-verify",
+          400,
+        );
       }
 
       // Stream file to temporary location and compute hash
@@ -82,7 +87,7 @@ async function handleVerifyProof(req: NextRequest) {
             },
             "Proof verification failed - proof not found",
           );
-          return jsonErr("Proof not found", 404);
+          return jsonErr("NOT_FOUND", "Proof not found", "proof-verify", 404);
         }
 
         const hashMatch = proof.hash_full === hashFull;
@@ -107,26 +112,32 @@ async function handleVerifyProof(req: NextRequest) {
           "Proof verification completed",
         );
 
-        return jsonOk({
-          schema_version: 1,
-          proof_hash: hashFull,
-          valid: hashMatch && signatureVerified !== false,
-          verified_at: new Date().toISOString(),
-          signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
-          source_registry: "primary",
-          errors: [],
-        });
+        return jsonOk(
+          {
+            schema_version: 1,
+            proof_hash: hashFull,
+            valid: hashMatch && signatureVerified !== false,
+            verified_at: new Date().toISOString(),
+            signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+            source_registry: "primary",
+            errors: [],
+          },
+          "proof-verify",
+        );
       } else {
         // File-only verification - just return the computed hash
-        return jsonOk({
-          schema_version: 1,
-          proof_hash: hashFull,
-          valid: true,
-          verified_at: new Date().toISOString(),
-          signer_fp: null,
-          source_registry: "primary",
-          errors: [],
-        });
+        return jsonOk(
+          {
+            schema_version: 1,
+            proof_hash: hashFull,
+            valid: true,
+            verified_at: new Date().toISOString(),
+            signer_fp: null,
+            source_registry: "primary",
+            errors: [],
+          },
+          "proof-verify",
+        );
       }
     }
 
@@ -135,7 +146,12 @@ async function handleVerifyProof(req: NextRequest) {
 
     // Validate input format
     if (!isVerifyByIdRequest(body) && !isVerifyBySignatureRequest(body)) {
-      return jsonErr("Invalid input: must provide either { id } or { hashHex, signatureB64 }", 400);
+      return jsonErr(
+        "VALIDATION_ERROR",
+        "Invalid input: must provide either { id } or { hashHex, signatureB64 }",
+        "proof-verify",
+        400,
+      );
     }
 
     // Handle ID-based verification (preferred signature path)
@@ -154,7 +170,7 @@ async function handleVerifyProof(req: NextRequest) {
           },
           "Proof verification failed - proof not found",
         );
-        return jsonErr("Proof not found", 404);
+        return jsonErr("NOT_FOUND", "Proof not found", "proof-verify", 404);
       }
 
       // Verify signature if available
@@ -179,15 +195,18 @@ async function handleVerifyProof(req: NextRequest) {
         "Proof verification completed",
       );
 
-      return jsonOk({
-        schema_version: 1,
-        proof_hash: proof.hash_full,
-        valid: signatureVerified !== false,
-        verified_at: new Date().toISOString(),
-        signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
-        source_registry: "primary",
-        errors: [],
-      });
+      return jsonOk(
+        {
+          schema_version: 1,
+          proof_hash: proof.hash_full,
+          valid: signatureVerified !== false,
+          verified_at: new Date().toISOString(),
+          signer_fp: proof.signature ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+          source_registry: "primary",
+          errors: [],
+        },
+        "proof-verify",
+      );
     }
 
     // Handle signature-based verification
@@ -201,22 +220,25 @@ async function handleVerifyProof(req: NextRequest) {
         "Signature-based proof verification completed",
       );
 
-      return jsonOk({
-        schema_version: 1,
-        proof_hash: body.hashHex,
-        valid: signatureVerified,
-        verified_at: new Date().toISOString(),
-        signer_fp: signatureVerified ? "veris-signing-key" : null, // TODO: Get actual fingerprint
-        source_registry: "primary",
-        errors: signatureVerified ? [] : ["Signature verification failed"],
-      });
+      return jsonOk(
+        {
+          schema_version: 1,
+          proof_hash: body.hashHex,
+          valid: signatureVerified,
+          verified_at: new Date().toISOString(),
+          signer_fp: signatureVerified ? "veris-signing-key" : null, // TODO: Get actual fingerprint
+          source_registry: "primary",
+          errors: signatureVerified ? [] : ["Signature verification failed"],
+        },
+        "proof-verify",
+      );
     }
 
     // This should never be reached due to the validation above
-    return jsonErr("Invalid request format", 400);
+    return jsonErr("VALIDATION_ERROR", "Invalid request format", "proof-verify", 400);
   } catch (error) {
     capture(error, { route: "/api/proof/verify" });
-    return jsonErr("Malformed request body", 400);
+    return jsonErr("VALIDATION_ERROR", "Malformed request body", "proof-verify", 400);
   } finally {
     // Clean up temporary file if it was created
     if (tmpPath) {
