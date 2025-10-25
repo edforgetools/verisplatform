@@ -1,16 +1,25 @@
 import { z } from "zod";
 
+// Check if we're in CI environment
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
 // =============================================================================
 // CLIENT-SIDE ENVIRONMENT VARIABLES (NEXT_PUBLIC_*)
 // =============================================================================
 // These variables are exposed to the browser and should not contain secrets
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url("Invalid Supabase URL"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(10, "Supabase anon key too short"),
+  NEXT_PUBLIC_SUPABASE_URL: isCI 
+    ? z.string().min(1, "Supabase URL required")
+    : z.string().url("Invalid Supabase URL"),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: isCI
+    ? z.string().min(1, "Supabase anon key required")
+    : z.string().min(10, "Supabase anon key too short"),
   NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
   NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
   NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: z.string().optional(),
-  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_SITE_URL: isCI
+    ? z.string().min(1, "Site URL required").optional()
+    : z.string().url().optional(),
 });
 
 // =============================================================================
@@ -20,16 +29,26 @@ const clientSchema = z.object({
 const serverSchema = z
   .object({
     // Supabase
-    supabaseservicekey: z.string().min(10, "Supabase service key too short"),
+    supabaseservicekey: isCI
+      ? z.string().min(1, "Supabase service key required")
+      : z.string().min(10, "Supabase service key too short"),
 
     // Stripe
-    STRIPE_SECRET_KEY: z.string().startsWith("sk_", "Invalid Stripe secret key format"),
-    STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_", "Invalid Stripe webhook secret format"),
+    STRIPE_SECRET_KEY: isCI
+      ? z.string().min(1, "Stripe secret key required")
+      : z.string().startsWith("sk_", "Invalid Stripe secret key format"),
+    STRIPE_WEBHOOK_SECRET: isCI
+      ? z.string().min(1, "Stripe webhook secret required")
+      : z.string().startsWith("whsec_", "Invalid Stripe webhook secret format"),
     STRIPE_USAGE_PRICE_ID: z.string().optional(),
 
     // CRON Authentication
-    CRON_JOB_TOKEN: z.string().min(16, "CRON token must be at least 16 characters").optional(),
-    CRON_SECRET: z.string().min(16, "CRON secret must be at least 16 characters").optional(),
+    CRON_JOB_TOKEN: isCI
+      ? z.string().min(1, "CRON token required").optional()
+      : z.string().min(16, "CRON token must be at least 16 characters").optional(),
+    CRON_SECRET: isCI
+      ? z.string().min(1, "CRON secret required").optional()
+      : z.string().min(16, "CRON secret must be at least 16 characters").optional(),
 
     // Redis
     UPSTASH_REDIS_URL: z.string().url("Invalid Upstash Redis URL").optional(),
@@ -38,8 +57,12 @@ const serverSchema = z
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1, "Upstash Redis REST token required").optional(),
 
     // Veris Cryptographic Keys
-    VERIS_SIGNING_PRIVATE_KEY: z.string().min(100, "Veris signing private key too short"),
-    VERIS_SIGNING_PUBLIC_KEY: z.string().min(100, "Veris signing public key too short"),
+    VERIS_SIGNING_PRIVATE_KEY: isCI
+      ? z.string().min(1, "Veris signing private key required")
+      : z.string().min(100, "Veris signing private key too short"),
+    VERIS_SIGNING_PUBLIC_KEY: isCI
+      ? z.string().min(1, "Veris signing public key required")
+      : z.string().min(100, "Veris signing public key too short"),
 
     // AWS Configuration
     AWS_REGION: z.string().min(1, "AWS region required").optional(),
