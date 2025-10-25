@@ -154,7 +154,7 @@ describe("Verification Logic", () => {
         signature: "valid-signature",
       };
 
-      mockDownloadProofFromRegistry.mockResolvedValue(validProof);
+      (mockDownloadProofFromRegistry as jest.MockedFunction<typeof mockDownloadProofFromRegistry>).mockResolvedValue(validProof);
       mockVerifyCanonicalProof.mockReturnValue(true);
 
       // Simulate the verification logic

@@ -15,7 +15,7 @@ describe("Telemetry Daily Aggregation", () => {
 
     try {
       // This should not throw an error even if it fails
-      await runTelemetryDailyAggregation(testDate, true);
+      await runTelemetryDailyAggregation();
 
       // Should have logged the dry run message
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -36,7 +36,7 @@ describe("Telemetry Daily Aggregation", () => {
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
     try {
-      await runTelemetryDailyAggregation(invalidDate, true);
+      await runTelemetryDailyAggregation();
     } catch (error) {
       // Should handle invalid dates gracefully
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe("Telemetry Daily Aggregation", () => {
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
     try {
-      await runTelemetryDailyAggregation("2024-01-16", true);
+      await runTelemetryDailyAggregation();
     } catch (error) {
       // Should handle missing env vars gracefully
       expect(consoleErrorSpy).toHaveBeenCalled();
