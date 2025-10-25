@@ -89,11 +89,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
           NEXT_PUBLIC_STRIPE_MODE: test
           CRON_JOB_TOKEN: placeholder-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nplaceholder-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nplaceholder-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Run SDK tests
         run: cd packages/sdk-js && pnpm run test
@@ -137,11 +137,11 @@ jobs:
           UPSTASH_REDIS_REST_URL: https://placeholder-redis.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder-redis-token
           CRON_JOB_TOKEN: placeholder-cron-token
-          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nplaceholder-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nplaceholder-public-key\n-----END PUBLIC KEY-----
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real_not_real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4
@@ -263,11 +263,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
           NEXT_PUBLIC_STRIPE_MODE: test
           CRON_JOB_TOKEN: placeholder-cron-token
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nplaceholder-private-key\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nplaceholder-public-key\n-----END PUBLIC KEY-----
+          STRIPE_SECRET_KEY: sk_test_placeholder_not_real
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder_not_real
+          SUPABASE_SERVICE_ROLE_KEY: test-placeholder-service-role-key-not-real
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-placeholder-private-key-not-real\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-placeholder-public-key-not-real\n-----END PUBLIC KEY-----
 
       - name: Build SDK
         run: cd packages/sdk-js && pnpm run build
