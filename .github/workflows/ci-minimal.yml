@@ -46,6 +46,17 @@ jobs:
 
       - name: Type check frontend
         run: pnpm --filter frontend run build:validate
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
+          NEXT_PUBLIC_SITE_URL: https://test.verisplatform.com
+          CRON_JOB_TOKEN: test-cron-token-min-16-chars
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Type check SDK
         run: pnpm --filter sdk-js run build
@@ -168,7 +179,14 @@ jobs:
           # Use test environment variables for build
           NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
           NEXT_PUBLIC_SITE_URL: https://test.verisplatform.com
+          CRON_JOB_TOKEN: test-cron-token-min-16-chars
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Build SDK
         run: pnpm --filter sdk-js run build
@@ -222,7 +240,14 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-key
+          NEXT_PUBLIC_STRIPE_MODE: test
           NEXT_PUBLIC_SITE_URL: https://test.verisplatform.com
+          CRON_JOB_TOKEN: test-cron-token-min-16-chars
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          supabaseservicekey: test-service-key
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 
       - name: Run basic E2E tests
         run: pnpm --filter frontend exec playwright test --grep="(happy-path|integrity)" --reporter=junit --output-file=test-results/junit.xml
