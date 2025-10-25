@@ -137,6 +137,11 @@ jobs:
           UPSTASH_REDIS_REST_URL: https://placeholder-redis.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder-redis-token
           CRON_JOB_TOKEN: placeholder-cron-token
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nplaceholder-private-key\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nplaceholder-public-key\n-----END PUBLIC KEY-----
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@v4
