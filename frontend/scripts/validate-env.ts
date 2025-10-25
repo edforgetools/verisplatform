@@ -28,9 +28,9 @@ const createBuildTimeSchema = (isCI: boolean) => {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: isCI
       ? z.string().min(1, "Supabase anon key required")
       : z.string().min(10, "Supabase anon key too short"),
-    supabaseservicekey: isCI
-      ? z.string().min(1, "Supabase service key required")
-      : z.string().min(10, "Supabase service key too short"),
+    SUPABASE_SERVICE_ROLE_KEY: isCI
+      ? z.string().min(1, "Supabase service role key required")
+      : z.string().min(10, "Supabase service role key too short"),
     STRIPE_SECRET_KEY: isCI
       ? z.string().min(1, "Stripe secret key required")
       : z.string().startsWith("sk_", "Invalid Stripe secret key format"),
@@ -110,7 +110,7 @@ function validateEnvironment() {
   const envVars = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    supabaseservicekey: process.env.supabaseservicekey,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     VERIS_SIGNING_PRIVATE_KEY: process.env.VERIS_SIGNING_PRIVATE_KEY,

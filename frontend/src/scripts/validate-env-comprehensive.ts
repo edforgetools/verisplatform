@@ -43,7 +43,7 @@ const clientSchema = z.object({
 const serverSchema = z
   .object({
     // Supabase
-    supabaseservicekey: z.string().min(10, "Supabase service key too short"),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(10, "Supabase service key too short"),
 
     // Stripe
     STRIPE_SECRET_KEY: z.string().startsWith("sk_", "Invalid Stripe secret key format"),
@@ -192,7 +192,7 @@ const environmentMapping: EnvironmentMapping[] = [
         security: "public",
       },
       {
-        name: "supabaseservicekey",
+        name: "SUPABASE_SERVICE_ROLE_KEY",
         description: "Supabase service role key for server-side access",
         required: true,
         type: "string",
@@ -681,7 +681,7 @@ function validateEnvironmentVariables() {
 
   // Parse server environment variables
   const serverEnv = serverSchema.safeParse({
-    supabaseservicekey: process.env.supabaseservicekey,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_USAGE_PRICE_ID: process.env.STRIPE_USAGE_PRICE_ID,

@@ -266,7 +266,7 @@ export async function checkEnvironmentVariableRotation(): Promise<{
     "VERIS_SIGNING_PUBLIC_KEY",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
-    "supabaseservicekey",
+    "SUPABASE_SERVICE_ROLE_KEY",
   ];
 
   const missingVars = sensitiveVars.filter((varName) => !process.env[varName]);
@@ -512,7 +512,7 @@ export async function getDeploymentReadiness(): Promise<{
     "VERIS_SIGNING_PUBLIC_KEY",
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
-    "supabaseservicekey",
+    "SUPABASE_SERVICE_ROLE_KEY",
   ];
 
   const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);

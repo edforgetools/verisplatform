@@ -29,9 +29,9 @@ const clientSchema = z.object({
 const serverSchema = z
   .object({
     // Supabase
-    supabaseservicekey: isCI
-      ? z.string().min(1, "Supabase service key required")
-      : z.string().min(10, "Supabase service key too short"),
+    SUPABASE_SERVICE_ROLE_KEY: isCI
+      ? z.string().min(1, "Supabase service role key required")
+      : z.string().min(10, "Supabase service role key too short"),
 
     // Stripe
     STRIPE_SECRET_KEY: isCI
@@ -146,7 +146,7 @@ function createEnv() {
 
   // Parse server environment variables
   const serverEnv = serverSchema.safeParse({
-    supabaseservicekey: process.env.supabaseservicekey,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_USAGE_PRICE_ID: process.env.STRIPE_USAGE_PRICE_ID,
@@ -213,7 +213,7 @@ try {
         NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
       },
       server: {
-        supabaseservicekey: "test-service-key",
+        SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
         STRIPE_SECRET_KEY: "sk_test_placeholder",
         STRIPE_WEBHOOK_SECRET: "whsec_placeholder",
         STRIPE_USAGE_PRICE_ID: "test-usage-price",

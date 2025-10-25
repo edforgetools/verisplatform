@@ -99,7 +99,7 @@ jobs:
           CRON_JOB_TOKEN: test-cron-token
           STRIPE_SECRET_KEY: sk_test_placeholder
           STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          supabaseservicekey: test-service-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-key
           VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\ntest-private-key\n-----END PRIVATE KEY-----
           VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\ntest-public-key\n-----END PUBLIC KEY-----
 

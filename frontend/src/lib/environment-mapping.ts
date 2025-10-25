@@ -67,7 +67,7 @@ export const environmentCategories: EnvironmentCategory[] = [
         notes: "This key is exposed to the browser and has limited permissions",
       },
       {
-        name: "supabaseservicekey",
+        name: "SUPABASE_SERVICE_ROLE_KEY",
         description: "Supabase service role key for server-side database access",
         required: true,
         type: "string (JWT)",
