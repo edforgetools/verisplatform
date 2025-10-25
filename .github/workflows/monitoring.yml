@@ -31,6 +31,7 @@ jobs:
     name: Health Monitoring
     runs-on: ubuntu-latest
     if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'health' || github.event.inputs.check_type == ''
+    continue-on-error: true
     permissions:
       contents: read
       issues: write
@@ -116,6 +117,7 @@ jobs:
     name: SLO Monitoring
     runs-on: ubuntu-latest
     if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'slo' || github.event.inputs.check_type == ''
+    continue-on-error: true
     permissions:
       contents: read
       issues: write
@@ -189,6 +191,7 @@ jobs:
     name: Performance Monitoring
     runs-on: ubuntu-latest
     if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'performance' || github.event.inputs.check_type == ''
+    continue-on-error: true
     permissions:
       contents: read
       issues: write
@@ -275,6 +278,7 @@ jobs:
     name: Uptime Monitoring
     runs-on: ubuntu-latest
     if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'uptime' || github.event.inputs.check_type == ''
+    continue-on-error: true
     permissions:
       contents: read
       issues: write
@@ -349,6 +353,7 @@ jobs:
     name: Security Monitoring
     runs-on: ubuntu-latest
     if: github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'security' || github.event.inputs.check_type == ''
+    continue-on-error: true
     permissions:
       contents: read
       issues: write

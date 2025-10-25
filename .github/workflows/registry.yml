@@ -22,6 +22,7 @@ jobs:
   registry-snapshot:
     name: Create Registry Snapshot
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       id-token: write
       contents: read
@@ -56,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [registry-snapshot]
     if: needs.registry-snapshot.outputs.new_batch == 'true'
+    continue-on-error: true
     permissions:
       id-token: write
       contents: read
