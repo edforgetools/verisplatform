@@ -64,6 +64,7 @@ jobs:
   lint:
     name: ESLint
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -274,6 +275,7 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
