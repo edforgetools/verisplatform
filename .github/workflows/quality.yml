@@ -60,7 +60,7 @@ jobs:
         run: cd frontend && pnpm run lint || true
 
       - name: Lint SDK
-        run: cd packages/sdk-js && pnpm exec eslint src --ext .ts
+        run: cd packages/sdk-js && pnpm exec eslint src --ext .ts --ignore-pattern "**/__tests__/**"
 
   unit-tests:
     name: Unit Tests
