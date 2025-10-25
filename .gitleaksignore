@@ -1,0 +1,20 @@
+# Ignore test placeholders in workflow files
+.github/workflows/quality.yml:*:sk_test_placeholder_not_real
+.github/workflows/quality.yml:*:whsec_placeholder_not_real
+.github/workflows/quality.yml:*:test-placeholder-private-key-not-real
+.github/workflows/quality.yml:*:test-placeholder-public-key-not-real
+.github/workflows/quality.yml:*:test-placeholder-service-role-key-not-real
+
+# Build workflow placeholders
+.github/workflows/quality.yml:*:placeholder-private-key
+.github/workflows/quality.yml:*:placeholder-public-key
+.github/workflows/quality.yml:*:placeholder-service-key
+
+# Other workflow placeholders
+.github/workflows/*.yml:*:sk_test_placeholder
+.github/workflows/*.yml:*:whsec_placeholder
+.github/workflows/*.yml:*:placeholder-private-key
+.github/workflows/*.yml:*:placeholder-public-key
+.github/workflows/*.yml:*:placeholder-service-key
+.github/workflows/*.yml:*:test-placeholder-*
+
