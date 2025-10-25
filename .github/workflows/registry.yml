@@ -1,9 +1,10 @@
 name: Registry Snapshot and Arweave Publishing
 
 on:
-  schedule:
-    # Run hourly
-    - cron: '0 * * * *'
+  # Temporarily disabled until production infrastructure is ready
+  # schedule:
+  #   # Run hourly
+  #   - cron: '0 * * * *'
   workflow_dispatch:
     inputs:
       batch:
