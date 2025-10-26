@@ -23,6 +23,8 @@ jobs:
     name: Create Registry Snapshot
     runs-on: ubuntu-latest
     continue-on-error: true
+    outputs:
+      new_batch: ${{ steps.check-batch.outputs.new_batch }}
     permissions:
       id-token: write
       contents: read
@@ -115,6 +117,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [registry-snapshot, arweave-publish]
     if: always()
+    continue-on-error: true
     steps:
       - name: Notify success
         if: needs.registry-snapshot.result == 'success' && needs.arweave-publish.result == 'success'
