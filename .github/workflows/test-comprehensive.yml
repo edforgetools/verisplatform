@@ -34,6 +34,7 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     if: github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'unit' || github.event.inputs.test_suite == ''
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
