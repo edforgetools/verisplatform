@@ -1,8 +1,9 @@
 name: Deploy to Production
 
 on:
-  push:
-    branches: [main]
+  # Temporarily disabled auto-deployments due to Vercel platform issues
+  # push:
+  #   branches: [main]
   workflow_dispatch:
     inputs:
       force_deploy:
