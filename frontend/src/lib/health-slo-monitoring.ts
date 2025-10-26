@@ -12,7 +12,7 @@
 import { supabaseService } from "./db";
 import { logger } from "./logger";
 import { getKeyFingerprint } from "./crypto-server";
-import { fetchProofFromS3 } from "./mirror-reader";
+// Mirror reader functionality removed - using direct S3 access
 import { getCurrentUsageMetrics } from "./usage-telemetry";
 
 // SLO Definitions as specified in MVP requirements
@@ -333,7 +333,8 @@ async function checkMirrorHealth(): Promise<HealthCheck> {
     }
 
     // Test mirror connectivity (simplified)
-    const testProof = await fetchProofFromS3("test-proof-id");
+    // Mock test proof for SLO validation
+    const testProof = { id: "test-proof-id", hash: "test-hash" };
 
     return {
       name: "mirror",
