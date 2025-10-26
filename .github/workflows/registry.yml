@@ -40,16 +40,16 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Create registry snapshot
-        if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
+        if: ${{ secrets.PROD_API_BASE_URL != '' && secrets.PROD_CRON_JOB_TOKEN != '' }}
         continue-on-error: true
         run: |
-          curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-snapshot" \
-            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+          curl -X POST "${{ secrets.PROD_API_BASE_URL }}/api/jobs/registry-snapshot" \
+            -H "Authorization: Bearer ${{ secrets.PROD_CRON_JOB_TOKEN }}" \
             -H "Content-Type: application/json"
         id: snapshot
 
       - name: Skip registry snapshot (no credentials)
-        if: ${{ secrets.API_BASE_URL == '' || secrets.API_TOKEN == '' }}
+        if: ${{ secrets.PROD_API_BASE_URL == '' || secrets.PROD_CRON_JOB_TOKEN == '' }}
         run: |
           echo "Skipping registry snapshot - API credentials not configured"
           echo "new_batch=false" >> $GITHUB_OUTPUT
@@ -87,11 +87,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Get latest batch number
-        if: ${{ secrets.API_BASE_URL != '' }}
+        if: ${{ secrets.PROD_API_BASE_URL != '' }}
         id: get-batch
         continue-on-error: true
         run: |
-          BATCH=$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.batch // empty')
+          BATCH=$(curl -s "${{ secrets.PROD_API_BASE_URL }}/api/integrity/latest" | jq -r '.batch // empty')
           if [ -n "$BATCH" ]; then
             echo "batch=$BATCH" >> $GITHUB_OUTPUT
           else
@@ -99,19 +99,19 @@ jobs:
           fi
 
       - name: Publish to Arweave
-        if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
+        if: ${{ secrets.PROD_API_BASE_URL != '' && secrets.PROD_CRON_JOB_TOKEN != '' }}
         continue-on-error: true
         run: |
-          curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-arweave" \
-            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+          curl -X POST "${{ secrets.PROD_API_BASE_URL }}/api/jobs/registry-arweave" \
+            -H "Authorization: Bearer ${{ secrets.PROD_CRON_JOB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "{\"batch\": ${{ steps.get-batch.outputs.batch }}}"
 
       - name: Verify Arweave publication
-        if: ${{ secrets.API_BASE_URL != '' }}
+        if: ${{ secrets.PROD_API_BASE_URL != '' }}
         continue-on-error: true
         run: |
-          ARWEAVE_TX=$(curl -s "${{ secrets.API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty')
+          ARWEAVE_TX=$(curl -s "${{ secrets.PROD_API_BASE_URL }}/api/integrity/latest" | jq -r '.arweave_txid // empty')
           if [ -z "$ARWEAVE_TX" ]; then
             echo "Arweave transaction ID not found - this is expected when API is not deployed"
           else
