@@ -4,6 +4,7 @@ on:
 jobs:
   purge:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
