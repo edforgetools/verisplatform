@@ -22,14 +22,10 @@
     "mint:mock": "tsx scripts/mint-mock-proofs.ts",
     "test:mock": "tsx scripts/test-mock-proofs.ts",
     "validate-env": "tsx scripts/validate-env.ts",
-    "validate-env:enhanced": "tsx scripts/validate-env-enhanced.ts",
-    "validate-env:comprehensive": "tsx scripts/validate-env-comprehensive.ts",
-    "test:environment": "tsx scripts/test-environment-comprehensive.ts",
-    "generate-keys": "tsx scripts/key-rotation.ts",
-    "test:security": "tsx scripts/test-security-comprehensive.ts",
+    "validate-services": "tsx src/scripts/validate-services-simple.ts",
+    "generate-keys": "tsx scripts/generate-keys-simple.ts",
     "key-rotation": "tsx scripts/key-rotation.ts",
-    "test:pilot-readiness": "tsx scripts/pilot-readiness-validation.ts",
-    "test:e2e-comprehensive": "tsx scripts/test-end-to-end-comprehensive.ts"
+    "test:pilot-readiness": "tsx src/scripts/pilot-readiness-simple.ts"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",

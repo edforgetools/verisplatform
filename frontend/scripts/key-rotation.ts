@@ -11,7 +11,6 @@ import { program } from "commander";
 import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
-import { keyManager } from "../src/lib/key-management";
 import { logger } from "../src/lib/logger";
 
 /**

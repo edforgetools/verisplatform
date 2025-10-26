@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 // Check if we're in CI environment
-const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 
 // =============================================================================
 // CLIENT-SIDE ENVIRONMENT VARIABLES (NEXT_PUBLIC_*)
 // =============================================================================
 // These variables are exposed to the browser and should not contain secrets
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: isCI 
+  NEXT_PUBLIC_SUPABASE_URL: isCI
     ? z.string().min(1, "Supabase URL required")
     : z.string().url("Invalid Supabase URL"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: isCI
@@ -67,6 +67,14 @@ const serverSchema = z
     // AWS Configuration
     AWS_REGION: z.string().min(1, "AWS region required").optional(),
     AWS_ROLE_ARN: z.string().startsWith("arn:aws:iam::", "Invalid AWS role ARN format").optional(),
+    AWS_ROLE_VERCEL_ARN: z
+      .string()
+      .startsWith("arn:aws:iam::", "Invalid Vercel AWS role ARN format")
+      .optional(),
+    AWS_ROLE_GITHUB_ARN: z
+      .string()
+      .startsWith("arn:aws:iam::", "Invalid GitHub AWS role ARN format")
+      .optional(),
 
     // S3 Registry
     REGISTRY_S3_BUCKET: z.string().min(1, "Registry S3 bucket required").optional(),
@@ -75,6 +83,8 @@ const serverSchema = z
       .string()
       .min(1, "Registry S3 production bucket required")
       .optional(),
+    REGISTRY_BUCKET_STAGING: z.string().min(1, "Registry staging bucket required").optional(),
+    REGISTRY_BUCKET_PROD: z.string().min(1, "Registry production bucket required").optional(),
     REGISTRY_S3_PREFIX: z.string().optional(),
 
     // Arweave
@@ -86,6 +96,21 @@ const serverSchema = z
 
     // Internal Status Page
     INTERNAL_KEY: z.string().min(16, "Internal key must be at least 16 characters").optional(),
+
+    // Application Configuration
+    APP_BASE_URL: z.string().url("Invalid app base URL").optional(),
+    NEXT_PUBLIC_APP_URL: z.string().url("Invalid public app URL").optional(),
+
+    // Deployment and Alert Configuration
+    DEPLOY_MODE: z.enum(["staging", "prod"]).optional(),
+    STRIPE_MODE: z.enum(["test", "live"]).optional(),
+    C2PA_MODE: z.enum(["on", "off"]).optional(),
+    MIRROR_MODE: z.enum(["auto", "manual"]).optional(),
+    ALERT_MODE: z.enum(["slack", "email", "none"]).optional(),
+    SLACK_WEBHOOK_URL: z.string().url("Invalid Slack webhook URL").optional(),
+
+    // Supabase Access Token
+    SUPABASE_ACCESS_TOKEN: z.string().min(1, "Supabase access token required").optional(),
 
     // Verification
     VERIFICATION_TIMESTAMP_TOLERANCE_MS: z.string().transform(Number).optional(),
@@ -160,14 +185,27 @@ function createEnv() {
     VERIS_SIGNING_PUBLIC_KEY: process.env.VERIS_SIGNING_PUBLIC_KEY,
     AWS_REGION: process.env.AWS_REGION,
     AWS_ROLE_ARN: process.env.AWS_ROLE_ARN,
+    AWS_ROLE_VERCEL_ARN: process.env.AWS_ROLE_VERCEL_ARN,
+    AWS_ROLE_GITHUB_ARN: process.env.AWS_ROLE_GITHUB_ARN,
     REGISTRY_S3_BUCKET: process.env.REGISTRY_S3_BUCKET,
     REGISTRY_S3_STAGING_BUCKET: process.env.REGISTRY_S3_STAGING_BUCKET,
     REGISTRY_S3_PRODUCTION_BUCKET: process.env.REGISTRY_S3_PRODUCTION_BUCKET,
+    REGISTRY_BUCKET_STAGING: process.env.REGISTRY_BUCKET_STAGING,
+    REGISTRY_BUCKET_PROD: process.env.REGISTRY_BUCKET_PROD,
     REGISTRY_S3_PREFIX: process.env.REGISTRY_S3_PREFIX,
     ARWEAVE_GATEWAY_URL: process.env.ARWEAVE_GATEWAY_URL,
     ARWEAVE_WALLET_JSON: process.env.ARWEAVE_WALLET_JSON,
     SENTRY_DSN: process.env.SENTRY_DSN,
     INTERNAL_KEY: process.env.INTERNAL_KEY,
+    APP_BASE_URL: process.env.APP_BASE_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    DEPLOY_MODE: process.env.DEPLOY_MODE,
+    STRIPE_MODE: process.env.STRIPE_MODE,
+    C2PA_MODE: process.env.C2PA_MODE,
+    MIRROR_MODE: process.env.MIRROR_MODE,
+    ALERT_MODE: process.env.ALERT_MODE,
+    SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL,
+    SUPABASE_ACCESS_TOKEN: process.env.SUPABASE_ACCESS_TOKEN,
     VERIFICATION_TIMESTAMP_TOLERANCE_MS: process.env.VERIFICATION_TIMESTAMP_TOLERANCE_MS,
     ENABLE_MIRRORS: process.env.ENABLE_MIRRORS,
     ENABLE_SNAPSHOT_AUTOMATION: process.env.ENABLE_SNAPSHOT_AUTOMATION,
@@ -223,14 +261,28 @@ try {
         VERIS_SIGNING_PRIVATE_KEY: "test-private-key-".repeat(10),
         VERIS_SIGNING_PUBLIC_KEY: "test-public-key-".repeat(10),
         AWS_REGION: "us-east-1",
+        AWS_ROLE_ARN: "arn:aws:iam::123456789012:role/test-role",
+        AWS_ROLE_VERCEL_ARN: "arn:aws:iam::123456789012:role/vercel-role",
+        AWS_ROLE_GITHUB_ARN: "arn:aws:iam::123456789012:role/github-role",
         REGISTRY_S3_BUCKET: "test-bucket",
         REGISTRY_S3_STAGING_BUCKET: "test-staging-bucket",
         REGISTRY_S3_PRODUCTION_BUCKET: "test-production-bucket",
+        REGISTRY_BUCKET_STAGING: "test-staging-bucket",
+        REGISTRY_BUCKET_PROD: "test-production-bucket",
         REGISTRY_S3_PREFIX: "registry/",
         ARWEAVE_GATEWAY_URL: "https://arweave.net",
         ARWEAVE_WALLET_JSON: '{"kty":"EC","crv":"P-256","x":"test","y":"test","d":"test"}',
         SENTRY_DSN: "https://test@sentry.io/test",
         INTERNAL_KEY: "test-internal-key",
+        APP_BASE_URL: "https://test.verisplatform.com",
+        NEXT_PUBLIC_APP_URL: "https://test.verisplatform.com",
+        DEPLOY_MODE: "staging",
+        STRIPE_MODE: "test",
+        C2PA_MODE: "off",
+        MIRROR_MODE: "auto",
+        ALERT_MODE: "slack",
+        SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/test/webhook",
+        SUPABASE_ACCESS_TOKEN: "test-access-token",
         VERIFICATION_TIMESTAMP_TOLERANCE_MS: 300000,
         ENABLE_MIRRORS: false,
         ENABLE_SNAPSHOT_AUTOMATION: false,

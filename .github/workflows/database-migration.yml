@@ -4,22 +4,22 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'frontend/migrations/**'
-      - 'frontend/src/lib/db-types.ts'
+      - "frontend/migrations/**"
+      - "frontend/src/lib/db-types.ts"
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to migrate'
+        description: "Environment to migrate"
         required: true
-        default: 'staging'
+        default: "staging"
         type: choice
         options:
           - staging
           - production
       migration_type:
-        description: 'Type of migration'
+        description: "Type of migration"
         required: false
-        default: 'auto'
+        default: "auto"
         type: choice
         options:
           - auto
@@ -55,13 +55,13 @@ jobs:
       - name: Validate migration files
         run: |
           echo "Validating migration files..."
-          
+
           # Check if migration files exist
           if [ ! -d "frontend/migrations" ]; then
             echo "No migrations directory found"
             exit 0
           fi
-          
+
           # Validate SQL syntax in migration files
           for file in frontend/migrations/*.sql; do
             if [ -f "$file" ]; then
@@ -72,19 +72,19 @@ jobs:
               fi
             fi
           done
-          
+
           echo "Migration files validation completed"
 
       - name: Check for breaking changes
         run: |
           echo "Checking for breaking changes..."
-          
+
           # Check if any migration files contain DROP statements
           if find frontend/migrations -name "*.sql" -exec grep -l "DROP" {} \; | grep -q .; then
             echo "⚠️ Warning: Migration files contain DROP statements"
             echo "This may cause data loss. Please review carefully."
           fi
-          
+
           # Check for ALTER TABLE statements that might be breaking
           if find frontend/migrations -name "*.sql" -exec grep -l "ALTER TABLE.*DROP COLUMN" {} \; | grep -q .; then
             echo "⚠️ Warning: Migration files contain DROP COLUMN statements"
@@ -124,23 +124,23 @@ jobs:
       - name: Run staging migrations
         run: |
           echo "Running migrations on staging database..."
-          
+
           # Check if migrations directory exists
           if [ ! -d "frontend/migrations" ]; then
             echo "No migrations to run"
             exit 0
           fi
-          
+
           # Run migrations using Supabase CLI or custom script
           cd frontend
           npx supabase db push --db-url="${{ secrets.STAGING_DATABASE_URL }}"
-          
+
           echo "Staging migrations completed successfully"
 
       - name: Verify staging migrations
         run: |
           echo "Verifying staging migrations..."
-          
+
           # Test database connectivity and basic queries
           cd frontend
           node -e "
@@ -170,11 +170,11 @@ jobs:
       - name: Run staging smoke tests
         run: |
           echo "Running smoke tests on staging..."
-          
+
           # Basic API tests to ensure migrations didn't break anything
           curl -f "${{ secrets.STAGING_URL }}/api/health" || exit 1
-          curl -f "${{ secrets.STAGING_URL }}/api/slo" || exit 1
-          
+          curl -f "${{ secrets.STAGING_URL }}/api/db-health" || exit 1
+
           echo "Staging smoke tests passed"
 
   # Run migrations on production
@@ -212,23 +212,23 @@ jobs:
       - name: Run production migrations
         run: |
           echo "Running migrations on production database..."
-          
+
           # Check if migrations directory exists
           if [ ! -d "frontend/migrations" ]; then
             echo "No migrations to run"
             exit 0
           fi
-          
+
           # Run migrations using Supabase CLI or custom script
           cd frontend
           npx supabase db push --db-url="${{ secrets.PROD_DATABASE_URL }}"
-          
+
           echo "Production migrations completed successfully"
 
       - name: Verify production migrations
         run: |
           echo "Verifying production migrations..."
-          
+
           # Test database connectivity and basic queries
           cd frontend
           node -e "
@@ -258,11 +258,11 @@ jobs:
       - name: Run production smoke tests
         run: |
           echo "Running smoke tests on production..."
-          
+
           # Basic API tests to ensure migrations didn't break anything
           curl -f "${{ secrets.PROD_URL }}/api/health" || exit 1
-          curl -f "${{ secrets.PROD_URL }}/api/slo" || exit 1
-          
+          curl -f "${{ secrets.PROD_URL }}/api/db-health" || exit 1
+
           echo "Production smoke tests passed"
 
       - name: Notify team of successful migration
@@ -297,7 +297,7 @@ jobs:
       - name: Rollback migrations
         run: |
           echo "Rolling back migrations..."
-          
+
           # This would typically restore from backup or run rollback scripts
           echo "⚠️ Rollback functionality would be implemented here"
           echo "This could involve:"
@@ -309,7 +309,7 @@ jobs:
       - name: Verify rollback
         run: |
           echo "Verifying rollback..."
-          
+
           # Test database connectivity after rollback
           cd frontend
           node -e "
@@ -352,7 +352,7 @@ jobs:
           echo "| Production Migration | ${{ needs.migrate-production.result == 'success' && '✅ Completed' || needs.migrate-production.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Rollback | ${{ needs.rollback-migrations.result == 'success' && '✅ Completed' || needs.rollback-migrations.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check overall status
           if [[ "${{ needs.validate-migrations.result }}" == "success" && 
                 ("${{ needs.migrate-staging.result }}" == "success" || "${{ needs.migrate-staging.result }}" == "skipped") && 

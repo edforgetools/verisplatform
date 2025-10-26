@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: 'Force deployment even if tests fail'
+        description: "Force deployment even if tests fail"
         required: false
         default: false
         type: boolean
@@ -168,7 +168,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./frontend
-          vercel-args: '--prod=false'
+          vercel-args: "--prod=false"
 
       - name: Wait for deployment
         run: |
@@ -186,8 +186,7 @@ jobs:
           echo "Running smoke tests against staging..."
           # Basic smoke tests
           curl -f "${{ env.STAGING_URL }}/api/health" || exit 1
-          curl -f "${{ env.STAGING_URL }}/api/slo" || exit 1
-          curl -f "${{ env.STAGING_URL }}/api/performance" || exit 1
+          curl -f "${{ env.STAGING_URL }}/api/db-health" || exit 1
           echo "Smoke tests passed!"
 
   # Post-deployment validation

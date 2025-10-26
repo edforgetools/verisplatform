@@ -5,7 +5,7 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend"
+    "packages/sdk-js"
   ],
   "main": "index.js",
   "scripts": {

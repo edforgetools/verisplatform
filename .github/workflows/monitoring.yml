@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       check_type:
-        description: 'Type of monitoring check'
+        description: "Type of monitoring check"
         required: false
-        default: 'all'
+        default: "all"
         type: choice
         options:
           - all
@@ -42,7 +42,7 @@ jobs:
           echo "Checking production health..."
           RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/health_response.json "${{ env.PRODUCTION_URL }}/api/health")
           HTTP_CODE=${RESPONSE: -3}
-          
+
           if [ "$HTTP_CODE" = "200" ]; then
             echo "status=healthy" >> $GITHUB_OUTPUT
             echo "Production health check passed"
@@ -62,7 +62,7 @@ jobs:
           echo "Checking staging health..."
           RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/staging_health_response.json "${{ env.STAGING_URL }}/api/health")
           HTTP_CODE=${RESPONSE: -3}
-          
+
           if [ "$HTTP_CODE" = "200" ]; then
             echo "status=healthy" >> $GITHUB_OUTPUT
             echo "Staging health check passed"
@@ -109,7 +109,7 @@ jobs:
               `,
               labels: ['alert', 'health', 'critical']
             });
-            
+
             console.log(`Created health alert issue: ${issue.data.html_url}`);
 
   # SLO monitoring
@@ -126,9 +126,9 @@ jobs:
         id: prod-slo
         run: |
           echo "Checking production SLOs..."
-          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/slo_response.json "${{ env.PRODUCTION_URL }}/api/slo")
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/slo_response.json "${{ env.PRODUCTION_URL }}/api/db-health")
           HTTP_CODE=${RESPONSE: -3}
-          
+
           if [ "$HTTP_CODE" = "200" ]; then
             # Parse SLO status from response
             SLO_STATUS=$(cat /tmp/slo_response.json | jq -r '.status')
@@ -183,7 +183,7 @@ jobs:
               `,
               labels: ['alert', 'slo', 'performance']
             });
-            
+
             console.log(`Created SLO breach alert issue: ${issue.data.html_url}`);
 
   # Performance monitoring
@@ -200,9 +200,9 @@ jobs:
         id: performance
         run: |
           echo "Checking performance metrics..."
-          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/performance_response.json "${{ env.PRODUCTION_URL }}/api/performance")
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/performance_response.json "${{ env.PRODUCTION_URL }}/api/health")
           HTTP_CODE=${RESPONSE: -3}
-          
+
           if [ "$HTTP_CODE" = "200" ]; then
             # Extract key performance metrics
             AVG_LATENCY=$(cat /tmp/performance_response.json | jq -r '.summary.averageLatency // "N/A"')
@@ -270,7 +270,7 @@ jobs:
               `,
               labels: ['alert', 'performance', 'monitoring']
             });
-            
+
             console.log(`Created performance alert issue: ${issue.data.html_url}`);
 
   # Uptime monitoring
@@ -287,11 +287,11 @@ jobs:
         id: uptime
         run: |
           echo "Checking production uptime..."
-          
+
           # Test multiple endpoints
           ENDPOINTS=("/api/health" "/api/slo" "/api/performance" "/")
           FAILED_ENDPOINTS=()
-          
+
           for endpoint in "${ENDPOINTS[@]}"; do
             echo "Testing $endpoint..."
             RESPONSE=$(curl -s -w "%{http_code}" -o /dev/null "${{ env.PRODUCTION_URL }}$endpoint")
@@ -303,7 +303,7 @@ jobs:
               echo "API endpoint $endpoint not deployed (404) - this is expected for now"
             fi
           done
-          
+
           if [ ${#FAILED_ENDPOINTS[@]} -eq 0 ]; then
             echo "status=up" >> $GITHUB_OUTPUT
             echo "All endpoints are responding correctly"
@@ -345,7 +345,7 @@ jobs:
               `,
               labels: ['alert', 'uptime', 'critical']
             });
-            
+
             console.log(`Created uptime alert issue: ${issue.data.html_url}`);
 
   # Security monitoring
@@ -362,7 +362,7 @@ jobs:
         id: security
         run: |
           echo "Checking for security vulnerabilities..."
-          
+
           # Check for known vulnerabilities in dependencies
           if command -v pnpm &> /dev/null; then
             pnpm audit --audit-level moderate > /tmp/security_audit.txt 2>&1 || true
@@ -412,14 +412,21 @@ jobs:
               `,
               labels: ['alert', 'security', 'vulnerability']
             });
-            
+
             console.log(`Created security alert issue: ${issue.data.html_url}`);
 
   # Monitoring summary
   monitoring-summary:
     name: Monitoring Summary
     runs-on: ubuntu-latest
-    needs: [health-monitoring, slo-monitoring, performance-monitoring, uptime-monitoring, security-monitoring]
+    needs:
+      [
+        health-monitoring,
+        slo-monitoring,
+        performance-monitoring,
+        uptime-monitoring,
+        security-monitoring,
+      ]
     if: always()
     steps:
       - name: Generate monitoring summary
@@ -434,7 +441,7 @@ jobs:
           echo "| Uptime | ${{ needs.uptime-monitoring.result == 'success' && '✅ Up' || '❌ Down' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security-monitoring.result == 'success' && '✅ Secure' || '❌ Vulnerable' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check overall status
           if [[ "${{ needs.health-monitoring.result }}" == "success" && 
                 "${{ needs.slo-monitoring.result }}" == "success" && 

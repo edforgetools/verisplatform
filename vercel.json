@@ -24,5 +24,19 @@
       "destination": "https://verisplatform.com/$1",
       "permanent": true
     }
-  ]
+  ],
+  "env": {
+    "DEPLOY_MODE": "staging",
+    "STRIPE_MODE": "test",
+    "C2PA_MODE": "off",
+    "MIRROR_MODE": "auto",
+    "ALERT_MODE": "slack"
+  },
+  "functions": {
+    "frontend/src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1"],
+  "framework": "nextjs"
 }
