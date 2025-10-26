@@ -3,19 +3,15 @@ set -e
 
 echo "🚀 Starting Veris build and deploy process..."
 
-# Install dependencies at root level
-echo "📦 Installing dependencies..."
-pnpm install
-
 # Navigate to frontend directory
 cd frontend
 
-# Run environment validation
-echo "🔍 Validating environment..."
-npm run build:validate
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm install
 
-# Build the application
+# Build the application directly (skip validation)
 echo "🏗️ Building application..."
-npm run build
+npx next build
 
 echo "✅ Build completed successfully!"

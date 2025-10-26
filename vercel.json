@@ -4,18 +4,6 @@
   "outputDirectory": "frontend/.next",
   "installCommand": "cd frontend && npm install",
   "framework": "nextjs",
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
-    }
-  ],
   "redirects": [
     {
       "source": "/(.*)",
@@ -29,10 +17,5 @@
       "permanent": true
     }
   ],
-  "functions": {
-    "frontend/src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
   "regions": ["iad1"]
 }
