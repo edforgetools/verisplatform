@@ -41,6 +41,7 @@ jobs:
 
       - name: Create registry snapshot
         if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
+        continue-on-error: true
         run: |
           curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-snapshot" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
@@ -99,6 +100,7 @@ jobs:
 
       - name: Publish to Arweave
         if: ${{ secrets.API_BASE_URL != '' && secrets.API_TOKEN != '' }}
+        continue-on-error: true
         run: |
           curl -X POST "${{ secrets.API_BASE_URL }}/api/jobs/registry-arweave" \
             -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
