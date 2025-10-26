@@ -265,3 +265,4 @@ veris/
 ## Support
 
 For issues and questions, refer to the execution documents in the `veris execution/` directory.
+# Retry deployment after Vercel error fix
