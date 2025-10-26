@@ -7,7 +7,7 @@
  */
 
 import crypto from "crypto";
-import { keyManager } from "./key-management";
+// Key management functionality moved inline
 
 export function sha256(buf: Buffer) {
   return crypto.createHash("sha256").update(buf).digest("hex");

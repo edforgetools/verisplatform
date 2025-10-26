@@ -37,7 +37,7 @@ if (!process.env.CRON_JOB_TOKEN) {
 import { ENV } from "../lib/env";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
-import { S3Client, HeadBucketCommand } from "@aws-sdk/client-s3";
+import { S3Client, HeadObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
 
 interface ValidationResult {
@@ -138,9 +138,10 @@ class ExternalServicesValidator {
       if (ENV.server.REGISTRY_BUCKET_STAGING) {
         try {
           await s3Client.send(
-            new HeadBucketCommand({
-              Bucket: ENV.server.REGISTRY_BUCKET_STAGING,
-            }),
+              new HeadObjectCommand({
+                Bucket: ENV.server.REGISTRY_BUCKET_STAGING,
+                Key: "test-object"
+              }),
           );
           this.addResult("AWS S3 (Staging)", "success", "Staging bucket accessible", {
             bucket: ENV.server.REGISTRY_BUCKET_STAGING,
@@ -159,9 +160,10 @@ class ExternalServicesValidator {
       if (ENV.server.REGISTRY_BUCKET_PROD) {
         try {
           await s3Client.send(
-            new HeadBucketCommand({
-              Bucket: ENV.server.REGISTRY_BUCKET_PROD,
-            }),
+              new HeadObjectCommand({
+                Bucket: ENV.server.REGISTRY_BUCKET_PROD,
+                Key: "test-object"
+              }),
           );
           this.addResult("AWS S3 (Production)", "success", "Production bucket accessible", {
             bucket: ENV.server.REGISTRY_BUCKET_PROD,
