@@ -18,7 +18,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { sha256 } from "./crypto-server";
 import { ENV } from "./env";
-import { CanonicalProofV1, validateCanonicalProof } from "./proof-schema";
+import { CanonicalProof, verifyCanonicalProof } from "./proof-schema";
 import { logger } from "./logger";
 
 export interface RegistryConfig {
@@ -88,18 +88,18 @@ function getRegistryConfig(): RegistryConfig {
  * Upload proof to S3 registry (both staging and production)
  */
 export async function uploadProofToRegistry(
-  proof: CanonicalProofV1,
+  proof: CanonicalProof,
   config?: Partial<RegistryConfig>,
 ): Promise<UploadResult> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
 
   // Validate proof structure
-  if (!validateCanonicalProof(proof)) {
+  if (!verifyCanonicalProof(proof)) {
     throw new Error("Invalid proof structure");
   }
 
-  const proofId = proof.subject.id;
+  const proofId = proof.proof_id;
   const proofJson = JSON.stringify(proof, null, 2);
   const proofBuffer = Buffer.from(proofJson, "utf8");
   const checksum = sha256(proofBuffer);
@@ -118,7 +118,7 @@ export async function uploadProofToRegistry(
         proofId,
         checksum,
         uploadedAt,
-        schemaVersion: proof.schema_version.toString(),
+        schemaVersion: "1",
       },
     }),
   );
@@ -134,7 +134,7 @@ export async function uploadProofToRegistry(
         proofId,
         checksum,
         uploadedAt,
-        schemaVersion: proof.schema_version.toString(),
+        schemaVersion: "1",
       },
     }),
   );
@@ -168,7 +168,7 @@ export async function downloadProofFromRegistry(
   proofId: string,
   useProduction: boolean = true,
   config?: Partial<RegistryConfig>,
-): Promise<CanonicalProofV1> {
+): Promise<CanonicalProof> {
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
 
@@ -188,10 +188,10 @@ export async function downloadProofFromRegistry(
     }
 
     const proofContent = await Body.transformToString();
-    const proof: CanonicalProofV1 = JSON.parse(proofContent);
+    const proof: CanonicalProof = JSON.parse(proofContent);
 
     // Validate proof structure
-    if (!validateCanonicalProof(proof)) {
+    if (!verifyCanonicalProof(proof)) {
       throw new Error(`Invalid proof structure for ${proofId}`);
     }
 
@@ -297,7 +297,7 @@ export async function runIntegrityCheck(
     const schemaHash = sha256(Buffer.from(schemaContent, "utf8"));
 
     // Load canonical schema from local file
-    const canonicalSchema = require("../schema/proof.v1.json");
+    const canonicalSchema = require("../schema/proof.schema.json");
     const canonicalSchemaContent = JSON.stringify(canonicalSchema, null, 2);
     const canonicalSchemaHash = sha256(Buffer.from(canonicalSchemaContent, "utf8"));
 
@@ -339,7 +339,7 @@ export async function uploadCanonicalSchema(config?: Partial<RegistryConfig>): P
   const registryConfig = { ...getRegistryConfig(), ...config };
   const s3Client = createS3Client(registryConfig);
 
-  const canonicalSchema = require("../schema/proof.v1.json");
+  const canonicalSchema = require("../schema/proof.schema.json");
   const schemaContent = JSON.stringify(canonicalSchema, null, 2);
   const schemaBuffer = Buffer.from(schemaContent, "utf8");
 
