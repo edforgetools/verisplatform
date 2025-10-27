@@ -48,52 +48,53 @@ export default function ClosePage() {
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
           <h1
             style={{
-              fontSize: "32px",
+              fontSize: "48px",
               fontWeight: 600,
               color: "#E5E7EB",
-              marginBottom: "16px",
-              paddingTop: "120px",
+              marginBottom: "8px",
+              marginTop: "96px",
             }}
           >
             Close Delivery
           </h1>
-          <p style={{ fontSize: "18px", color: "#CBD5E1", marginBottom: "24px" }}>
+          <p style={{ fontSize: "18px", color: "#CBD5E1", marginTop: "8px", marginBottom: "24px" }}>
             Files are hashed locally. No content leaves your browser.
           </p>
 
           <form onSubmit={submit} className="space-y-4">
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              style={{
-                display: "block",
-                width: "100%",
-                backgroundColor: "#162133",
-                padding: "12px",
-                borderRadius: "0.75rem",
-                border: "1px solid #1E293B",
-                color: "#CBD5E1",
-                marginBottom: "16px",
-              }}
-            />
-            <button
-              type="submit"
-              disabled={loading || !file}
-              className="flex items-center justify-center h-11 px-6 text-base font-medium leading-none"
-              style={{
-                backgroundColor: loading || !file ? "#162133" : "#00B67A",
-                color: "white",
-                borderRadius: "0.75rem",
-                cursor: loading || !file ? "not-allowed" : "pointer",
-                border: "none",
-              }}
-            >
-              {loading ? "Closing Delivery..." : "Close Delivery"}
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  backgroundColor: "#162133",
+                  padding: "12px",
+                  borderRadius: "0.75rem",
+                  border: "1px solid #1E293B",
+                  color: "#CBD5E1",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={loading || !file}
+                className="flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none"
+                style={{
+                  backgroundColor: loading || !file ? "#162133" : "#00B67A",
+                  color: "white",
+                  borderRadius: "0.75rem",
+                  cursor: loading || !file ? "not-allowed" : "pointer",
+                  border: "none",
+                }}
+              >
+                {loading ? "Closing Delivery..." : "Close Delivery"}
+              </button>
+            </div>
           </form>
 
           {res && (
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-4">
               {showBanner && (
                 <div
                   style={{

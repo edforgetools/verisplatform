@@ -7,14 +7,14 @@ export default function BillingPage() {
     <Layout>
       <main>
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <div className="text-center" style={{ marginBottom: "32px", paddingTop: "120px" }}>
+          <div className="text-center" style={{ marginBottom: "24px", marginTop: "96px" }}>
             <h1
-              style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px" }}
+              style={{ fontSize: "48px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}
             >
               Prototype Billing Screen
             </h1>
-            <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-              Billing is disabled in this MVP. Pricing shown for demonstration only.
+            <p style={{ fontSize: "14px", color: "#94A3B8", marginTop: "8px" }}>
+              Future pricing example.
             </p>
           </div>
 
@@ -23,7 +23,7 @@ export default function BillingPage() {
               style={{
                 backgroundColor: "#162133",
                 borderRadius: "0.75rem",
-                padding: "32px",
+                padding: "32px 24px",
                 border: "1px solid #1E293B",
               }}
             >
@@ -48,15 +48,14 @@ export default function BillingPage() {
                 >
                   $9
                 </div>
-                <div style={{ color: "#CBD5E1", fontSize: "14px", marginBottom: "24px" }}>
-                  per month
+                <div style={{ color: "#CBD5E1", fontSize: "14px", marginBottom: "16px" }}>
+                  / month
                 </div>
                 <div
                   style={{
                     color: "#9CA3AF",
                     fontSize: "14px",
                     fontWeight: 500,
-                    paddingTop: "16px",
                   }}
                 >
                   Coming Soon

@@ -87,21 +87,21 @@ export default function CheckPage() {
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
           <h1
             style={{
-              fontSize: "32px",
+              fontSize: "48px",
               fontWeight: 600,
               color: "#E5E7EB",
-              marginBottom: "16px",
-              paddingTop: "120px",
+              marginBottom: "8px",
+              marginTop: "96px",
             }}
           >
             Check Delivery
           </h1>
-          <p style={{ fontSize: "18px", color: "#CBD5E1", marginBottom: "24px" }}>
-            Verify file integrity using file, record ID, or record.json
+          <p style={{ fontSize: "18px", color: "#CBD5E1", marginTop: "8px", marginBottom: "24px" }}>
+            Verify file integrity using file, record ID, or record.json.
           </p>
 
           <form onSubmit={submit} style={{ display: "grid", gap: "24px" }}>
-            <div style={{ display: "grid", gap: "16px" }}>
+            <div style={{ display: "grid", gap: "24px" }}>
               {/* File Input */}
               <div>
                 <label
@@ -114,7 +114,7 @@ export default function CheckPage() {
                     color: "#E5E7EB",
                   }}
                 >
-                  1. Upload file + record.json
+                  1. Upload file + record.json (Recommended)
                 </label>
                 <input
                   id="file-input"
@@ -149,7 +149,7 @@ export default function CheckPage() {
                 <textarea
                   id="json-input"
                   rows={4}
-                  placeholder='{"record_id": "...", "sha256": "...", ...}'
+                  placeholder='{"record_id": "..."}'
                   value={pastedJson}
                   onChange={(e) => setPastedJson(e.target.value)}
                   style={{
@@ -202,7 +202,7 @@ export default function CheckPage() {
             <button
               type="submit"
               disabled={loading || (!file && !recordId.trim() && !pastedJson.trim())}
-              className="flex items-center justify-center h-11 px-6 text-base font-medium leading-none"
+              className="flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none"
               style={{
                 backgroundColor:
                   loading || (!file && !recordId.trim() && !pastedJson.trim())
@@ -225,25 +225,24 @@ export default function CheckPage() {
           {result && (
             <div
               style={{
-                marginTop: "32px",
-                padding: "24px",
+                marginTop: "24px",
+                padding: "16px",
                 borderRadius: "0.75rem",
                 backgroundColor: "#162133",
                 border: result.valid ? "1px solid #00B67A" : "1px solid #ef4444",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
               }}
               role="region"
-              aria-live="polite"
+              aria-live="assertive"
               aria-label="Verification result"
             >
               {result.valid ? (
                 <div>
                   <p
                     style={{
-                      fontSize: "18px",
+                      fontSize: "16px",
                       color: "#00B67A",
                       fontWeight: 500,
-                      marginBottom: "8px",
                     }}
                   >
                     ✅ Delivery confirmed — file matches record.
@@ -261,25 +260,22 @@ export default function CheckPage() {
                 </div>
               ) : (
                 <div>
-                  <p
-                    style={{
-                      fontSize: "18px",
-                      color: "#ef4444",
-                      fontWeight: 500,
-                      marginBottom: "8px",
-                    }}
-                  >
-                    ⚠️ Record mismatch.
-                  </p>
-                  {result.errors && result.errors.length > 0 && (
-                    <div style={{ marginTop: "12px" }}>
-                      {result.errors.map((error, idx) => (
-                        <p key={idx} style={{ fontSize: "14px", color: "#CBD5E1" }}>
-                          {error}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+                  <div style={{ marginTop: "12px" }}>
+                    {result.errors && result.errors.length > 0 ? (
+                      <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                        {result.errors.map((error, idx) => (
+                          <li
+                            key={idx}
+                            style={{ fontSize: "14px", color: "#CBD5E1", marginTop: "8px" }}
+                          >
+                            {error}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p style={{ fontSize: "14px", color: "#ef4444" }}>Verification failed.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
