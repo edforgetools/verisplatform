@@ -5,9 +5,9 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <div className="text-center mb-20">
+      <div className="text-center" style={{ paddingTop: "120px", marginBottom: "64px" }}>
         <h1 style={{ fontSize: "48px", fontWeight: 700, color: "#F9FAFB", marginBottom: "24px" }}>
-          Verifiable Proof of Delivery
+          Verifiable Delivery Records
         </h1>
         <p
           style={{
@@ -18,11 +18,12 @@ export default function Home() {
             margin: "0 auto 32px",
           }}
         >
-          Cryptographically verifiable proof of file integrity using Ed25519 signatures.
+          Cryptographically verifiable closure for digital handoffs.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/demo"
+            href="/close"
+            className="flex items-center justify-center"
             style={{
               padding: "12px 32px",
               backgroundColor: "#00B67A",
@@ -30,14 +31,14 @@ export default function Home() {
               borderRadius: "0.75rem",
               fontWeight: 500,
               textDecoration: "none",
-              display: "inline-block",
               height: "44px",
             }}
           >
-            Create Proof
+            Close Delivery
           </Link>
           <Link
-            href="/verify"
+            href="/check"
+            className="flex items-center justify-center"
             style={{
               padding: "12px 32px",
               backgroundColor: "#162133",
@@ -45,11 +46,11 @@ export default function Home() {
               borderRadius: "0.75rem",
               fontWeight: 500,
               textDecoration: "none",
-              display: "inline-block",
+              border: "1px solid #1E293B",
               height: "44px",
             }}
           >
-            Verify
+            Check Delivery
           </Link>
         </div>
       </div>
@@ -69,10 +70,10 @@ export default function Home() {
             </div>
           </div>
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
-            Create Proof
+            Close Delivery
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Upload your file. Compute a SHA-256 hash and sign it with Ed25519.
+            Upload your file and create a delivery record.
           </p>
         </div>
 
@@ -89,10 +90,10 @@ export default function Home() {
             </div>
           </div>
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
-            Register
+            Record Closure
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Your proof is stored in our append-only registry with a unique ULID and timestamp.
+            Immutable record is registered with a unique ULID and timestamp.
           </p>
         </div>
 
@@ -109,15 +110,15 @@ export default function Home() {
             </div>
           </div>
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
-            Verify
+            Check Delivery
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Verify file integrity anytime. Free, public verification API.
+            Verify records anytime. Free, public verification.
           </p>
         </div>
       </div>
 
-      {/* Footer Replacement */}
+      {/* Footer */}
       <div
         style={{
           backgroundColor: "#162133",
@@ -132,9 +133,9 @@ export default function Home() {
           About this MVP
         </h2>
         <p style={{ fontSize: "18px", color: "#CBD5E1", maxWidth: "800px", margin: "0 auto" }}>
-          Veris is a public proof-of-concept that demonstrates verifiable digital delivery. Proofs
-          created here are for evaluation only and may be purged periodically. Verification is free
-          and public.
+          Veris is a public proof‑of‑concept that demonstrates verifiable closure of digital
+          deliveries. Records created here are for evaluation only and may be purged periodically.
+          Checking deliveries is free and public.
         </p>
       </div>
     </Layout>

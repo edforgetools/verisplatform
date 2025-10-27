@@ -20,7 +20,7 @@ interface VerificationResult {
   };
 }
 
-export default function VerifyPage() {
+export default function CheckPage() {
   const [file, setFile] = useState<File | null>(null);
   const [proofId, setProofId] = useState("");
   const [pastedJson, setPastedJson] = useState("");
@@ -54,7 +54,7 @@ export default function VerifyPage() {
 
     // Validate that at least one input is provided
     if (!file && !proofId.trim() && !pastedJson.trim()) {
-      toast.error("Please provide a file, proof ID, or paste proof.json");
+      toast.error("Please provide a file, record ID, or paste record.json");
       return;
     }
 
@@ -69,7 +69,7 @@ export default function VerifyPage() {
         // Pasted JSON verification
         try {
           const proofJson = JSON.parse(pastedJson);
-          res = await fetch("/api/proof/verify", {
+          res = await fetch("/api/check", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -77,7 +77,7 @@ export default function VerifyPage() {
             body: JSON.stringify(proofJson),
           });
         } catch (parseError) {
-          toast.error("Invalid JSON. Please check your proof.json format.");
+          toast.error("Invalid JSON. Please check your record.json format.");
           setLoading(false);
           return;
         }
@@ -93,7 +93,7 @@ export default function VerifyPage() {
           }
         }
 
-        res = await fetch("/api/proof/verify", {
+        res = await fetch("/api/check", {
           method: "POST",
           body: formData,
         });
@@ -101,11 +101,11 @@ export default function VerifyPage() {
         // Proof ID only verification
         const extractedId = extractProofId(proofId);
         if (!extractedId) {
-          toast.error("Please enter a valid proof ID or URL");
+          toast.error("Please enter a valid record ID or URL");
           return;
         }
 
-        res = await fetch("/api/proof/verify", {
+        res = await fetch("/api/check", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -180,12 +180,18 @@ export default function VerifyPage() {
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
           <div className="text-center" style={{ marginBottom: "32px" }}>
             <h1
-              style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}
+              style={{
+                fontSize: "32px",
+                fontWeight: 600,
+                color: "#E5E7EB",
+                marginBottom: "8px",
+                paddingTop: "120px",
+              }}
             >
-              Verify Proof
+              Check Delivery
             </h1>
             <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-              Verify file integrity using file, proof ID, or proof.json
+              Verify file integrity using file, record ID, or record.json
             </p>
           </div>
 
@@ -209,7 +215,7 @@ export default function VerifyPage() {
                     color: "#E5E7EB",
                   }}
                 >
-                  Upload file + proof.json
+                  Upload file + record.json
                 </label>
                 <input
                   id="file-input"
@@ -243,7 +249,7 @@ export default function VerifyPage() {
                     color: "#E5E7EB",
                   }}
                 >
-                  Paste proof.json
+                  Paste record.json
                 </label>
                 <textarea
                   id="json-input"

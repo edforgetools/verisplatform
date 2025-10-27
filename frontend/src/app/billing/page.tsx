@@ -7,7 +7,7 @@ export default function BillingPage() {
     <Layout>
       <main>
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <div className="text-center" style={{ marginBottom: "32px" }}>
+          <div className="text-center" style={{ marginBottom: "32px", paddingTop: "120px" }}>
             <h1
               style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px" }}
             >
@@ -69,7 +69,7 @@ export default function BillingPage() {
                   }}
                 >
                   <span style={{ color: "#00B67A" }}>✓</span>
-                  Unlimited proof creation
+                  Unlimited record creation
                 </li>
                 <li
                   style={{
@@ -91,7 +91,7 @@ export default function BillingPage() {
                   }}
                 >
                   <span style={{ color: "#00B67A" }}>✓</span>
-                  Private proof storage
+                  Private record storage
                 </li>
                 <li
                   style={{

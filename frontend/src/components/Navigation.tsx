@@ -26,16 +26,16 @@ export function Navigation() {
               </span>
             )}
             <Link
-              href="/demo"
+              href="/close"
               className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
-              Demo
+              Close
             </Link>
             <Link
-              href="/verify"
+              href="/check"
               className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
-              Verify
+              Check
             </Link>
             <Link
               href="/billing"

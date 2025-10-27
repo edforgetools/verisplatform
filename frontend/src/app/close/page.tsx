@@ -46,15 +46,7 @@ export default function ClosePage() {
     <Layout>
       <main>
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 600,
-              color: "#E5E7EB",
-              marginBottom: "16px",
-              paddingTop: "120px",
-            }}
-          >
+          <h1 style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px", paddingTop: "120px" }}>
             Close Delivery
           </h1>
           <p style={{ fontSize: "18px", color: "#CBD5E1", marginBottom: "24px" }}>

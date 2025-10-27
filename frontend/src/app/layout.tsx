@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Veris - Cryptographic Proof Creator",
+  title: "Veris - Verifiable Delivery Records",
   description:
-    "Cryptographic proof of file integrity with Ed25519 signatures. Secure, verifiable, and tamper-proof.",
+    "Cryptographically verifiable closure for digital handoffs. Create and verify delivery records.",
   metadataBase: new URL("https://verisplatform.com"),
   openGraph: {
-    title: "Veris - Verifiable Proof of Delivery",
+    title: "Veris - Verifiable Delivery Records",
     description:
-      "Cryptographic proof of file integrity with Ed25519 signatures. Secure, verifiable, and tamper-proof.",
+      "Cryptographically verifiable closure for digital handoffs. Create and verify delivery records.",
     type: "website",
     siteName: "Veris",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Veris - Verifiable Proof of Delivery",
-    description: "Cryptographic proof of file integrity with Ed25519 signatures.",
+    title: "Veris - Verifiable Delivery Records",
+    description: "Cryptographically verifiable closure for digital handoffs.",
   },
   alternates: {
     canonical: "/",

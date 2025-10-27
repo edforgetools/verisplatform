@@ -1,13 +1,22 @@
 {
-  "title": "Veris Proof",
+  "title": "Veris Delivery Record",
   "type": "object",
   "additionalProperties": false,
-  "required": ["proof_id", "sha256", "issued_at", "signature", "issuer"],
+  "required": [
+    "proof_id",
+    "sha256",
+    "issued_at",
+    "signature",
+    "issuer",
+    "approved_by",
+    "acknowledged_at",
+    "status"
+  ],
   "properties": {
     "proof_id": {
       "type": "string",
       "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
-      "description": "ULID proof identifier"
+      "description": "ULID record identifier"
     },
     "sha256": {
       "type": "string",
@@ -28,6 +37,20 @@
       "type": "string",
       "minLength": 3,
       "description": "Issuer identifier (did:web or domain)"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Person or entity who approved this closure"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 UTC timestamp when closure was acknowledged"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["closed"],
+      "description": "Status of the delivery record"
     }
   }
 }

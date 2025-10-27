@@ -24,15 +24,19 @@ export interface CanonicalProof {
   issued_at: string; // RFC3339 UTC
   signature: string; // ed25519:base64
   issuer: string; // did:web or domain
+  approved_by: string; // Person or entity who approved this closure
+  acknowledged_at: string; // RFC3339 UTC timestamp
+  status: "closed"; // Status of the delivery record
 }
 
 /**
  * Create a canonical proof object per MVP §2.1 and §3
  */
-export function createCanonicalProof(fileHash: string): CanonicalProof {
+export function createCanonicalProof(fileHash: string, approvedBy?: string): CanonicalProof {
   const proofId = generateProofId();
   const issuedAt = new Date().toISOString(); // RFC3339 UTC
   const issuer = getIssuer();
+  const acknowledgedAt = new Date().toISOString(); // RFC3339 UTC
 
   // Sign sha256 || issued_at with Ed25519 per MVP §2.1
   const signature = signEd25519(fileHash, issuedAt);
@@ -43,6 +47,9 @@ export function createCanonicalProof(fileHash: string): CanonicalProof {
     issued_at: issuedAt,
     signature: signature,
     issuer: issuer,
+    approved_by: approvedBy || "veris-mvp-user",
+    acknowledged_at: acknowledgedAt,
+    status: "closed",
   };
 }
 
