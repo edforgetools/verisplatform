@@ -25,9 +25,6 @@ jobs:
           cd frontend
           pnpm install
 
-      - name: Bootstrap environment
-        run: make bootstrap
-
       - name: Run E2E tests
         run: |
           cd frontend && pnpm run test:e2e

@@ -37,11 +37,11 @@ jobs:
         run: npx wait-on http://localhost:3000
 
       - name: Run a11y tests
-        run: make a11y
+        run: cd frontend && pnpm run a11y
         continue-on-error: true
 
       - name: Run Lighthouse
-        run: make lh
+        run: cd frontend && pnpm run lighthouse
         continue-on-error: true
 
       - name: Check Web Vitals
