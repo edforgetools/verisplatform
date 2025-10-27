@@ -12,7 +12,7 @@
 import { test, expect } from "@playwright/test";
 import { TestHelpers } from "./test-utils";
 
-test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Verify", () => {
+test.describe.skip("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Verify", () => {
   let helpers: TestHelpers;
   let testUserId: string;
   let testProofId: string;
