@@ -11,7 +11,7 @@ export default function BillingPage() {
             <h1
               style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px" }}
             >
-              Billing & Subscriptions (Prototype)
+              Prototype Billing Screen
             </h1>
             <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
               Billing is disabled in this MVP. Pricing shown for demonstration only.
@@ -24,10 +24,10 @@ export default function BillingPage() {
                 backgroundColor: "#162133",
                 borderRadius: "0.75rem",
                 padding: "32px",
-                border: "1px solid #00B67A",
+                border: "1px solid #1E293B",
               }}
             >
-              <div style={{ textAlign: "center", marginBottom: "24px" }}>
+              <div style={{ textAlign: "center" }}>
                 <h2
                   style={{
                     fontSize: "24px",
@@ -36,92 +36,32 @@ export default function BillingPage() {
                     color: "#E5E7EB",
                   }}
                 >
-                  Pro
+                  Example Plan
                 </h2>
                 <div
                   style={{
-                    fontSize: "48px",
+                    fontSize: "32px",
                     fontWeight: 600,
-                    color: "#00B67A",
-                    marginBottom: "8px",
+                    color: "#E5E7EB",
+                    marginBottom: "4px",
                   }}
                 >
                   $9
                 </div>
-                <div style={{ color: "#CBD5E1" }}>per month</div>
+                <div style={{ color: "#CBD5E1", fontSize: "14px", marginBottom: "24px" }}>
+                  per month
+                </div>
+                <div
+                  style={{
+                    color: "#9CA3AF",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    paddingTop: "16px",
+                  }}
+                >
+                  Coming Soon
+                </div>
               </div>
-
-              <ul
-                style={{
-                  listStyle: "none",
-                  marginBottom: "32px",
-                  fontSize: "14px",
-                  color: "#CBD5E1",
-                  textAlign: "left",
-                }}
-              >
-                <li
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <span style={{ color: "#00B67A" }}>✓</span>
-                  Unlimited record creation
-                </li>
-                <li
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <span style={{ color: "#00B67A" }}>✓</span>
-                  PDF certificate downloads
-                </li>
-                <li
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <span style={{ color: "#00B67A" }}>✓</span>
-                  Private record storage
-                </li>
-                <li
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <span style={{ color: "#00B67A" }}>✓</span>
-                  Email support
-                </li>
-              </ul>
-
-              <button
-                disabled={true}
-                style={{
-                  width: "100%",
-                  padding: "12px 24px",
-                  backgroundColor: "#162133",
-                  color: "#CBD5E1",
-                  borderRadius: "0.75rem",
-                  fontWeight: 500,
-                  height: "44px",
-                  cursor: "not-allowed",
-                  border: "none",
-                }}
-              >
-                Coming Soon
-              </button>
             </div>
           </div>
         </div>

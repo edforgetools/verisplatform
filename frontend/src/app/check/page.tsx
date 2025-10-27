@@ -289,7 +289,7 @@ export default function CheckPage() {
                     color: "#E5E7EB",
                   }}
                 >
-                  Proof ID lookup
+                  Record ID lookup
                 </label>
                 <input
                   id="proof-input"
@@ -302,14 +302,14 @@ export default function CheckPage() {
                     border: "1px solid #00B67A",
                     color: "#CBD5E1",
                   }}
-                  placeholder="Enter proof ID or paste proof URL"
+                  placeholder="Enter record ID or paste URL"
                   value={proofId}
                   onChange={(e) => setProofId(e.target.value)}
                   autoComplete="off"
                   aria-describedby="proof-help"
                 />
                 <p id="proof-help" style={{ marginTop: "4px", fontSize: "12px", color: "#CBD5E1" }}>
-                  Look up proof by ID or URL
+                  Look up by record ID or URL
                 </p>
               </div>
             </div>
@@ -317,22 +317,20 @@ export default function CheckPage() {
             <button
               type="submit"
               disabled={loading || (!file && !proofId.trim() && !pastedJson.trim())}
+              className="flex items-center justify-center h-11 px-6 text-base font-medium leading-none"
               style={{
-                width: "100%",
-                padding: "16px 24px",
                 backgroundColor:
                   loading || (!file && !proofId.trim() && !pastedJson.trim())
                     ? "#162133"
                     : "#00B67A",
                 color: "white",
                 borderRadius: "0.75rem",
-                fontWeight: 500,
-                height: "44px",
                 cursor:
                   loading || (!file && !proofId.trim() && !pastedJson.trim())
                     ? "not-allowed"
                     : "pointer",
                 border: "none",
+                width: "100%",
               }}
               aria-describedby="submit-help"
             >
@@ -354,10 +352,10 @@ export default function CheckPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Verifying...
+                  Checking...
                 </span>
               ) : (
-                "Verify"
+                "Check Delivery"
               )}
             </button>
             {elapsedMs !== null && (

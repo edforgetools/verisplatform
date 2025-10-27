@@ -6,19 +6,30 @@ export default function Home() {
     <Layout>
       {/* Hero Section */}
       <div className="text-center" style={{ paddingTop: "120px", marginBottom: "64px" }}>
-        <h1 style={{ fontSize: "48px", fontWeight: 700, color: "#F9FAFB", marginBottom: "24px" }}>
+        <p
+          style={{
+            fontSize: "18px",
+            color: "#CBD5E1",
+            marginBottom: "24px",
+            maxWidth: "960px",
+            margin: "0 auto 24px",
+          }}
+        >
+          When work is done, Veris records the moment of completion.
+        </p>
+        <h1 style={{ fontSize: "48px", fontWeight: 700, color: "#F9FAFB", marginBottom: "12px" }}>
           Verifiable Delivery Records
         </h1>
         <p
           style={{
             fontSize: "18px",
             color: "#CBD5E1",
-            marginBottom: "32px",
+            marginBottom: "16px",
             maxWidth: "960px",
-            margin: "0 auto 32px",
+            margin: "0 auto 16px",
           }}
         >
-          Cryptographically verifiable closure for digital handoffs.
+          A verifiable record when work is complete.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -73,7 +84,7 @@ export default function Home() {
             Close Delivery
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Upload your file and create a delivery record.
+            Upload file to create a record.
           </p>
         </div>
 
@@ -93,7 +104,7 @@ export default function Home() {
             Record Closure
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Immutable record is registered with a unique ULID and timestamp.
+            Immutable ULID + timestamp.
           </p>
         </div>
 
@@ -113,7 +124,7 @@ export default function Home() {
             Check Delivery
           </h3>
           <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Verify records anytime. Free, public verification.
+            Verify anytime, publicly.
           </p>
         </div>
       </div>
@@ -134,8 +145,7 @@ export default function Home() {
         </h2>
         <p style={{ fontSize: "18px", color: "#CBD5E1", maxWidth: "800px", margin: "0 auto" }}>
           Veris is a public proof‑of‑concept that demonstrates verifiable closure of digital
-          deliveries. Records created here are for evaluation only and may be purged periodically.
-          Checking deliveries is free and public.
+          deliveries. Records here are temporary and may be purged. Checking deliveries is free and public.
         </p>
       </div>
     </Layout>

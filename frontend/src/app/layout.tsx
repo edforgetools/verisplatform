@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Veris - Verifiable Delivery Records",
   description:
-    "Cryptographically verifiable closure for digital handoffs. Create and verify delivery records.",
+    "A verifiable record when work is complete.",
   metadataBase: new URL("https://verisplatform.com"),
   openGraph: {
     title: "Veris - Verifiable Delivery Records",

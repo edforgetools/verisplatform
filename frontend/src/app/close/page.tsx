@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { generateUserId } from "@/lib/ids";
 import { Layout } from "@/components/Layout";
 
@@ -14,6 +14,7 @@ export default function ClosePage() {
   const [res, setRes] = useState<DeliveryRecordResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [showJson, setShowJson] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
 
   // Generate a consistent demo user ID for this session
   const demoUserId = generateUserId();
@@ -34,7 +35,9 @@ export default function ClosePage() {
       });
       const data = await r.json();
       setRes(data);
-      setShowJson(true);
+      setShowBanner(true);
+      // Auto-dismiss banner after 4s
+      setTimeout(() => setShowBanner(false), 4000);
     } catch (error) {
       console.error("Error creating proof:", error);
     } finally {
@@ -84,53 +87,106 @@ export default function ClosePage() {
           </form>
           {res && (
             <div className="mt-6 space-y-4">
-              <div
-                style={{
-                  padding: "16px",
-                  borderRadius: "0.75rem",
-                  backgroundColor: "#162133",
-                  border: "1px solid #00B67A",
-                }}
-              >
-                <p style={{ color: "#00B67A", marginBottom: "8px", fontWeight: 500 }}>
-                  ✓ Delivery closed successfully!
-                </p>
-                <a href={res.url} style={{ color: "#00B67A", textDecoration: "underline" }}>
-                  View record →
-                </a>
-              </div>
+              {showBanner && (
+                <div
+                  className="fade-in"
+                  style={{
+                    padding: "16px",
+                    borderRadius: "0.75rem",
+                    backgroundColor: "#162133",
+                    border: "1px solid #00B67A",
+                    animation: "fadeIn 0.15s ease-in",
+                  }}
+                >
+                  <p style={{ color: "#00B67A", fontWeight: 500 }}>
+                    ✅ Delivery Closed — record created at {new Date().toLocaleString()}.
+                  </p>
+                </div>
+              )}
 
               {res.proof_json && (
-                <div>
-                  <button
-                    onClick={() => setShowJson(!showJson)}
+                <div style={{ marginTop: showBanner ? "16px" : "0" }}>
+                  <div
                     style={{
-                      background: "transparent",
-                      border: "none",
-                      color: "#E5E7EB",
-                      cursor: "pointer",
-                      marginBottom: "8px",
+                      display: "flex",
+                      gap: "12px",
+                      marginBottom: "16px",
                     }}
                   >
-                    {showJson ? "▼" : "▶"} View Delivery Record JSON
-                  </button>
-                  {showJson && (
-                    <pre
+                    <button
+                      onClick={() => setShowJson(false)}
                       style={{
-                        marginTop: "8px",
-                        padding: "16px",
-                        backgroundColor: "#0e1726",
-                        borderRadius: "0.75rem",
-                        border: "1px solid #162133",
-                        overflowX: "auto",
+                        background: showJson ? "transparent" : "#162133",
+                        border: "1px solid #1E293B",
+                        color: "#E5E7EB",
+                        cursor: "pointer",
+                        padding: "8px 16px",
+                        borderRadius: "0.5rem",
                         fontSize: "14px",
-                        color: "#CBD5E1",
-                        fontFamily: "monospace",
                       }}
                     >
-                      {JSON.stringify(res.proof_json, null, 2)}
-                    </pre>
-                  )}
+                      Summary View
+                    </button>
+                    <button
+                      onClick={() => setShowJson(true)}
+                      style={{
+                        background: showJson ? "#162133" : "transparent",
+                        border: "1px solid #1E293B",
+                        color: "#E5E7EB",
+                        cursor: "pointer",
+                        padding: "8px 16px",
+                        borderRadius: "0.5rem",
+                        fontSize: "14px",
+                      }}
+                    >
+                      JSON View
+                    </button>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "16px",
+                      backgroundColor: "#162133",
+                      border: "1px solid #1E293B",
+                      borderRadius: "0.75rem",
+                    }}
+                  >
+                    {showJson ? (
+                      <pre
+                        style={{
+                          margin: 0,
+                          padding: "16px",
+                          backgroundColor: "#0e1726",
+                          borderRadius: "0.5rem",
+                          overflowX: "auto",
+                          fontSize: "14px",
+                          color: "#CBD5E1",
+                          fontFamily: "monospace",
+                        }}
+                      >
+                        {JSON.stringify(res.proof_json, null, 2)}
+                      </pre>
+                    ) : (
+                      <div style={{ color: "#CBD5E1", fontSize: "16px", lineHeight: "1.6" }}>
+                        <div style={{ marginBottom: "12px" }}>
+                          <strong style={{ color: "#E5E7EB" }}>ID:</strong>{" "}
+                          {(res.proof_json.record_id as string) || (res.proof_json.proof_id as string) || "N/A"}
+                        </div>
+                        <div style={{ marginBottom: "12px" }}>
+                          <strong style={{ color: "#E5E7EB" }}>Issuer:</strong>{" "}
+                          {(res.proof_json.issuer as string) || "N/A"}
+                        </div>
+                        <div style={{ marginBottom: "12px" }}>
+                          <strong style={{ color: "#E5E7EB" }}>Issued at:</strong>{" "}
+                          {(res.proof_json.issued_at as string) || "N/A"}
+                        </div>
+                        <div>
+                          <strong style={{ color: "#E5E7EB" }}>Status:</strong>{" "}
+                          {(res.proof_json.status as string) || "closed"}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
