@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Security: Private keys and secrets
+*private_key*
+*public_key*
+*secret*
+*.pem
+*.key
+.ed25519*
