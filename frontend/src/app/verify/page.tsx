@@ -23,6 +23,7 @@ interface VerificationResult {
 export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
   const [proofId, setProofId] = useState("");
+  const [pastedJson, setPastedJson] = useState("");
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
@@ -52,8 +53,8 @@ export default function VerifyPage() {
     e.preventDefault();
 
     // Validate that at least one input is provided
-    if (!file && !proofId.trim()) {
-      toast.error("Please provide either a file or proof ID");
+    if (!file && !proofId.trim() && !pastedJson.trim()) {
+      toast.error("Please provide a file, proof ID, or paste proof.json");
       return;
     }
 
@@ -64,7 +65,23 @@ export default function VerifyPage() {
     try {
       let res: Response;
 
-      if (file) {
+      if (pastedJson.trim()) {
+        // Pasted JSON verification
+        try {
+          const proofJson = JSON.parse(pastedJson);
+          res = await fetch("/api/proof/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(proofJson),
+          });
+        } catch (parseError) {
+          toast.error("Invalid JSON. Please check your proof.json format.");
+          setLoading(false);
+          return;
+        }
+      } else if (file) {
         // File-based verification
         const formData = new FormData();
         formData.append("file", file);
@@ -208,15 +225,35 @@ export default function VerifyPage() {
               </div>
             </div>
 
+            {/* Paste proof.json */}
+            <div>
+              <label htmlFor="json-input" className="block text-sm font-medium mb-2">
+                Or Paste proof.json (Optional)
+              </label>
+              <textarea
+                id="json-input"
+                className="block w-full bg-neutral-900 p-3 rounded border border-neutral-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono text-sm"
+                rows={4}
+                placeholder='{"proof_id": "...", "sha256": "...", ...}'
+                value={pastedJson}
+                onChange={(e) => setPastedJson(e.target.value)}
+                autoComplete="off"
+                aria-describedby="json-help"
+              />
+              <p id="json-help" className="mt-1 text-xs text-neutral-400">
+                Paste a complete proof.json to verify
+              </p>
+            </div>
+
             <div className="text-center">
               <p className="text-sm text-neutral-400 mb-4">
-                Provide either a file, proof ID, or both for comprehensive verification
+                Provide a file, proof ID, or paste proof.json for verification
               </p>
             </div>
 
             <button
               type="submit"
-              disabled={loading || (!file && !proofId.trim())}
+              disabled={loading || (!file && !proofId.trim() && !pastedJson.trim())}
               className="w-full px-6 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               aria-describedby="submit-help"
             >
