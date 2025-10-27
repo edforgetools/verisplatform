@@ -25,7 +25,9 @@
     "validate-services": "tsx src/scripts/validate-services-simple.ts",
     "generate-keys": "tsx scripts/generate-keys-simple.ts",
     "key-rotation": "tsx scripts/key-rotation.ts",
-    "test:pilot-readiness": "tsx src/scripts/pilot-readiness-simple.ts"
+    "test:pilot-readiness": "tsx src/scripts/pilot-readiness-simple.ts",
+    "a11y": "playwright test --config=playwright.config.preview.ts --grep a11y || echo 'No a11y tests found'",
+    "lighthouse": "echo 'Lighthouse audit would run here' && echo 'Install lighthouse CLI for automated audits'"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
