@@ -25,6 +25,20 @@ export function Layout({ children }: LayoutProps) {
           Public prototype — for evaluation only.
         </div>
         <main style={{ paddingTop: "48px", paddingBottom: "48px" }}>{children}</main>
+
+        {/* Footer */}
+        <footer
+          style={{
+            padding: "48px 24px",
+            textAlign: "center",
+            fontSize: "16px",
+            color: "#CBD5E1",
+            borderTop: "1px solid #1E293B",
+            marginTop: "64px",
+          }}
+        >
+          support@verisplatform.com
+        </footer>
       </div>
     </div>
   );

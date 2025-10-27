@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { generateUserId } from "@/lib/ids";
+import React, { useState } from "react";
 import { Layout } from "@/components/Layout";
 
-interface DeliveryRecordResponse {
+interface CloseResponse {
   url: string;
   proof_json?: Record<string, unknown>;
   [key: string]: unknown;
@@ -11,13 +10,10 @@ interface DeliveryRecordResponse {
 
 export default function ClosePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [res, setRes] = useState<DeliveryRecordResponse | null>(null);
+  const [res, setRes] = useState<CloseResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
-
-  // Generate a consistent demo user ID for this session
-  const demoUserId = generateUserId();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,19 +23,20 @@ export default function ClosePage() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      fd.append("user_id", demoUserId);
-      const r = await fetch("/api/proof/create", {
+
+      const r = await fetch("/api/close", {
         method: "POST",
         body: fd,
-        headers: { "x-user-id": demoUserId },
       });
+
       const data = await r.json();
       setRes(data);
       setShowBanner(true);
+
       // Auto-dismiss banner after 4s
       setTimeout(() => setShowBanner(false), 4000);
     } catch (error) {
-      console.error("Error creating proof:", error);
+      console.error("Error creating delivery record:", error);
     } finally {
       setLoading(false);
     }
@@ -49,12 +46,21 @@ export default function ClosePage() {
     <Layout>
       <main>
         <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <h1 style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px", paddingTop: "120px" }}>
+          <h1
+            style={{
+              fontSize: "32px",
+              fontWeight: 600,
+              color: "#E5E7EB",
+              marginBottom: "16px",
+              paddingTop: "120px",
+            }}
+          >
             Close Delivery
           </h1>
           <p style={{ fontSize: "18px", color: "#CBD5E1", marginBottom: "24px" }}>
             Files are hashed locally. No content leaves your browser.
           </p>
+
           <form onSubmit={submit} className="space-y-4">
             <input
               type="file"
@@ -65,7 +71,7 @@ export default function ClosePage() {
                 backgroundColor: "#162133",
                 padding: "12px",
                 borderRadius: "0.75rem",
-                border: "1px solid #00B67A",
+                border: "1px solid #1E293B",
                 color: "#CBD5E1",
                 marginBottom: "16px",
               }}
@@ -73,7 +79,7 @@ export default function ClosePage() {
             <button
               type="submit"
               disabled={loading || !file}
-              className="flex items-center justify-center h-11 px-6 text-base font-medium"
+              className="flex items-center justify-center h-11 px-6 text-base font-medium leading-none"
               style={{
                 backgroundColor: loading || !file ? "#162133" : "#00B67A",
                 color: "white",
@@ -85,17 +91,18 @@ export default function ClosePage() {
               {loading ? "Closing Delivery..." : "Close Delivery"}
             </button>
           </form>
+
           {res && (
             <div className="mt-6 space-y-4">
               {showBanner && (
                 <div
-                  className="fade-in"
                   style={{
                     padding: "16px",
                     borderRadius: "0.75rem",
                     backgroundColor: "#162133",
                     border: "1px solid #00B67A",
                     animation: "fadeIn 0.15s ease-in",
+                    transition: "opacity 0.15s",
                   }}
                 >
                   <p style={{ color: "#00B67A", fontWeight: 500 }}>
@@ -116,7 +123,7 @@ export default function ClosePage() {
                     <button
                       onClick={() => setShowJson(false)}
                       style={{
-                        background: showJson ? "transparent" : "#162133",
+                        background: !showJson ? "#162133" : "transparent",
                         border: "1px solid #1E293B",
                         color: "#E5E7EB",
                         cursor: "pointer",
@@ -125,7 +132,7 @@ export default function ClosePage() {
                         fontSize: "14px",
                       }}
                     >
-                      Summary View
+                      Summary
                     </button>
                     <button
                       onClick={() => setShowJson(true)}
@@ -139,7 +146,7 @@ export default function ClosePage() {
                         fontSize: "14px",
                       }}
                     >
-                      JSON View
+                      JSON
                     </button>
                   </div>
 
@@ -149,6 +156,7 @@ export default function ClosePage() {
                       backgroundColor: "#162133",
                       border: "1px solid #1E293B",
                       borderRadius: "0.75rem",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                     }}
                   >
                     {showJson ? (
@@ -162,6 +170,7 @@ export default function ClosePage() {
                           fontSize: "14px",
                           color: "#CBD5E1",
                           fontFamily: "monospace",
+                          lineHeight: "1.6",
                         }}
                       >
                         {JSON.stringify(res.proof_json, null, 2)}
@@ -169,8 +178,10 @@ export default function ClosePage() {
                     ) : (
                       <div style={{ color: "#CBD5E1", fontSize: "16px", lineHeight: "1.6" }}>
                         <div style={{ marginBottom: "12px" }}>
-                          <strong style={{ color: "#E5E7EB" }}>ID:</strong>{" "}
-                          {(res.proof_json.record_id as string) || (res.proof_json.proof_id as string) || "N/A"}
+                          <strong style={{ color: "#E5E7EB" }}>Record ID:</strong>{" "}
+                          {(res.proof_json.record_id as string) ||
+                            (res.proof_json.proof_id as string) ||
+                            "N/A"}
                         </div>
                         <div style={{ marginBottom: "12px" }}>
                           <strong style={{ color: "#E5E7EB" }}>Issuer:</strong>{" "}
@@ -191,20 +202,6 @@ export default function ClosePage() {
               )}
             </div>
           )}
-
-          <div
-            style={{
-              marginTop: "24px",
-              padding: "12px 16px",
-              backgroundColor: "#162133",
-              borderRadius: "0.75rem",
-              border: "1px solid #00B67A",
-              fontSize: "14px",
-              color: "#CBD5E1",
-            }}
-          >
-            Evaluation mode — records expire after 7 days.
-          </div>
         </div>
       </main>
     </Layout>
