@@ -28,25 +28,27 @@ jobs:
       - name: Build application
         run: cd frontend && pnpm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
-          STRIPE_SECRET_KEY: sk_test_fake_key_for_ci_testing
-          STRIPE_WEBHOOK_SECRET: whsec_fake_secret_for_ci_testing
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END PUBLIC KEY-----
+          NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTM4MDIzMCwiZXhwIjoyMDc2OTU2MjMwfQ.Fb9m07gtFgSbjwLqkblqtpHNzJojYRZDpoKf-ToF4cg
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+          VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
+          CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
 
       - name: Start preview server
         run: cd frontend && pnpm start &
         env:
           NODE_ENV: production
-          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
-          SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
-          STRIPE_SECRET_KEY: sk_test_fake_key_for_ci_testing
-          STRIPE_WEBHOOK_SECRET: whsec_fake_secret_for_ci_testing
-          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----
-          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END PUBLIC KEY-----
+          NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
+          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTM4MDIzMCwiZXhwIjoyMDc2OTU2MjMwfQ.Fb9m07gtFgSbjwLqkblqtpHNzJojYRZDpoKf-ToF4cg
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+          VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
+          CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
 
       - name: Wait for server
         run: npx wait-on http://localhost:3000
