@@ -27,11 +27,18 @@ jobs:
 
       - name: Build application
         run: cd frontend && pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
+          SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
 
       - name: Start preview server
         run: cd frontend && pnpm start &
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
+          SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
 
       - name: Wait for server
         run: npx wait-on http://localhost:3000
