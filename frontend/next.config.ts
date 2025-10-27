@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' https://js.stripe.com https://vercel.live https://vitals.vercel-insights.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://vercel.live https://vitals.vercel-insights.com",
               "style-src 'self' 'unsafe-inline'", // Required for Tailwind CSS
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
