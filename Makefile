@@ -19,7 +19,7 @@ help:
 # Bootstrap phase
 bootstrap:
 	@echo "Installing dependencies..."
-	pnpm install
+	cd frontend && pnpm install
 	@echo "Bootstrap complete"
 
 # Schema validation
