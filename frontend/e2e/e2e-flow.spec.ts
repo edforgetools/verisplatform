@@ -343,7 +343,7 @@ test.describe.skip("E2E Flow: Checkout → Webhook → Issuance → S3 Write →
       const request = route.request();
       const url = new URL(request.url());
       const hash = url.searchParams.get("hash");
-      
+
       // Mock verification response
 
       await route.fulfill({

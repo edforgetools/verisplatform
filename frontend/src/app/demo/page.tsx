@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { generateUserId } from "@/lib/ids";
-import { Navigation } from "@/components/Navigation";
+import { Layout } from "@/components/Layout";
 
 interface ProofResponse {
   url: string;
@@ -43,36 +43,61 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <Navigation />
-      <main className="p-6">
-        <div className="max-w-2xl mx-auto space-y-4">
-          <h1 className="text-2xl font-serif">Veris Demo</h1>
-          <p className="text-sm text-neutral-400">
-            Evaluation only. Records may be purged after 7 days as per build plan Phase 2.
+    <Layout>
+      <main>
+        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
+          <h1 style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px" }}>
+            Create a Demo Proof
+          </h1>
+          <p style={{ fontSize: "18px", color: "#CBD5E1", marginBottom: "24px" }}>
+            Files are hashed locally. No content leaves your browser.
           </p>
           <form onSubmit={submit} className="space-y-4">
             <input
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="block w-full bg-neutral-900 p-3 rounded border border-neutral-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-neutral-800"
+              style={{
+                display: "block",
+                width: "100%",
+                backgroundColor: "#162133",
+                padding: "12px",
+                borderRadius: "0.75rem",
+                border: "1px solid #00B67A",
+                color: "#CBD5E1",
+                marginBottom: "16px",
+              }}
             />
             <button
               type="submit"
               disabled={loading || !file}
-              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
+              style={{
+                padding: "12px 24px",
+                backgroundColor: loading || !file ? "#162133" : "#00B67A",
+                color: "white",
+                borderRadius: "0.75rem",
+                fontWeight: 500,
+                height: "44px",
+                cursor: loading || !file ? "not-allowed" : "pointer",
+                border: "none",
+              }}
             >
               {loading ? "Creating Proof..." : "Create Proof"}
             </button>
           </form>
           {res && (
             <div className="mt-6 space-y-4">
-              <div className="p-4 rounded bg-emerald-900/20 border border-emerald-600">
-                <p className="text-green-400 mb-2 font-medium">✓ Proof created successfully!</p>
-                <a
-                  href={res.url}
-                  className="text-emerald-400 hover:text-emerald-300 underline focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded"
-                >
+              <div
+                style={{
+                  padding: "16px",
+                  borderRadius: "0.75rem",
+                  backgroundColor: "#162133",
+                  border: "1px solid #00B67A",
+                }}
+              >
+                <p style={{ color: "#00B67A", marginBottom: "8px", fontWeight: 500 }}>
+                  ✓ Proof created successfully!
+                </p>
+                <a href={res.url} style={{ color: "#00B67A", textDecoration: "underline" }}>
                   View proof →
                 </a>
               </div>
@@ -81,13 +106,30 @@ export default function DemoPage() {
                 <div>
                   <button
                     onClick={() => setShowJson(!showJson)}
-                    className="flex items-center gap-2 text-sm font-medium text-neutral-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded"
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#E5E7EB",
+                      cursor: "pointer",
+                      marginBottom: "8px",
+                    }}
                   >
-                    <span>{showJson ? "▼" : "▶"}</span>
-                    <span>View Canonical Proof JSON</span>
+                    {showJson ? "▼" : "▶"} View Canonical Proof JSON
                   </button>
                   {showJson && (
-                    <pre className="mt-2 p-4 bg-neutral-900 rounded border border-neutral-700 overflow-x-auto text-xs text-neutral-300 font-mono">
+                    <pre
+                      style={{
+                        marginTop: "8px",
+                        padding: "16px",
+                        backgroundColor: "#0e1726",
+                        borderRadius: "0.75rem",
+                        border: "1px solid #162133",
+                        overflowX: "auto",
+                        fontSize: "14px",
+                        color: "#CBD5E1",
+                        fontFamily: "monospace",
+                      }}
+                    >
                       {JSON.stringify(res.proof_json, null, 2)}
                     </pre>
                   )}
@@ -95,8 +137,22 @@ export default function DemoPage() {
               )}
             </div>
           )}
+
+          <div
+            style={{
+              marginTop: "24px",
+              padding: "12px 16px",
+              backgroundColor: "#162133",
+              borderRadius: "0.75rem",
+              border: "1px solid #00B67A",
+              fontSize: "14px",
+              color: "#CBD5E1",
+            }}
+          >
+            Evaluation mode — proofs expire after 7 days.
+          </div>
         </div>
       </main>
-    </div>
+    </Layout>
   );
 }

@@ -1,167 +1,142 @@
 import Link from "next/link";
-import { Navigation } from "@/components/Navigation";
+import { Layout } from "@/components/Layout";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <Navigation />
-
+    <Layout>
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
-            Verifiable Proof of Delivery
-          </h1>
-          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
-            Cryptographically verifiable proof of file integrity using Ed25519 signatures.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/demo"
-              className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
-            >
-              Create Proof
-            </Link>
-            <Link
-              href="/verify"
-              className="px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
-            >
-              Verify
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Three-step explainer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              Create Proof
-            </h3>
-            <p className="text-slate-600 dark:text-slate-300">
-              Upload your file. We compute a SHA-256 hash and sign it with Ed25519, creating a
-              tamper-proof proof.
-            </p>
-            <details className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-left cursor-pointer">
-              <summary>Algorithm: Ed25519 (RFC 8032)</summary>
-              <div className="mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs space-y-1">
-                <div>
-                  <span className="font-semibold">Verify function:</span>
-                  <code className="ml-1">verify(signature, message, publicKey)</code>
-                </div>
-                <div>
-                  <span className="font-semibold">Public key:</span>
-                  <code className="ml-1 break-all">did:web:verisplatform.com</code>
-                </div>
-              </div>
-            </details>
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Register</h3>
-            <p className="text-slate-600 dark:text-slate-300">
-              Your proof is stored in our append-only registry with a unique ULID and timestamp.
-            </p>
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Verify</h3>
-            <p className="text-slate-600 dark:text-slate-300">
-              Verify file integrity anytime. Free, public verification API ensures your proof is
-              authentic.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-slate-900 dark:bg-slate-800 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Secure Your Files?
-          </h2>
-          <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-            Join creative professionals who trust Veris to protect their work with cryptographic
-            proof.
-          </p>
+      <div className="text-center mb-20">
+        <h1 style={{ fontSize: "48px", fontWeight: 700, color: "#F9FAFB", marginBottom: "24px" }}>
+          Verifiable Proof of Delivery
+        </h1>
+        <p
+          style={{
+            fontSize: "18px",
+            color: "#CBD5E1",
+            marginBottom: "32px",
+            maxWidth: "960px",
+            margin: "0 auto 32px",
+          }}
+        >
+          Cryptographically verifiable proof of file integrity using Ed25519 signatures.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/billing"
-            className="inline-flex items-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+            href="/demo"
+            style={{
+              padding: "12px 32px",
+              backgroundColor: "#00B67A",
+              color: "white",
+              borderRadius: "0.75rem",
+              fontWeight: 500,
+              textDecoration: "none",
+              display: "inline-block",
+              height: "44px",
+            }}
           >
-            Get Started
+            Create Proof
+          </Link>
+          <Link
+            href="/verify"
+            style={{
+              padding: "12px 32px",
+              backgroundColor: "#162133",
+              color: "#CBD5E1",
+              borderRadius: "0.75rem",
+              fontWeight: 500,
+              textDecoration: "none",
+              display: "inline-block",
+              height: "44px",
+            }}
+          >
+            Verify
           </Link>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-slate-600 dark:text-slate-400">
-            <p>&copy; 2025 Veris. All rights reserved.</p>
-            <p className="mt-2">
-              <a
-                href="mailto:support@verisplatform.com"
-                className="hover:text-slate-900 dark:hover:text-white"
-              >
-                support@verisplatform.com
-              </a>
-              {" • "}
-              <a
-                href="mailto:billing@verisplatform.com"
-                className="hover:text-slate-900 dark:hover:text-white"
-              >
-                billing@verisplatform.com
-              </a>
-            </p>
+      {/* Three-step explainer */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full mx-auto mb-4"
+            style={{ backgroundColor: "#162133" }}
+          >
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ color: "#00B67A", fontSize: "32px" }}
+            >
+              1
+            </div>
           </div>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
+            Create Proof
+          </h3>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
+            Upload your file. Compute a SHA-256 hash and sign it with Ed25519.
+          </p>
         </div>
-      </footer>
-    </div>
+
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full mx-auto mb-4"
+            style={{ backgroundColor: "#162133" }}
+          >
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ color: "#00B67A", fontSize: "32px" }}
+            >
+              2
+            </div>
+          </div>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
+            Register
+          </h3>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
+            Your proof is stored in our append-only registry with a unique ULID and timestamp.
+          </p>
+        </div>
+
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full mx-auto mb-4"
+            style={{ backgroundColor: "#162133" }}
+          >
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ color: "#00B67A", fontSize: "32px" }}
+            >
+              3
+            </div>
+          </div>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
+            Verify
+          </h3>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
+            Verify file integrity anytime. Free, public verification API.
+          </p>
+        </div>
+      </div>
+
+      {/* Footer Replacement */}
+      <div
+        style={{
+          backgroundColor: "#162133",
+          padding: "48px 24px",
+          borderRadius: "0.75rem",
+          textAlign: "center",
+          maxWidth: "960px",
+          margin: "0 auto",
+        }}
+      >
+        <h2 style={{ fontSize: "24px", fontWeight: 600, color: "#E5E7EB", marginBottom: "16px" }}>
+          About this MVP
+        </h2>
+        <p style={{ fontSize: "18px", color: "#CBD5E1", maxWidth: "800px", margin: "0 auto" }}>
+          Veris is a public proof-of-concept that demonstrates verifiable digital delivery. Proofs
+          created here are for evaluation only and may be purged periodically. Verification is free
+          and public.
+        </p>
+      </div>
+    </Layout>
   );
 }

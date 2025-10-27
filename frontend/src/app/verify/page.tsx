@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Navigation } from "@/components/Navigation";
+import { Layout } from "@/components/Layout";
 
 interface VerificationResult {
   verified: boolean;
@@ -151,9 +151,8 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <Navigation />
-      <main className="p-6">
+    <Layout>
+      <main>
         <Toaster
           position="top-right"
           toastOptions={{
@@ -178,83 +177,157 @@ export default function VerifyPage() {
           }}
         />
 
-        <div className="max-w-2xl mx-auto space-y-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-serif mb-2">Verify Proof</h1>
-            <p className="text-neutral-400">
-              Verify a file against a proof or check a proof ID directly
+        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
+          <div className="text-center" style={{ marginBottom: "32px" }}>
+            <h1
+              style={{ fontSize: "32px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}
+            >
+              Verify Proof
+            </h1>
+            <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
+              Verify file integrity using file, proof ID, or proof.json
             </p>
           </div>
 
-          <form onSubmit={submit} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
+          <form onSubmit={submit} style={{ display: "grid", gap: "24px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "16px",
+              }}
+            >
               {/* File Input */}
               <div>
-                <label htmlFor="file-input" className="block text-sm font-medium mb-2">
-                  File to Verify (Optional)
+                <label
+                  htmlFor="file-input"
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    marginBottom: "8px",
+                    color: "#E5E7EB",
+                  }}
+                >
+                  Upload file + proof.json
                 </label>
                 <input
                   id="file-input"
-                  className="block w-full bg-neutral-900 p-3 rounded border border-neutral-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-emerald-600 file:text-white hover:file:bg-emerald-700"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    backgroundColor: "#162133",
+                    padding: "12px",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #00B67A",
+                    color: "#CBD5E1",
+                  }}
                   type="file"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                   aria-describedby="file-help"
                 />
-                <p id="file-help" className="mt-1 text-xs text-neutral-400">
-                  Select a file to verify against a proof
+                <p id="file-help" style={{ marginTop: "4px", fontSize: "12px", color: "#CBD5E1" }}>
+                  Upload a file to verify
                 </p>
               </div>
 
               {/* Proof ID Input */}
               <div>
-                <label htmlFor="proof-input" className="block text-sm font-medium mb-2">
-                  Proof ID or URL (Optional)
+                <label
+                  htmlFor="proof-input"
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    marginBottom: "8px",
+                    color: "#E5E7EB",
+                  }}
+                >
+                  Paste proof.json
+                </label>
+                <textarea
+                  id="json-input"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    backgroundColor: "#162133",
+                    padding: "12px",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #00B67A",
+                    color: "#CBD5E1",
+                    fontFamily: "monospace",
+                    fontSize: "14px",
+                    minHeight: "100px",
+                  }}
+                  rows={4}
+                  placeholder='{"proof_id": "...", "sha256": "...", ...}'
+                  value={pastedJson}
+                  onChange={(e) => setPastedJson(e.target.value)}
+                  autoComplete="off"
+                  aria-describedby="json-help"
+                />
+                <p id="json-help" style={{ marginTop: "4px", fontSize: "12px", color: "#CBD5E1" }}>
+                  Paste a complete proof.json to verify
+                </p>
+              </div>
+
+              {/* Proof ID Lookup */}
+              <div>
+                <label
+                  htmlFor="proof-input"
+                  style={{
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    marginBottom: "8px",
+                    color: "#E5E7EB",
+                  }}
+                >
+                  Proof ID lookup
                 </label>
                 <input
                   id="proof-input"
-                  className="block w-full bg-neutral-900 p-3 rounded border border-neutral-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    backgroundColor: "#162133",
+                    padding: "12px",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #00B67A",
+                    color: "#CBD5E1",
+                  }}
                   placeholder="Enter proof ID or paste proof URL"
                   value={proofId}
                   onChange={(e) => setProofId(e.target.value)}
                   autoComplete="off"
                   aria-describedby="proof-help"
                 />
-                <p id="proof-help" className="mt-1 text-xs text-neutral-400">
-                  You can paste a full proof URL or just the proof ID
+                <p id="proof-help" style={{ marginTop: "4px", fontSize: "12px", color: "#CBD5E1" }}>
+                  Look up proof by ID or URL
                 </p>
               </div>
-            </div>
-
-            {/* Paste proof.json */}
-            <div>
-              <label htmlFor="json-input" className="block text-sm font-medium mb-2">
-                Or Paste proof.json (Optional)
-              </label>
-              <textarea
-                id="json-input"
-                className="block w-full bg-neutral-900 p-3 rounded border border-neutral-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-mono text-sm"
-                rows={4}
-                placeholder='{"proof_id": "...", "sha256": "...", ...}'
-                value={pastedJson}
-                onChange={(e) => setPastedJson(e.target.value)}
-                autoComplete="off"
-                aria-describedby="json-help"
-              />
-              <p id="json-help" className="mt-1 text-xs text-neutral-400">
-                Paste a complete proof.json to verify
-              </p>
-            </div>
-
-            <div className="text-center">
-              <p className="text-sm text-neutral-400 mb-4">
-                Provide a file, proof ID, or paste proof.json for verification
-              </p>
             </div>
 
             <button
               type="submit"
               disabled={loading || (!file && !proofId.trim() && !pastedJson.trim())}
-              className="w-full px-6 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-neutral-600 disabled:cursor-not-allowed rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              style={{
+                width: "100%",
+                padding: "16px 24px",
+                backgroundColor:
+                  loading || (!file && !proofId.trim() && !pastedJson.trim())
+                    ? "#162133"
+                    : "#00B67A",
+                color: "white",
+                borderRadius: "0.75rem",
+                fontWeight: 500,
+                height: "44px",
+                cursor:
+                  loading || (!file && !proofId.trim() && !pastedJson.trim())
+                    ? "not-allowed"
+                    : "pointer",
+                border: "none",
+              }}
               aria-describedby="submit-help"
             >
               {loading ? (
@@ -291,24 +364,29 @@ export default function VerifyPage() {
           {/* Results Panel */}
           {result && (
             <div
-              className={`mt-8 p-6 rounded-lg border ${
-                result.verified
-                  ? "bg-emerald-900/20 border-emerald-600 text-emerald-100"
-                  : "bg-red-900/20 border-red-600 text-red-100"
-              }`}
+              style={{
+                marginTop: "32px",
+                padding: "24px",
+                borderRadius: "0.75rem",
+                backgroundColor: "#162133",
+                border: `1px solid ${result.verified ? "#00B67A" : "#ef4444"}`,
+                color: result.verified ? "#00B67A" : "#ef4444",
+              }}
               role="region"
               aria-live="polite"
               aria-label="Verification result"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl" aria-hidden="true">
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}
+              >
+                <span style={{ fontSize: "24px" }} aria-hidden="true">
                   {result.verified ? "✅" : "❌"}
                 </span>
                 <div>
-                  <h2 className="text-xl font-semibold">
+                  <h2 style={{ fontSize: "20px", fontWeight: 600 }}>
                     {result.verified ? "Verification Successful" : "Verification Failed"}
                   </h2>
-                  <p className="text-sm opacity-80">
+                  <p style={{ fontSize: "14px", opacity: 0.8 }}>
                     Verified by:{" "}
                     {result.verified_by === "signature"
                       ? "Digital Signature"
@@ -320,19 +398,32 @@ export default function VerifyPage() {
               </div>
 
               {/* Verification Checklist */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-3">Verification Checklist</h3>
-                <div className="grid gap-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{getCheckIcon(result.checks.hash_match)}</span>
+              <div style={{ marginBottom: "24px" }}>
+                <h3
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: 500,
+                    marginBottom: "12px",
+                    color: "#E5E7EB",
+                  }}
+                >
+                  Verification Checklist
+                </h3>
+                <div style={{ display: "grid", gap: "8px", fontSize: "14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "18px" }}>
+                      {getCheckIcon(result.checks.hash_match)}
+                    </span>
                     <span>{getCheckText(result.checks.hash_match, "Hash Match")}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{getCheckIcon(result.checks.signature_valid)}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "18px" }}>
+                      {getCheckIcon(result.checks.signature_valid)}
+                    </span>
                     <span>{getCheckText(result.checks.signature_valid, "Signature Valid")}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "18px" }}>
                       {getCheckIcon(result.checks.timestamp_within_tolerance)}
                     </span>
                     <span>
@@ -342,8 +433,10 @@ export default function VerifyPage() {
                       )}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{getCheckIcon(result.checks.anchor_exists)}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontSize: "18px" }}>
+                      {getCheckIcon(result.checks.anchor_exists)}
+                    </span>
                     <span>{getCheckText(result.checks.anchor_exists, "Anchor Exists")}</span>
                   </div>
                 </div>
@@ -400,6 +493,6 @@ export default function VerifyPage() {
           )}
         </div>
       </main>
-    </div>
+    </Layout>
   );
 }
