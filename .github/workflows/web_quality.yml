@@ -35,7 +35,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
-          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTM4MDIzMCwiZXhwIjoyMDc2OTU2MjMwfQ.Fb9m07gtFgSbjwLqkblqtpHNzJojYRZDpoKf-ToF4cg
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
@@ -48,7 +48,7 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
-          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTM4MDIzMCwiZXhwIjoyMDc2OTU2MjMwfQ.Fb9m07gtFgSbjwLqkblqtpHNzJojYRZDpoKf-ToF4cg
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
