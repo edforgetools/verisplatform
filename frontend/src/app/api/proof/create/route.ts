@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { sha256 } from "@/lib/ed25519-crypto";
 import { assertEntitled } from "@/lib/entitlements";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
@@ -10,11 +9,9 @@ import {
   createAuthError,
   createValidationError,
   createInternalError,
-  ErrorCodes,
 } from "@/lib/http";
 import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
-import { generateProofId } from "@/lib/ids";
 import { createRequestLogger, logger } from "@/lib/logger";
 import { createCanonicalProof } from "@/lib/proof-schema";
 import { recordBillingEvent } from "@/lib/billing-service";

@@ -13,8 +13,7 @@ export default function Home() {
             Verifiable Proof of Delivery
           </h1>
           <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
-            Cryptographic proof of file integrity with Ed25519 signatures. Secure, verifiable, and
-            tamper-proof.
+            Cryptographically verifiable proof of file integrity using Ed25519 signatures.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -59,6 +58,19 @@ export default function Home() {
               Upload your file. We compute a SHA-256 hash and sign it with Ed25519, creating a
               tamper-proof proof.
             </p>
+            <details className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-left cursor-pointer">
+              <summary>Algorithm: Ed25519 (RFC 8032)</summary>
+              <div className="mt-1 p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs space-y-1">
+                <div>
+                  <span className="font-semibold">Verify function:</span>
+                  <code className="ml-1">verify(signature, message, publicKey)</code>
+                </div>
+                <div>
+                  <span className="font-semibold">Public key:</span>
+                  <code className="ml-1 break-all">did:web:verisplatform.com</code>
+                </div>
+              </div>
+            </details>
           </div>
 
           <div className="text-center">

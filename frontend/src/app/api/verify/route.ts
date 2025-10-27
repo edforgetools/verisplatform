@@ -13,13 +13,14 @@ import { ENV } from "@/lib/env";
 
 export const runtime = "nodejs";
 
-interface VerifyByHashRequest {
-  hash: string;
-}
+// Request types intentionally unused but kept for API documentation
+// interface VerifyByHashRequest {
+//   hash: string;
+// }
 
-interface VerifyByFileRequest {
-  file: File;
-}
+// interface VerifyByFileRequest {
+//   file: File;
+// }
 
 interface VerificationResult {
   valid: boolean;

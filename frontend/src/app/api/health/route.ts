@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 
 // Health check endpoint aligned with veris_execution_ops_v4.4.md
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const startTime = Date.now();
   const healthStatus = {
     status: "healthy",
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY,
       );
 
-      const { data, error } = await supabase.from("proofs").select("count").limit(1);
+      const { error } = await supabase.from("proofs").select("count").limit(1);
 
       healthStatus.components.supabase = {
         status: error ? "unhealthy" : "healthy",
