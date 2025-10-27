@@ -31,6 +31,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
           SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
+          STRIPE_SECRET_KEY: sk_test_fake_key_for_ci_testing
+          STRIPE_WEBHOOK_SECRET: whsec_fake_secret_for_ci_testing
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END PUBLIC KEY-----
 
       - name: Start preview server
         run: cd frontend && pnpm start &
@@ -39,6 +43,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://test.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key-for-ci
           SUPABASE_SERVICE_ROLE_KEY: test-service-key-for-ci
+          STRIPE_SECRET_KEY: sk_test_fake_key_for_ci_testing
+          STRIPE_WEBHOOK_SECRET: whsec_fake_secret_for_ci_testing
+          VERIS_SIGNING_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\n-----END PRIVATE KEY-----
+          VERIS_SIGNING_PUBLIC_KEY: -----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END PUBLIC KEY-----
 
       - name: Wait for server
         run: npx wait-on http://localhost:3000
