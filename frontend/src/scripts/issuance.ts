@@ -85,9 +85,8 @@ export async function issueProofForBuffer(
     user_id: options.userId || "system",
   };
 
-  // Create canonical proof
-  const canonicalProof = createCanonicalProof(hash, subject, metadata);
-  const signedProof = canonicalizeAndSign(canonicalProof);
+  // Create canonical proof (already signed with Ed25519)
+  const signedProof = createCanonicalProof(hash);
 
   // Determine output directory
   const outputDir = options.output || path.join(process.cwd(), "registry");
@@ -106,7 +105,7 @@ export async function issueProofForBuffer(
     hash,
     timestamp,
     signature: signedProof.signature,
-    signer: signedProof.signer_fingerprint,
+    signer: signedProof.issuer,
     registryPath,
   };
 }
