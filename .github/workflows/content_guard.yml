@@ -1,0 +1,54 @@
+name: content_guard
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for strategy docs outside mvp.md
+        run: |
+          # Reject any new strategy/plan files outside docs/archive/
+          if find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./docs/mvp.md" -not -path "./docs/README.md" -not -path "./docs/archive/*" -newer "$(git merge-base HEAD origin/main)" | grep -v "^\./README\.md$" | grep -v "^\./docs/api\.md$" | grep -v "^\./docs/csp-security\.md$" | grep -v "^\./docs/env\.md$" | grep -v "^\./docs/vercel-setup\.md$" | grep -v "^\./docs/CHANGELOG\.md$" | grep -q "."; then
+            echo "❌ Strategy documents found outside mvp.md and docs/archive/"
+            echo "All strategy/execution docs must be in docs/archive/ or removed"
+            exit 1
+          fi
+          echo "✅ No unauthorized strategy docs found"
+
+      - name: Validate schema
+        run: |
+          # Validate proof.schema.json exists and has correct structure
+          if [ ! -f "frontend/src/schema/proof.schema.json" ]; then
+            echo "❌ proof.schema.json not found"
+            exit 1
+          fi
+          # Basic JSON validation
+          if ! python3 -m json.tool frontend/src/schema/proof.schema.json > /dev/null 2>&1; then
+            echo "❌ proof.schema.json is not valid JSON"
+            exit 1
+          fi
+          echo "✅ Schema validated"
+
+      - name: Check archive is read-only
+        run: |
+          # Verify archive files are not modified
+          if git diff HEAD origin/main --name-only | grep "docs/archive/"; then
+            echo "❌ Archive files are immutable and cannot be modified"
+            exit 1
+          fi
+          echo "✅ Archive is unchanged"
+
+      - name: Check homepage content
+        run: |
+          # Ensure homepage mentions key phrase (if it exists)
+          if [ -f "frontend/src/app/page.tsx" ]; then
+            if grep -q "Verifiable Proof" frontend/src/app/page.tsx || grep -q "Proof of Delivery" frontend/src/app/page.tsx; then
+              echo "✅ Homepage contains expected content"
+            else
+              echo "⚠️  Homepage may not contain expected content"
+            fi
+          fi

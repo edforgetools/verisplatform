@@ -1,126 +1,73 @@
 /**
  * Canonical proof schema utilities
  * Server-only module for proof creation and validation
+ * Updated to use Ed25519 per MVP §2.1
  */
 
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import canonicalJson from "canonical-json";
-import { signHash, verifySignature, getKeyFingerprint } from "./crypto-server";
-import { sha256 } from "./crypto-server";
+import { signEd25519, verifyEd25519, sha256, getIssuer } from "./ed25519-crypto";
+import { generateProofId } from "./ids";
 
 // Load the JSON schema
-import proofSchemaV1 from "../schema/proof.v1.json";
+import proofSchema from "../schema/proof.schema.json";
 
 const ajv = new Ajv({ strict: true });
 addFormats(ajv);
 
 // Compile the schema validator
-const validateProofV1 = ajv.compile(proofSchemaV1);
+const validateProof = ajv.compile(proofSchema);
 
-export interface ProofSubject {
-  type: string;
-  namespace: string;
-  id: string;
-}
-
-export interface ProofMetadata {
-  [key: string]: unknown;
-}
-
-export interface CanonicalProofV1 {
-  schema_version: 1;
-  hash_algo: "sha256";
-  hash_full: string;
-  signed_at: string;
-  signer_fingerprint: string;
-  subject: ProofSubject;
-  metadata: ProofMetadata;
-  signature: string;
+export interface CanonicalProof {
+  proof_id: string; // ULID
+  sha256: string; // SHA-256 hash
+  issued_at: string; // RFC3339 UTC
+  signature: string; // ed25519:base64
+  issuer: string; // did:web or domain
 }
 
 /**
- * Create a canonical proof object
+ * Create a canonical proof object per MVP §2.1 and §3
  */
-export function createCanonicalProof(
-  hashFull: string,
-  subject: ProofSubject,
-  metadata: ProofMetadata = {},
-): Omit<CanonicalProofV1, "signature"> {
-  const signerFingerprint = getKeyFingerprint();
-  if (!signerFingerprint) {
-    throw new Error("Unable to generate signer fingerprint");
-  }
+export function createCanonicalProof(fileHash: string): CanonicalProof {
+  const proofId = generateProofId();
+  const issuedAt = new Date().toISOString(); // RFC3339 UTC
+  const issuer = getIssuer();
+
+  // Sign sha256 || issued_at with Ed25519 per MVP §2.1
+  const signature = signEd25519(fileHash, issuedAt);
 
   return {
-    schema_version: 1,
-    hash_algo: "sha256",
-    hash_full: hashFull,
-    signed_at: new Date().toISOString(),
-    signer_fingerprint: signerFingerprint,
-    subject,
-    metadata,
+    proof_id: proofId,
+    sha256: fileHash,
+    issued_at: issuedAt,
+    signature: signature,
+    issuer: issuer,
   };
 }
 
 /**
- * Canonicalize and sign a proof object
+ * Verify a canonical proof per MVP §2.3
  */
-export function canonicalizeAndSign(proof: Omit<CanonicalProofV1, "signature">): CanonicalProofV1 {
-  // Validate the proof structure
-  if (!validateProofV1({ ...proof, signature: "placeholder" })) {
-    throw new Error(`Invalid proof structure: ${ajv.errorsText(validateProofV1.errors)}`);
+export function verifyCanonicalProof(proof: CanonicalProof): boolean {
+  // Validate the proof structure against schema
+  if (!validateProof(proof)) {
+    console.error("Proof schema validation failed:", ajv.errorsText(validateProof.errors));
+    return false;
   }
 
-  // Create canonical JSON
-  const canonicalJsonString = canonicalJson(proof);
-
-  // Sign the canonical bytes
-  const signature = signHash(sha256(Buffer.from(canonicalJsonString, "utf8")));
-
-  return {
-    ...proof,
-    signature,
-  };
-}
-
-/**
- * Validate a canonical proof
- */
-export function validateCanonicalProof(proof: unknown): proof is CanonicalProofV1 {
-  return validateProofV1(proof);
-}
-
-/**
- * Verify a canonical proof signature
- */
-export function verifyCanonicalProof(proof: CanonicalProofV1): boolean {
+  // Verify Ed25519 signature
   try {
-    // Recreate the canonical JSON (without signature)
-    const { signature, ...proofWithoutSignature } = proof;
-    const canonicalJsonString = canonicalJson(proofWithoutSignature);
-
-    // Verify the signature against the canonical bytes hash
-    const hashOfCanonical = sha256(Buffer.from(canonicalJsonString, "utf8"));
-    return verifySignature(hashOfCanonical, signature);
+    return verifyEd25519(proof.sha256, proof.issued_at, proof.signature);
   } catch (error) {
-    console.error("Error verifying canonical proof:", error);
+    console.error("Ed25519 verification error:", error);
     return false;
   }
 }
 
 /**
- * Get the canonical JSON string for a proof
+ * Validate a canonical proof structure
  */
-export function getCanonicalJsonString(proof: CanonicalProofV1): string {
-  const { signature, ...proofWithoutSignature } = proof;
-  return canonicalJson(proofWithoutSignature);
-}
-
-/**
- * Get the hash of canonical JSON for a proof
- */
-export function getCanonicalHash(proof: CanonicalProofV1): string {
-  const canonicalJsonString = getCanonicalJsonString(proof);
-  return sha256(Buffer.from(canonicalJsonString, "utf8"));
+export function validateCanonicalProofStructure(proof: unknown): proof is CanonicalProof {
+  return validateProof(proof);
 }

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { verifySignature, getKeyFingerprint } from "@/lib/crypto-server";
+import { verifyCanonicalProof as verifyProofSchema } from "@/lib/proof-schema";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { logger } from "@/lib/logger";
 import { downloadProofFromRegistry } from "@/lib/s3-registry";
-import { verifyCanonicalProof } from "@/lib/proof-schema";
 import { recordProofVerification, recordApiCall } from "@/lib/usage-telemetry";
 import { getRequestId } from "@/lib/request-id";
 import { ENV } from "@/lib/env";
@@ -209,13 +208,13 @@ async function verifyFromS3Registry(hash: string): Promise<VerificationResult> {
     }
 
     // Verify the canonical proof signature
-    const signatureValid = verifyCanonicalProof(proof);
+    const signatureValid = verifyProofSchema(proof);
     if (!signatureValid) {
       errors.push("Signature verification failed");
     }
 
     // Validate timestamp window
-    const timestampValidation = validateTimestampWindow(proof.signed_at);
+    const timestampValidation = validateTimestampWindow(proof.issued_at);
     if (!timestampValidation.valid) {
       errors.push(timestampValidation.error || "Timestamp validation failed");
     }
@@ -224,8 +223,8 @@ async function verifyFromS3Registry(hash: string): Promise<VerificationResult> {
 
     return {
       valid: isValid,
-      signer: proof.signer_fingerprint,
-      issued_at: proof.signed_at,
+      signer: proof.issuer,
+      issued_at: proof.issued_at,
       latency_ms: Date.now() - startTime,
       errors,
     };
@@ -251,7 +250,7 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     const svc = supabaseService();
     const { data: proof, error } = await svc
       .from("proofs")
-      .select("hash_full, signature, timestamp, created_at")
+      .select("hash_full, signature, timestamp, created_at, proof_json")
       .eq("hash_full", hash)
       .single();
 
@@ -265,28 +264,38 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
       };
     }
 
-    // Verify signature if available
-    const signatureVerified = proof.signature
-      ? verifySignature(proof.hash_full, proof.signature)
-      : false;
+    // Verify signature if available (try to parse as canonical proof)
+    let signatureVerified = false;
+    try {
+      // Try to load proof_json as canonical proof
+      if (proof.proof_json && typeof proof.proof_json === "object") {
+        const canonicalProof = proof.proof_json as any;
+        if (canonicalProof.proof_id && canonicalProof.signature) {
+          signatureVerified = verifyProofSchema(canonicalProof);
+        }
+      }
+    } catch (e) {
+      errors.push("Proof format validation failed");
+    }
 
     if (!signatureVerified) {
       errors.push("Signature verification failed");
     }
 
-    // Validate timestamp window
-    const timestampValidation = validateTimestampWindow(proof.timestamp);
+    // Validate timestamp window (use proof_json timestamp if available)
+    const timestamp = (proof.proof_json as any)?.issued_at || proof.timestamp;
+    const timestampValidation = validateTimestampWindow(timestamp);
     if (!timestampValidation.valid) {
       errors.push(timestampValidation.error || "Timestamp validation failed");
     }
 
-    const signerFingerprint = getKeyFingerprint() || "unknown";
+    const issuer = (proof.proof_json as any)?.issuer || "unknown";
     const isValid = signatureVerified && timestampValidation.valid;
 
     return {
       valid: isValid,
-      signer: signerFingerprint,
-      issued_at: proof.timestamp,
+      signer: issuer,
+      issued_at: timestamp,
       latency_ms: Date.now() - startTime,
       errors,
     };

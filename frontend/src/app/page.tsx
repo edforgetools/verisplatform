@@ -10,25 +10,100 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6">
-            Final Means Final
+            Verifiable Proof of Delivery
           </h1>
           <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto">
-            Cryptographic proof of file integrity for creative professionals. Secure, verifiable,
-            and tamper-proof.
+            Cryptographic proof of file integrity with Ed25519 signatures. Secure, verifiable, and
+            tamper-proof.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/demo"
               className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
             >
-              Try Demo
+              Create Proof
             </Link>
             <Link
               href="/verify"
               className="px-8 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
             >
-              Verify File
+              Verify
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Three-step explainer */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+              Create Proof
+            </h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              Upload your file. We compute a SHA-256 hash and sign it with Ed25519, creating a
+              tamper-proof proof.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Register</h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              Your proof is stored in our append-only registry with a unique ULID and timestamp.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Verify</h3>
+            <p className="text-slate-600 dark:text-slate-300">
+              Verify file integrity anytime. Free, public verification API ensures your proof is
+              authentic.
+            </p>
           </div>
         </div>
       </div>
@@ -53,11 +128,10 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              Cryptographic Security
+              Ed25519 Security
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              SHA-256 hashing and RSA digital signatures ensure your files are tamper-proof and
-              verifiable.
+              State-of-the-art Ed25519 signatures ensure your files are tamper-proof and verifiable.
             </p>
           </div>
 
@@ -78,10 +152,10 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              Instant Verification
+              Free Verification
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              Upload any file and instantly verify its integrity against our cryptographic proofs.
+              Public verification API ensures your proofs are accessible and verifiable anytime.
             </p>
           </div>
 
@@ -102,10 +176,10 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              PDF Certificates
+              ULID Identifiers
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
-              Download professional PDF certificates for legal and business documentation.
+              Unique, sortable identifiers with timestamp information for temporal verification.
             </p>
           </div>
         </div>

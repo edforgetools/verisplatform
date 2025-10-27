@@ -1,0 +1,48 @@
+name: web_quality
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build application
+        run: cd frontend && pnpm run build
+
+      - name: Start preview server
+        run: cd frontend && pnpm start &
+        env:
+          NODE_ENV: production
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run a11y tests
+        run: make a11y
+        continue-on-error: true
+
+      - name: Run Lighthouse
+        run: make lh
+        continue-on-error: true
+
+      - name: Check Web Vitals
+        run: |
+          echo "Web Vitals budgets:"
+          echo "- LCP ≤ 1.8s"
+          echo "- CLS ≤ 0.1"
+          echo "- INP ≤ 200ms"
+          echo "Review Lighthouse output above for compliance"

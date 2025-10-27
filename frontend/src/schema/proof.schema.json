@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Veris Proof",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["proof_id", "sha256", "issued_at", "signature", "issuer"],
+  "properties": {
+    "proof_id": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID proof identifier"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash as lowercase hex string"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 UTC timestamp"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^ed25519:[A-Za-z0-9+/=]+$",
+      "description": "Ed25519 signature"
+    },
+    "issuer": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Issuer identifier (did:web or domain)"
+    }
+  }
+}

@@ -238,7 +238,7 @@ function createEnv() {
 let ENV: ReturnType<typeof createEnv>;
 try {
   // Only validate server environment on the server side
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     ENV = createEnv();
   } else {
     // On client side, only validate client environment

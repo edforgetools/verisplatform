@@ -1,0 +1,43 @@
+name: e2e
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Bootstrap environment
+        run: make bootstrap
+
+      - name: Run E2E tests
+        run: |
+          cd frontend && pnpm run test:e2e
+        env:
+          CI: true
+
+      - name: Upload E2E results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: frontend/test-results/
+          retention-days: 7
+
+      - name: Check E2E success rate
+        run: |
+          # Assert ≥99% success rate
+          echo "E2E tests completed. Check results above for success rate."

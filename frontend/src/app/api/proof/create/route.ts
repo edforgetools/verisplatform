@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { signHash } from "@/lib/crypto-server";
+import { sha256 } from "@/lib/ed25519-crypto";
 import { assertEntitled } from "@/lib/entitlements";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
@@ -16,7 +16,7 @@ import { getAuthenticatedUserId } from "@/lib/auth-server";
 import { streamFileToTmp, cleanupTmpFile } from "@/lib/file-upload";
 import { generateProofId } from "@/lib/ids";
 import { createRequestLogger, logger } from "@/lib/logger";
-import { createCanonicalProof, canonicalizeAndSign } from "@/lib/proof-schema";
+import { createCanonicalProof } from "@/lib/proof-schema";
 import { recordBillingEvent } from "@/lib/billing-service";
 import { recordProofCreation, recordApiCall } from "@/lib/usage-telemetry";
 import { withIdempotency } from "@/lib/idempotency";
@@ -121,23 +121,10 @@ async function handleCreateProof(req: NextRequest) {
     tmpPath = fileTmpPath;
 
     const ts = new Date().toISOString();
-    const proofId = generateProofId();
 
-    // Create canonical proof with schema v1
-    const subject = {
-      type: "file",
-      namespace: "veris",
-      id: proofId,
-    };
-
-    const metadata = {
-      file_name: validatedRequest.file.name,
-      project: validatedRequest.project || null,
-      user_id: validatedRequest.user_id,
-    };
-
-    const canonicalProof = createCanonicalProof(hashFull, subject, metadata);
-    const signedProof = canonicalizeAndSign(canonicalProof);
+    // Create canonical proof with Ed25519 per MVP §2.1
+    const canonicalProof = createCanonicalProof(hashFull);
+    const proofId = canonicalProof.proof_id;
 
     const svc = supabaseService();
     const { data, error } = await svc
@@ -149,11 +136,11 @@ async function handleCreateProof(req: NextRequest) {
         version: 1,
         hash_full: hashFull,
         hash_prefix: hashPrefix,
-        signature: signedProof.signature,
+        signature: canonicalProof.signature,
         timestamp: ts,
         project: validatedRequest.project,
         visibility: "public",
-        proof_json: signedProof,
+        proof_json: canonicalProof,
       })
       .select()
       .single();
@@ -198,7 +185,7 @@ async function handleCreateProof(req: NextRequest) {
       proof_id: data.id,
       hash: hashFull,
       timestamp: ts,
-      signature: signedProof.signature,
+      signature: canonicalProof.signature,
       url: `/proof/${data.id}`,
     };
 
