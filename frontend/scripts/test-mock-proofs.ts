@@ -7,11 +7,7 @@
  */
 
 import { createHash, randomBytes } from "crypto";
-import {
-  createCanonicalProof,
-  canonicalizeAndSign,
-  CanonicalProofV1,
-} from "../src/lib/proof-schema";
+import { createCanonicalProof, CanonicalProof } from "../src/lib/proof-schema";
 import { generateProofId } from "../src/lib/ids";
 
 /**
@@ -25,38 +21,13 @@ function generateMockFileContent(): Buffer {
 /**
  * Create a mock proof with sample data
  */
-function createMockProof(index: number): CanonicalProofV1 {
+function createMockProof(index: number): CanonicalProof {
   // Generate mock file content
   const mockContent = generateMockFileContent();
   const hash = createHash("sha256").update(mockContent).digest("hex");
 
-  // Generate unique proof ID
-  const proofId = generateProofId();
-
-  // Create subject
-  const subject = {
-    type: "file",
-    namespace: "veris.mock",
-    id: proofId,
-  };
-
-  // Create metadata
-  const metadata = {
-    filename: `mock-file-${index + 1}.txt`,
-    size: mockContent.length,
-    mimeType: "text/plain",
-    createdBy: "mock-script",
-    batch: Math.floor(index / 10) + 1, // Group into batches of 10
-    description: `Mock proof #${index + 1} for testing purposes`,
-    tags: ["mock", "test", "sample"],
-    createdAt: new Date().toISOString(),
-  };
-
-  // Create canonical proof
-  const canonicalProof = createCanonicalProof(hash, subject, metadata);
-
-  // Sign the proof
-  return canonicalizeAndSign(canonicalProof);
+  // Create canonical proof (already signed with Ed25519)
+  return createCanonicalProof(hash);
 }
 
 async function testMockProofCreation(): Promise<void> {
@@ -67,28 +38,27 @@ async function testMockProofCreation(): Promise<void> {
     const proof = createMockProof(0);
 
     console.log("✅ Mock proof created successfully!");
-    console.log(`   ID: ${proof.subject.id}`);
-    console.log(`   Hash: ${proof.hash_full}`);
-    console.log(`   Schema version: ${proof.schema_version}`);
-    console.log(`   Signed at: ${proof.signed_at}`);
-    console.log(`   Signer fingerprint: ${proof.signer_fingerprint}`);
-    console.log(`   Metadata:`, JSON.stringify(proof.metadata, null, 2));
+    console.log(`   ID: ${proof.proof_id}`);
+    console.log(`   Hash: ${proof.sha256}`);
+    console.log(`   Issued at: ${proof.issued_at}`);
+    console.log(`   Issuer: ${proof.issuer}`);
+    console.log(`   Signature: ${proof.signature.substring(0, 50)}...`);
 
     // Validate the proof structure
-    if (proof.schema_version !== 1) {
-      throw new Error("Invalid schema version");
+    if (!proof.proof_id) {
+      throw new Error("Missing proof ID");
     }
 
-    if (proof.hash_algo !== "sha256") {
-      throw new Error("Invalid hash algorithm");
+    if (!proof.sha256 || !/^[a-f0-9]{64}$/.test(proof.sha256)) {
+      throw new Error("Invalid hash format");
     }
 
-    if (!proof.signature) {
-      throw new Error("Missing signature");
+    if (!proof.signature || !proof.signature.startsWith("ed25519:")) {
+      throw new Error("Invalid signature format");
     }
 
-    if (!proof.subject.id) {
-      throw new Error("Missing subject ID");
+    if (!proof.issuer) {
+      throw new Error("Missing issuer");
     }
 
     console.log("✅ Proof structure validation passed!");
