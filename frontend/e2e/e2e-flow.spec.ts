@@ -179,7 +179,7 @@ test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Veri
     await expect(page.locator("h1")).toContainText("Verify Proof");
 
     // Mock verification API
-    await page.route("**/api/proof/verify", async (route) => {
+    await page.route("**/api/verify", async (route) => {
       const request = route.request();
       const requestBody = await request.postDataJSON();
 
@@ -187,19 +187,11 @@ test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Veri
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          success: true,
-          verification: {
-            hashMatch: true,
-            signatureValid: true,
-            proofId: requestBody.id || testProofId,
-            verifiedAt: new Date().toISOString(),
-            checks: {
-              hashMatch: "Pass",
-              signatureValid: "Pass",
-              registryExists: "Pass",
-              schemaValid: "Pass",
-            },
-          },
+          valid: true,
+          signer: "did:web:veris.example",
+          issued_at: new Date().toISOString(),
+          latency_ms: 42,
+          errors: [],
         }),
       });
     });
@@ -295,7 +287,7 @@ test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Veri
     await expect(page.locator("text=Failed to create proof")).toBeVisible();
 
     // Test verification failure
-    await page.route("**/api/proof/verify", async (route) => {
+    await page.route("**/api/verify", async (route) => {
       await route.fulfill({
         status: 404,
         contentType: "application/json",
@@ -347,35 +339,22 @@ test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Veri
     await helpers.waitForProofCreation();
 
     // Mock verification with file upload
-    await page.route("**/api/proof/verify", async (route) => {
+    await page.route("**/api/verify", async (route) => {
       const request = route.request();
-      let file: File | null = null;
-
-      try {
-        const formData = await (request as any).formData();
-        file = formData.get("file") as File;
-      } catch (error) {
-        // Handle case where formData is not available
-        console.log("Could not parse form data:", error);
-      }
+      const url = new URL(request.url());
+      const hash = url.searchParams.get("hash");
+      
+      // Mock verification response
 
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          success: true,
-          verification: {
-            hashMatch: true,
-            signatureValid: true,
-            proofId: testProofId,
-            verifiedAt: new Date().toISOString(),
-            checks: {
-              hashMatch: "Pass",
-              signatureValid: "Pass",
-              registryExists: "Pass",
-              schemaValid: "Pass",
-            },
-          },
+          valid: true,
+          signer: "did:web:veris.example",
+          issued_at: new Date().toISOString(),
+          latency_ms: 42,
+          errors: [],
         }),
       });
     });
