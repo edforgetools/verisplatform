@@ -83,9 +83,7 @@ export default function Home() {
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
             Close Delivery
           </h3>
-          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Upload file to create a record.
-          </p>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>Upload file to create a record.</p>
         </div>
 
         <div className="text-center">
@@ -103,9 +101,7 @@ export default function Home() {
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
             Record Closure
           </h3>
-          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Immutable ULID + timestamp.
-          </p>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>Immutable ULID + timestamp.</p>
         </div>
 
         <div className="text-center">
@@ -123,9 +119,7 @@ export default function Home() {
           <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#E5E7EB", marginBottom: "8px" }}>
             Check Delivery
           </h3>
-          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>
-            Verify anytime, publicly.
-          </p>
+          <p style={{ fontSize: "18px", color: "#CBD5E1" }}>Verify anytime, publicly.</p>
         </div>
       </div>
 
@@ -145,7 +139,8 @@ export default function Home() {
         </h2>
         <p style={{ fontSize: "18px", color: "#CBD5E1", maxWidth: "800px", margin: "0 auto" }}>
           Veris is a public proof‑of‑concept that demonstrates verifiable closure of digital
-          deliveries. Records here are temporary and may be purged. Checking deliveries is free and public.
+          deliveries. Records here are temporary and may be purged. Checking deliveries is free and
+          public.
         </p>
       </div>
     </Layout>
