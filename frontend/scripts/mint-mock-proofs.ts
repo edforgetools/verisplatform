@@ -16,11 +16,7 @@
 
 import { createHash, randomBytes } from "crypto";
 import { uploadProofToRegistry } from "../src/lib/s3-registry";
-import {
-  createCanonicalProof,
-  canonicalizeAndSign,
-  CanonicalProofV1,
-} from "../src/lib/proof-schema";
+import { createCanonicalProof, CanonicalProof } from "../src/lib/proof-schema";
 import { generateProofId } from "../src/lib/ids";
 import { ENV } from "../src/lib/env";
 
@@ -40,46 +36,21 @@ function generateMockFileContent(): Buffer {
 /**
  * Create a mock proof with sample data
  */
-function createMockProof(index: number): CanonicalProofV1 {
+function createMockProof(index: number): CanonicalProof {
   // Generate mock file content
   const mockContent = generateMockFileContent();
   const hash = createHash("sha256").update(mockContent).digest("hex");
 
-  // Generate unique proof ID
-  const proofId = generateProofId();
-
-  // Create subject
-  const subject = {
-    type: "file",
-    namespace: "veris.mock",
-    id: proofId,
-  };
-
-  // Create metadata
-  const metadata = {
-    filename: `mock-file-${index + 1}.txt`,
-    size: mockContent.length,
-    mimeType: "text/plain",
-    createdBy: "mock-script",
-    batch: Math.floor(index / 10) + 1, // Group into batches of 10
-    description: `Mock proof #${index + 1} for testing purposes`,
-    tags: ["mock", "test", "sample"],
-    createdAt: new Date().toISOString(),
-  };
-
-  // Create canonical proof
-  const canonicalProof = createCanonicalProof(hash, subject, metadata);
-
-  // Sign the proof
-  return canonicalizeAndSign(canonicalProof);
+  // Create canonical proof (already signed with Ed25519)
+  return createCanonicalProof(hash);
 }
 
 /**
  * Upload mock proof to staging bucket
  */
-async function uploadMockProof(proof: CanonicalProofV1, index: number): Promise<void> {
+async function uploadMockProof(proof: CanonicalProof, index: number): Promise<void> {
   try {
-    console.log(`[${index + 1}] Uploading proof ${proof.subject.id}...`);
+    console.log(`[${index + 1}] Uploading proof ${proof.proof_id}...`);
 
     const result = await uploadProofToRegistry(proof, {
       stagingBucket: ENV.server.REGISTRY_S3_STAGING_BUCKET,
@@ -123,9 +94,9 @@ async function mintMockProofs(options: MockProofOptions): Promise<void> {
       const proof = createMockProof(i);
 
       if (dryRun) {
-        console.log(`[${i + 1}] Would upload proof ${proof.subject.id}`);
-        console.log(`[${i + 1}]   Hash: ${proof.hash_full}`);
-        console.log(`[${i + 1}]   Metadata: ${JSON.stringify(proof.metadata, null, 2)}`);
+        console.log(`[${i + 1}] Would upload proof ${proof.proof_id}`);
+        console.log(`[${i + 1}]   Hash: ${proof.sha256}`);
+        console.log(`[${i + 1}]   Issuer: ${proof.issuer}`);
         successCount++;
       } else {
         await uploadMockProof(proof, i);
