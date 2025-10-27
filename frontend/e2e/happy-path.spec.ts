@@ -19,7 +19,7 @@ test.describe("Happy Path E2E Tests", () => {
     // Step 1: Navigate to home page
     await page.goto("/");
     await expect(page).toHaveTitle(/Veris/);
-    await expect(page.locator("h1")).toContainText("Final Means Final");
+    await expect(page.locator("h1")).toContainText("Verifiable Proof of Delivery");
 
     // Step 2: Navigate to billing page to start checkout flow
     await page.click('a[href="/billing"]');

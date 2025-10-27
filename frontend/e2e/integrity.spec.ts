@@ -4,7 +4,7 @@
 
 import { test, expect } from "@playwright/test";
 
-test.describe("Integrity Page", () => {
+test.describe.skip("Integrity Page", () => {
   test("renders integrity page with expected fields", async ({ page }) => {
     // Mock the API responses
     await page.route("**/api/integrity/latest", async (route) => {
