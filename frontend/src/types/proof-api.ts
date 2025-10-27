@@ -33,18 +33,8 @@ export const ProofSubjectSchema = z.object({
 
 export const ProofMetadataSchema = z.record(z.string(), z.unknown());
 
-export const CanonicalProofV1Schema = z.object({
-  schema_version: z.literal(1),
-  hash_algo: z.literal("sha256"),
-  hash_full: z.string().regex(/^[a-f0-9]{64}$/, "Invalid hash format"),
-  signed_at: z.string().datetime(),
-  signer_fingerprint: z.string().min(1, "Signer fingerprint is required"),
-  subject: ProofSubjectSchema,
-  metadata: ProofMetadataSchema,
-  signature: z.string().min(1, "Signature is required"),
-});
-
-export type CanonicalProofV1 = z.infer<typeof CanonicalProofV1Schema>;
+// Note: Old CanonicalProofV1Schema removed - use CanonicalProof from proof-schema.ts instead
+// CanonicalProof has Ed25519 signature per MVP §2.1
 
 // Error response schema
 export const ErrorResponseSchema = z.object({
@@ -64,9 +54,7 @@ export function validateCreateProofResponse(data: unknown): CreateProofResponse 
   return CreateProofResponseSchema.parse(data);
 }
 
-export function validateCanonicalProof(data: unknown): CanonicalProofV1 {
-  return CanonicalProofV1Schema.parse(data);
-}
+// Note: validateCanonicalProof removed - use verifyCanonicalProof from proof-schema.ts instead
 
 export function validateErrorResponse(data: unknown): ErrorResponse {
   return ErrorResponseSchema.parse(data);

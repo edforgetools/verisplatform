@@ -9,10 +9,8 @@ import {
   HeadObjectCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
-import { signHash } from "./crypto-server";
 import { sha256 } from "./crypto-server";
-import { getCanonicalJsonString } from "./proof-schema";
-import { CanonicalProofV1 } from "./proof-schema";
+import { CanonicalProof, verifyCanonicalProof } from "./proof-schema";
 import zlib from "zlib";
 import { promisify } from "util";
 
@@ -128,7 +126,7 @@ function createSnapshotManifest(
  */
 export async function createRegistrySnapshot(
   batch: number,
-  proofs: CanonicalProofV1[],
+  proofs: CanonicalProof[],
 ): Promise<SnapshotResult> {
   const bucket = process.env.REGISTRY_S3_BUCKET;
   const prefix = process.env.REGISTRY_S3_PREFIX || "registry/";
