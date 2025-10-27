@@ -46,12 +46,12 @@ async function handleRegistrySearch(req: NextRequest): Promise<NextResponse> {
         return jsonOk(
           {
             found: true,
-            proof_id: proof.subject.id,
+            proof_id: proof.proof_id,
             source: "s3",
-            proof_url: `https://${process.env.REGISTRY_S3_PRODUCTION_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/registry/proofs/${proof.subject.id}.json`,
-            hash: proof.hash_full,
-            issued_at: proof.signed_at,
-            signer: proof.signer_fingerprint,
+            proof_url: `https://${process.env.REGISTRY_S3_PRODUCTION_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/registry/proofs/${proof.proof_id}.json`,
+            hash: proof.sha256,
+            issued_at: proof.issued_at,
+            signer: proof.issuer,
           },
           "registry-search",
         );

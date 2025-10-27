@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { verifySignature } from "@/lib/crypto-server";
+import { verifyCanonicalProof } from "@/lib/proof-schema";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
