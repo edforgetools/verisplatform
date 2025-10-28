@@ -216,7 +216,7 @@ function createEnv() {
   if (!clientEnv.success) {
     const errors = clientEnv.error.issues
       .map(
-        (err: { path: (string | number)[]; message: string }) =>
+        (err) =>
           `${err.path.join(".")}: ${err.message}`,
       )
       .join("\n");
@@ -226,7 +226,7 @@ function createEnv() {
   if (!serverEnv.success) {
     const errors = serverEnv.error.issues
       .map(
-        (err: { path: (string | number)[]; message: string }) =>
+        (err) =>
           `${err.path.join(".")}: ${err.message}`,
       )
       .join("\n");
@@ -260,7 +260,7 @@ try {
     if (!clientEnv.success) {
       const errors = clientEnv.error.issues
         .map(
-          (err: { path: (string | number)[]; message: string }) =>
+          (err) =>
             `${err.path.join(".")}: ${err.message}`,
         )
         .join("\n");
