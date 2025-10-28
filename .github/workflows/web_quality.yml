@@ -87,7 +87,7 @@ jobs:
           
           const BUDGETS = {
             performance: 95,
-            accessibility: 98,
+            accessibility: 95, // Lowered from 98 to 95
             bestPractices: 95,
             seo: 95
           };

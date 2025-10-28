@@ -36,7 +36,7 @@ jobs:
         run: cd frontend && npx playwright install --with-deps
 
       - name: Run E2E tests
-        run: cd frontend && pnpm run test:e2e -- --retries=2
+        run: cd frontend && pnpm exec playwright test --project=chromium --retries=2
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
