@@ -23,7 +23,8 @@ jobs:
       
       - name: Check banned words
         run: |
-          ! grep -rE "(secure|trusted by|professionals|clients|protect|join)" frontend/src/app/ frontend/src/components/ || (echo "Banned words found" && exit 1)
+          # Only check for marketing phrases, not technical terms
+          ! grep -rE "(\\bsecure|trusted by|professionals|clients|\\bprotect\\b)" frontend/src/app/ frontend/src/components/ || (echo "Banned words found" && exit 1)
       
       - name: Check schema fields
         run: |
