@@ -147,8 +147,7 @@ test.describe("Happy Path E2E Tests", () => {
     // Check page elements for current prototype billing screen
     await expect(page.locator("h1")).toContainText("Prototype Billing Screen");
     await expect(page.locator("text=Example Plan")).toBeVisible();
-    await expect(page.locator("text=/\\$9/"))
-      .toBeVisible();
+    await expect(page.locator("text=/\\$9/")).toBeVisible();
     await expect(page.locator("text=/Coming Soon/i")).toBeVisible();
   });
 

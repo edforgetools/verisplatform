@@ -24,6 +24,25 @@ jobs:
           && sudo apt update \
           && sudo apt install gh -y
 
+      - name: Wait for current E2E run to complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Waiting for current E2E run to complete..."
+          while true; do
+            CURRENT_RUN=$(gh run list --workflow=e2e.yml --limit=1 --json status,conclusion --jq '.[0]')
+            STATUS=$(echo "$CURRENT_RUN" | jq -r '.status')
+            CONCLUSION=$(echo "$CURRENT_RUN" | jq -r '.conclusion')
+            
+            if [ "$STATUS" = "completed" ]; then
+              echo "E2E run completed with conclusion: $CONCLUSION"
+              break
+            fi
+            
+            echo "E2E run status: $STATUS, waiting..."
+            sleep 30
+          done
+
       - name: Check last 3 runs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
