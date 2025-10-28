@@ -215,20 +215,14 @@ function createEnv() {
   // Handle validation errors
   if (!clientEnv.success) {
     const errors = clientEnv.error.issues
-      .map(
-        (err) =>
-          `${err.path.join(".")}: ${err.message}`,
-      )
+      .map((err) => `${err.path.join(".")}: ${err.message}`)
       .join("\n");
     throw new Error(`Client environment validation failed:\n${errors}`);
   }
 
   if (!serverEnv.success) {
     const errors = serverEnv.error.issues
-      .map(
-        (err) =>
-          `${err.path.join(".")}: ${err.message}`,
-      )
+      .map((err) => `${err.path.join(".")}: ${err.message}`)
       .join("\n");
     throw new Error(`Server environment validation failed:\n${errors}`);
   }
@@ -259,10 +253,7 @@ try {
 
     if (!clientEnv.success) {
       const errors = clientEnv.error.issues
-        .map(
-          (err) =>
-            `${err.path.join(".")}: ${err.message}`,
-        )
+        .map((err) => `${err.path.join(".")}: ${err.message}`)
         .join("\n");
       throw new Error(`Client environment validation failed:\n${errors}`);
     }
