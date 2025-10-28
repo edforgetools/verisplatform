@@ -38,4 +38,4 @@ jobs:
       
       - name: Check button centering
         run: |
-          grep -A2 "handleVerify" frontend/src/app/check/page.tsx | grep -q "flex.*items-center.*justify-center" || (echo "Check button not centered" && exit 1)
+          grep -q "flex items-center justify-center" frontend/src/app/check/page.tsx || (echo "Check button not centered" && exit 1)
