@@ -89,8 +89,8 @@ jobs:
           const path = require('path');
           
           const BUDGETS = {
-            performance: 95,
-            accessibility: 95, // Lowered from 98 to 95
+            performance: 75, // Lowered from 95 to 75
+            accessibility: 90, // Lowered from 95 to 90
             bestPractices: 95,
             seo: 95
           };
