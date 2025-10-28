@@ -142,7 +142,7 @@ export function verifyCanonicalProof(proof: {
     if (isNaN(timestamp.getTime())) {
       errors.push(`Invalid issued_at timestamp: ${proof.issued_at}`);
     }
-  } catch (e) {
+  } catch {
     errors.push(`Invalid issued_at format: ${proof.issued_at}`);
   }
 

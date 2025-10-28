@@ -152,14 +152,17 @@ function generateChangelog(commits: Commit[], newVersion: string): string {
     return `## [${newVersion}] - ${new Date().toISOString().split("T")[0]}\n\nNo changes.`;
   }
 
-  const groupedCommits = commits.reduce((groups, commit) => {
-    const type = COMMIT_TYPES[commit.type as keyof typeof COMMIT_TYPES] || "Other Changes";
-    if (!groups[type]) {
-      groups[type] = [];
-    }
-    groups[type].push(commit);
-    return groups;
-  }, {} as Record<string, Commit[]>);
+  const groupedCommits = commits.reduce(
+    (groups, commit) => {
+      const type = COMMIT_TYPES[commit.type as keyof typeof COMMIT_TYPES] || "Other Changes";
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+      groups[type].push(commit);
+      return groups;
+    },
+    {} as Record<string, Commit[]>,
+  );
 
   let changelog = `## [${newVersion}] - ${new Date().toISOString().split("T")[0]}\n\n`;
 

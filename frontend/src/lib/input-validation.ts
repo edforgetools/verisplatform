@@ -531,7 +531,7 @@ export function validateJsonInput(jsonString: string): ValidationResult<unknown>
       success: true,
       data: parsed,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       errors: ["Invalid JSON format"],

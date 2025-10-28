@@ -58,10 +58,7 @@ export function ProofSkeleton() {
         {/* Actions Skeleton */}
         <div className="mt-8 flex flex-wrap gap-3">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-10 bg-slate-200 dark:bg-slate-600 rounded-lg w-32"
-            ></div>
+            <div key={i} className="h-10 bg-slate-200 dark:bg-slate-600 rounded-lg w-32"></div>
           ))}
         </div>
 

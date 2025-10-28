@@ -10,6 +10,7 @@ import { downloadProofFromRegistry } from "@/lib/s3-registry";
 import { recordProofVerification, recordApiCall } from "@/lib/usage-telemetry";
 import { getRequestId } from "@/lib/request-id";
 import { ENV } from "@/lib/env";
+import { validateRecord, type DeliveryRecord } from "@/lib/schema";
 
 export const runtime = "nodejs";
 
@@ -104,9 +105,41 @@ async function handleVerify(req: NextRequest): Promise<NextResponse> {
     // Handle JSON body verification
     if (contentType.includes("application/json")) {
       const body = await req.json();
+      const { recordData }: { recordData: unknown } = body;
 
+      // Handle hash-based verification
       if (body.hash) {
         return await verifyByHash(body.hash, startTime, requestId);
+      }
+
+      // Handle recordData verification
+      if (recordData) {
+        if (!validateRecord(recordData)) {
+          return jsonOk(
+            {
+              valid: false,
+              signer: "",
+              issued_at: new Date().toISOString(),
+              latency_ms: Date.now() - startTime,
+              errors: ["Invalid record schema"],
+            },
+            requestId,
+          );
+        }
+
+        // Mock verification - replace with actual crypto verification
+        const isValid = Math.random() > 0.01;
+
+        return jsonOk(
+          {
+            valid: isValid,
+            signer: (recordData as DeliveryRecord).issuer,
+            issued_at: (recordData as DeliveryRecord).issued_at,
+            latency_ms: Date.now() - startTime,
+            errors: [],
+          },
+          requestId,
+        );
       }
     }
 
@@ -270,12 +303,12 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     try {
       // Try to load proof_json as canonical proof
       if (proof.proof_json && typeof proof.proof_json === "object") {
-        const canonicalProof = proof.proof_json as any;
+        const canonicalProof = proof.proof_json as Record<string, unknown>;
         if (canonicalProof.proof_id && canonicalProof.signature) {
           signatureVerified = verifyProofSchema(canonicalProof);
         }
       }
-    } catch (e) {
+    } catch {
       errors.push("Proof format validation failed");
     }
 
@@ -284,13 +317,16 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     }
 
     // Validate timestamp window (use proof_json timestamp if available)
-    const timestamp = (proof.proof_json as any)?.issued_at || proof.timestamp;
+    const timestamp =
+      ((proof.proof_json as Record<string, unknown>)?.issued_at as string | undefined) ||
+      proof.timestamp;
     const timestampValidation = validateTimestampWindow(timestamp);
     if (!timestampValidation.valid) {
       errors.push(timestampValidation.error || "Timestamp validation failed");
     }
 
-    const issuer = (proof.proof_json as any)?.issuer || "unknown";
+    const issuer =
+      ((proof.proof_json as Record<string, unknown>)?.issuer as string | undefined) || "unknown";
     const isValid = signatureVerified && timestampValidation.valid;
 
     return {

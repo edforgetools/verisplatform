@@ -108,7 +108,7 @@ export async function uploadProofToRegistry(
   const uploadedAt = new Date().toISOString();
 
   // Upload to staging bucket
-  const stagingResult = await s3Client.send(
+  await s3Client.send(
     new PutObjectCommand({
       Bucket: registryConfig.stagingBucket,
       Key: key,
@@ -124,7 +124,7 @@ export async function uploadProofToRegistry(
   );
 
   // Upload to production bucket
-  const productionResult = await s3Client.send(
+  await s3Client.send(
     new PutObjectCommand({
       Bucket: registryConfig.productionBucket,
       Key: key,

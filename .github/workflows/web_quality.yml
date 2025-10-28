@@ -1,4 +1,5 @@
-name: web_quality
+name: Web Quality
+
 on:
   push:
     branches: [main]
@@ -11,19 +12,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
+  lighthouse:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: |
@@ -42,7 +43,7 @@ jobs:
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
           CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
 
-      - name: Start preview server
+      - name: Start server
         run: cd frontend && pnpm start &
         env:
           NODE_ENV: production
@@ -58,18 +59,140 @@ jobs:
       - name: Wait for server
         run: npx wait-on http://localhost:3000
 
-      - name: Run a11y tests
+      - name: Install Lighthouse
+        run: npm install -g @lhci/cli@0.13.x
+
+      - name: Run Lighthouse CI
+        run: |
+          cd frontend
+          
+          # Run Lighthouse on all core MVP routes
+          ROUTES=("/" "/close" "/check" "/billing")
+          
+          for route in "${ROUTES[@]}"; do
+            route_name=$(echo "$route" | sed 's/\//-/g' | sed 's/^-//' | sed 's/-$//' || echo "home")
+            echo "Running Lighthouse on: $route (output: lighthouse-$route_name)"
+            
+            lighthouse http://localhost:3000$route \
+              --output=json,html \
+              --output-path=./lighthouse-$route_name \
+              --chrome-flags="--headless --no-sandbox" \
+              --only-categories=performance,accessibility,best-practices,seo
+          done
+          
+          # Parse results and assert budgets
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          const BUDGETS = {
+            performance: 95,
+            accessibility: 98,
+            bestPractices: 95,
+            seo: 95
+          };
+          
+          const routes = ['/', '/close', '/check', '/billing'];
+          let allPassed = true;
+          
+          for (const route of routes) {
+            let routeName = route.replace(/\//g, '-') || 'home';
+            routeName = routeName.replace(/^-/, '').replace(/-$/, '') || 'home';
+            const reportPath = path.join(__dirname, `lighthouse-${routeName}.report.json`);
+            
+            if (!fs.existsSync(reportPath)) {
+              console.error(`Missing report: ${reportPath}`);
+              allPassed = false;
+              continue;
+            }
+            
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            
+            console.log(`\n📊 ${route}:`);
+            console.log(`  Performance: ${report.categories.performance.score * 100} (target: ${BUDGETS.performance})`);
+            console.log(`  Accessibility: ${report.categories.accessibility.score * 100} (target: ${BUDGETS.accessibility})`);
+            console.log(`  Best Practices: ${report.categories['best-practices'].score * 100} (target: ${BUDGETS.bestPractices})`);
+            console.log(`  SEO: ${report.categories.seo.score * 100} (target: ${BUDGETS.seo})`);
+            
+            // Check budgets
+            const checks = [
+              ['performance', report.categories.performance.score * 100 >= BUDGETS.performance],
+              ['accessibility', report.categories.accessibility.score * 100 >= BUDGETS.accessibility],
+              ['best-practices', report.categories['best-practices'].score * 100 >= BUDGETS.bestPractices],
+              ['seo', report.categories.seo.score * 100 >= BUDGETS.seo]
+            ];
+            
+            checks.forEach(([name, passed]) => {
+              if (!passed) {
+                console.error(`❌ ${route} failed ${name} budget`);
+                allPassed = false;
+              }
+            });
+          }
+          
+          if (!allPassed) {
+            console.error('\n❌ Lighthouse budgets not met');
+            process.exit(1);
+          } else {
+            console.log('\n✅ All Lighthouse budgets met');
+          }
+          EOF
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: frontend/lighthouse-*.html
+          retention-days: 7
+
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          pnpm install
+
+      - name: Build application
+        run: cd frontend && pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+          VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
+          CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
+
+      - name: Start server
+        run: cd frontend && pnpm start &
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
+          VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
+          CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run Pa11y CI
         run: cd frontend && pnpm run a11y
         continue-on-error: true
-
-      - name: Run Lighthouse
-        run: cd frontend && pnpm run lighthouse
-        continue-on-error: true
-
-      - name: Check Web Vitals
-        run: |
-          echo "Web Vitals budgets:"
-          echo "- LCP ≤ 1.8s"
-          echo "- CLS ≤ 0.1"
-          echo "- INP ≤ 200ms"
-          echo "Review Lighthouse output above for compliance"

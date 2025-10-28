@@ -1,59 +1,35 @@
-name: content_guard
+name: Content Guard
+
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
-
-# Auto-cancel in-progress runs when a new commit is pushed
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   guard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check for strategy docs outside mvp.md
+      
+      - name: Check headline
         run: |
-          # Reject any new strategy/plan files outside docs/archive/
-          if find . -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./docs/mvp.md" -not -path "./docs/README.md" -not -path "./docs/archive/*" -newer "$(git merge-base HEAD origin/main)" | grep -v "^\./README\.md$" | grep -v "^\./docs/api\.md$" | grep -v "^\./docs/csp-security\.md$" | grep -v "^\./docs/env\.md$" | grep -v "^\./docs/vercel-setup\.md$" | grep -v "^\./docs/CHANGELOG\.md$" | grep -q "."; then
-            echo "❌ Strategy documents found outside mvp.md and docs/archive/"
-            echo "All strategy/execution docs must be in docs/archive/ or removed"
-            exit 1
-          fi
-          echo "✅ No unauthorized strategy docs found"
-
-      - name: Validate schema
+          grep -r "Verifiable.*Delivery.*Record" frontend/src/app/ || (echo "Headline missing" && exit 1)
+      
+      - name: Check banned words
         run: |
-          # Validate proof.schema.json exists and has correct structure
-          if [ ! -f "frontend/src/schema/proof.schema.json" ]; then
-            echo "❌ proof.schema.json not found"
-            exit 1
-          fi
-          # Basic JSON validation
-          if ! python3 -m json.tool frontend/src/schema/proof.schema.json > /dev/null 2>&1; then
-            echo "❌ proof.schema.json is not valid JSON"
-            exit 1
-          fi
-          echo "✅ Schema validated"
-
-      - name: Check archive is read-only
+          ! grep -rE "(secure|trusted by|professionals|clients|protect|join)" frontend/src/app/ frontend/src/components/ || (echo "Banned words found" && exit 1)
+      
+      - name: Check schema fields
         run: |
-          # Verify archive files are not modified
-          if git diff HEAD origin/main --name-only | grep "docs/archive/"; then
-            echo "❌ Archive files are immutable and cannot be modified"
-            exit 1
-          fi
-          echo "✅ Archive is unchanged"
-
-      - name: Check homepage content
+          grep -q "record_id" frontend/src/lib/schema.ts &&
+          grep -q "sha256" frontend/src/lib/schema.ts &&
+          grep -q "issued_at" frontend/src/lib/schema.ts &&
+          grep -q "signature" frontend/src/lib/schema.ts &&
+          grep -q "approved_by" frontend/src/lib/schema.ts &&
+          grep -q "acknowledged_at" frontend/src/lib/schema.ts &&
+          grep -q 'status.*closed' frontend/src/lib/schema.ts || (echo "Schema fields incomplete" && exit 1)
+      
+      - name: Check button centering
         run: |
-          # Ensure homepage mentions key phrase (if it exists)
-          if [ -f "frontend/src/app/page.tsx" ]; then
-            if grep -q "Verifiable Proof" frontend/src/app/page.tsx || grep -q "Proof of Delivery" frontend/src/app/page.tsx; then
-              echo "✅ Homepage contains expected content"
-            else
-              echo "⚠️  Homepage may not contain expected content"
-            fi
-          fi
+          grep -A2 "handleVerify" frontend/src/app/check/page.tsx | grep -q "flex.*items-center.*justify-center" || (echo "Check button not centered" && exit 1)

@@ -6,7 +6,7 @@
 
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { signEd25519, verifyEd25519, sha256, getIssuer } from "./ed25519-crypto";
+import { signEd25519, verifyEd25519, getIssuer } from "./ed25519-crypto";
 import { generateProofId } from "./ids";
 
 // Load the JSON schema

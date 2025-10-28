@@ -3,7 +3,7 @@
  * Integrates with Stripe usage recording and pricing rules
  */
 
-import { stripe, stripeConfig } from "./stripe";
+import { stripeConfig } from "./stripe";
 import { shouldBill, BillingEvent } from "./pricing_rules";
 import { supabaseService } from "./db";
 import { logger } from "./logger";
@@ -139,10 +139,13 @@ export async function getBillingMetrics(
 
   const billableEventTypes = [...new Set(billingEvents.filter(shouldBill).map((e) => e.type))];
 
-  const eventsByType = billingEvents.reduce((acc, event) => {
-    acc[event.type] = (acc[event.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const eventsByType = billingEvents.reduce(
+    (acc, event) => {
+      acc[event.type] = (acc[event.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return {
     totalEvents,
@@ -168,11 +171,14 @@ export async function getBillingEventsTotal(): Promise<Record<string, number>> {
     throw new Error(`Failed to fetch billing events total: ${error.message}`);
   }
 
-  const totals = (events || []).reduce((acc, event) => {
-    const eventType = event.event.replace("billing.", "");
-    acc[eventType] = (acc[eventType] || 0) + (event.value || 0);
-    return acc;
-  }, {} as Record<string, number>);
+  const totals = (events || []).reduce(
+    (acc, event) => {
+      const eventType = event.event.replace("billing.", "");
+      acc[eventType] = (acc[eventType] || 0) + (event.value || 0);
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return totals;
 }

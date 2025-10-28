@@ -2,10 +2,10 @@
 
 /**
  * Stripe Test Environment Seeding Script
- * 
+ *
  * This script creates the required Stripe products and prices in the test environment.
  * It's safe to run multiple times - it will skip existing products/prices.
- * 
+ *
  * Usage:
  *   pnpm run seed:stripe
  *   or
@@ -132,7 +132,7 @@ async function createOrGetPrice(price: PriceConfig): Promise<Stripe.Price> {
     });
 
     const existing = existingPrices.data.find(
-      (p) => p.metadata.veris_price === price.metadata.veris_price
+      (p) => p.metadata.veris_price === price.metadata.veris_price,
     );
 
     if (existing) {
@@ -182,18 +182,22 @@ async function main() {
 
     console.log("\nPrices:");
     Object.entries(prices).forEach(([key, price]) => {
-      console.log(`  - ${price.nickname}: ${price.id} (${(price.unit_amount! / 100).toFixed(2)} ${price.currency.toUpperCase()})`);
+      console.log(
+        `  - ${price.nickname}: ${price.id} (${(price.unit_amount! / 100).toFixed(2)} ${price.currency.toUpperCase()})`,
+      );
     });
 
     console.log("\n✅ Stripe seeding completed successfully!");
     console.log("\n💡 Next steps:");
     console.log("1. Update your environment variables with the price IDs:");
     Object.entries(prices).forEach(([key, price]) => {
-      const envVar = key === "pro_monthly" ? "NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID" : "NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID";
+      const envVar =
+        key === "pro_monthly"
+          ? "NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID"
+          : "NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID";
       console.log(`   ${envVar}=${price.id}`);
     });
     console.log("2. Test your integration with these price IDs");
-
   } catch (error) {
     console.error("❌ Stripe seeding failed:", error);
     process.exit(1);

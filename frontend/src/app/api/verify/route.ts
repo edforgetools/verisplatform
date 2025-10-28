@@ -270,12 +270,12 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     try {
       // Try to load proof_json as canonical proof
       if (proof.proof_json && typeof proof.proof_json === "object") {
-        const canonicalProof = proof.proof_json as any;
+        const canonicalProof = proof.proof_json as Record<string, unknown>;
         if (canonicalProof.proof_id && canonicalProof.signature) {
           signatureVerified = verifyProofSchema(canonicalProof);
         }
       }
-    } catch (e) {
+    } catch {
       errors.push("Proof format validation failed");
     }
 
@@ -284,13 +284,16 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     }
 
     // Validate timestamp window (use proof_json timestamp if available)
-    const timestamp = (proof.proof_json as any)?.issued_at || proof.timestamp;
+    const timestamp =
+      ((proof.proof_json as Record<string, unknown>)?.issued_at as string | undefined) ||
+      proof.timestamp;
     const timestampValidation = validateTimestampWindow(timestamp);
     if (!timestampValidation.valid) {
       errors.push(timestampValidation.error || "Timestamp validation failed");
     }
 
-    const issuer = (proof.proof_json as any)?.issuer || "unknown";
+    const issuer =
+      ((proof.proof_json as Record<string, unknown>)?.issuer as string | undefined) || "unknown";
     const isValid = signatureVerified && timestampValidation.valid;
 
     return {

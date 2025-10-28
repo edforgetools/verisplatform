@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 interface SwaggerUIProps {
-  spec: any;
+  spec: Record<string, unknown>;
 }
 
 export function SwaggerUI({ spec }: SwaggerUIProps) {
@@ -16,29 +16,34 @@ export function SwaggerUI({ spec }: SwaggerUIProps) {
       try {
         // Dynamically import Swagger UI
         const SwaggerUIBundle = (await import("swagger-ui-dist/swagger-ui-bundle.js"))
-          .default as any;
+          .default as unknown;
 
         // Clear any existing content
         swaggerRef.current.innerHTML = "";
 
         // Initialize Swagger UI
-        SwaggerUIBundle({
-          spec: spec,
-          dom_id: swaggerRef.current,
-          deepLinking: true,
-          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.presets.standalone],
-          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-          layout: "StandaloneLayout",
-          tryItOutEnabled: true,
-          requestInterceptor: (request: any) => {
-            // Add any custom request headers or modifications here
-            return request;
-          },
-          responseInterceptor: (response: any) => {
-            // Add any custom response handling here
-            return response;
-          },
-        });
+        if (typeof SwaggerUIBundle === "function") {
+          (SwaggerUIBundle as (config: Record<string, unknown>) => void)({
+            spec: spec,
+            dom_id: swaggerRef.current,
+            deepLinking: true,
+            presets: [
+              (SwaggerUIBundle as Record<string, unknown>).presets?.apis,
+              (SwaggerUIBundle as Record<string, unknown>).presets?.standalone,
+            ],
+            plugins: [(SwaggerUIBundle as Record<string, unknown>).plugins?.DownloadUrl],
+            layout: "StandaloneLayout",
+            tryItOutEnabled: true,
+            requestInterceptor: (request: Record<string, unknown>) => {
+              // Add any custom request headers or modifications here
+              return request;
+            },
+            responseInterceptor: (response: Record<string, unknown>) => {
+              // Add any custom response handling here
+              return response;
+            },
+          });
+        }
       } catch (error) {
         console.error("Failed to load Swagger UI:", error);
         if (swaggerRef.current) {

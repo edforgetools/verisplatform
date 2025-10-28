@@ -9,7 +9,7 @@ export async function GET(_request: NextRequest) {
     status: "healthy",
     timestamp: new Date().toISOString(),
     version: "1.0.0",
-    components: {} as Record<string, any>,
+    components: {} as Record<string, unknown>,
     slo: {
       uptime: "≥99.9%",
       latency: "p95 ≤2s",
@@ -94,7 +94,11 @@ export async function GET(_request: NextRequest) {
 
     // Determine overall health status
     const unhealthyComponents = Object.values(healthStatus.components).filter(
-      (component: any) => component.status === "unhealthy",
+      (component) =>
+        component &&
+        typeof component === "object" &&
+        "status" in component &&
+        component.status === "unhealthy",
     );
 
     if (unhealthyComponents.length > 0) {
@@ -103,9 +107,9 @@ export async function GET(_request: NextRequest) {
 
     // Check SLO compliance
     if (responseTime > 2000) {
-      (healthStatus.slo as any).latency_status = "violated";
+      (healthStatus.slo as Record<string, unknown>).latency_status = "violated";
     } else {
-      (healthStatus.slo as any).latency_status = "compliant";
+      (healthStatus.slo as Record<string, unknown>).latency_status = "compliant";
     }
 
     return NextResponse.json(healthStatus, {

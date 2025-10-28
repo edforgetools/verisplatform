@@ -28,7 +28,7 @@ export function getIdempotencyKey(req: Request): string | null {
  */
 export async function checkIdempotency(key: string): Promise<{
   exists: boolean;
-  response?: any;
+  response?: unknown;
   status?: number;
 }> {
   try {
@@ -124,7 +124,7 @@ async function getRedis(): Promise<import("ioredis").default | null> {
 
     const { default: Redis } = await import("ioredis");
     return new Redis(url);
-  } catch (error) {
+  } catch {
     return null;
   }
 }

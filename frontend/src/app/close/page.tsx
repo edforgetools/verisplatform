@@ -33,6 +33,14 @@ export default function ClosePage() {
       setRes(data);
       setShowBanner(true);
 
+      // Focus management for screen readers
+      setTimeout(() => {
+        const successBanner = document.querySelector('[role="alert"]');
+        if (successBanner instanceof HTMLElement) {
+          successBanner.focus();
+        }
+      }, 100);
+
       // Auto-dismiss banner after 4s
       setTimeout(() => setShowBanner(false), 4000);
     } catch (error) {
@@ -45,48 +53,27 @@ export default function ClosePage() {
   return (
     <Layout>
       <main>
-        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <h1
-            style={{
-              fontSize: "48px",
-              fontWeight: 600,
-              color: "#E5E7EB",
-              marginBottom: "8px",
-              marginTop: "96px",
-            }}
-          >
-            Close Delivery
-          </h1>
-          <p style={{ fontSize: "18px", color: "#CBD5E1", marginTop: "8px", marginBottom: "24px" }}>
+        <div className="max-w-4xl mx-auto px-4">
+          <h1 className="text-5xl font-semibold text-gray-200 mb-2 mt-24">Close Delivery</h1>
+          <p className="text-lg text-slate-300 mt-2 mb-6">
             Files are hashed locally. No content leaves your browser.
           </p>
 
           <form onSubmit={submit} className="space-y-4">
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="flex flex-col gap-4">
               <input
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  backgroundColor: "#162133",
-                  padding: "12px",
-                  borderRadius: "0.75rem",
-                  border: "1px solid #1E293B",
-                  color: "#CBD5E1",
-                }}
+                className="input"
               />
               <button
                 type="submit"
                 disabled={loading || !file}
-                className="flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none"
-                style={{
-                  backgroundColor: loading || !file ? "#162133" : "#00B67A",
-                  color: "white",
-                  borderRadius: "0.75rem",
-                  cursor: loading || !file ? "not-allowed" : "pointer",
-                  border: "none",
-                }}
+                className={`btn-submit ${
+                  loading || !file
+                    ? "bg-slate-900 cursor-not-allowed"
+                    : "bg-emerald-500 cursor-pointer"
+                }`}
               >
                 {loading ? "Closing Delivery..." : "Close Delivery"}
               </button>
@@ -97,103 +84,60 @@ export default function ClosePage() {
             <div className="mt-4 space-y-4">
               {showBanner && (
                 <div
-                  style={{
-                    padding: "16px",
-                    borderRadius: "0.75rem",
-                    backgroundColor: "#162133",
-                    border: "1px solid #00B67A",
-                    animation: "fadeIn 0.15s ease-in",
-                    transition: "opacity 0.15s",
-                  }}
+                  role="alert"
+                  tabIndex={-1}
+                  className="p-4 rounded-xl bg-slate-900 border border-emerald-500 animate-fadeIn transition-opacity duration-150"
                 >
-                  <p style={{ color: "#00B67A", fontWeight: 500 }}>
+                  <p className="text-emerald-500 font-medium">
                     ✅ Delivery Closed — record created at {new Date().toLocaleString()}.
                   </p>
                 </div>
               )}
 
               {res.proof_json && (
-                <div style={{ marginTop: showBanner ? "16px" : "0" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "12px",
-                      marginBottom: "16px",
-                    }}
-                  >
+                <div className={showBanner ? "mt-4" : ""}>
+                  <div className="flex gap-3 mb-4">
                     <button
                       onClick={() => setShowJson(false)}
-                      style={{
-                        background: !showJson ? "#162133" : "transparent",
-                        border: "1px solid #1E293B",
-                        color: "#E5E7EB",
-                        cursor: "pointer",
-                        padding: "8px 16px",
-                        borderRadius: "0.5rem",
-                        fontSize: "14px",
-                      }}
+                      className={`${
+                        !showJson ? "bg-slate-900" : "bg-transparent"
+                      } border border-slate-800 text-gray-200 cursor-pointer px-4 py-2 rounded-lg text-sm`}
                     >
                       Summary
                     </button>
                     <button
                       onClick={() => setShowJson(true)}
-                      style={{
-                        background: showJson ? "#162133" : "transparent",
-                        border: "1px solid #1E293B",
-                        color: "#E5E7EB",
-                        cursor: "pointer",
-                        padding: "8px 16px",
-                        borderRadius: "0.5rem",
-                        fontSize: "14px",
-                      }}
+                      className={`${
+                        showJson ? "bg-slate-900" : "bg-transparent"
+                      } border border-slate-800 text-gray-200 cursor-pointer px-4 py-2 rounded-lg text-sm`}
                     >
                       JSON
                     </button>
                   </div>
 
-                  <div
-                    style={{
-                      padding: "16px",
-                      backgroundColor: "#162133",
-                      border: "1px solid #1E293B",
-                      borderRadius: "0.75rem",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    }}
-                  >
+                  <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl shadow-md">
                     {showJson ? (
-                      <pre
-                        style={{
-                          margin: 0,
-                          padding: "16px",
-                          backgroundColor: "#0e1726",
-                          borderRadius: "0.5rem",
-                          overflowX: "auto",
-                          fontSize: "14px",
-                          color: "#CBD5E1",
-                          fontFamily: "monospace",
-                          lineHeight: "1.6",
-                        }}
-                      >
+                      <pre className="m-0 p-4 bg-slate-950 rounded-lg overflow-x-auto text-sm text-slate-300 font-mono leading-relaxed">
                         {JSON.stringify(res.proof_json, null, 2)}
                       </pre>
                     ) : (
-                      <div style={{ color: "#CBD5E1", fontSize: "16px", lineHeight: "1.6" }}>
-                        <div style={{ marginBottom: "12px" }}>
-                          <strong style={{ color: "#E5E7EB" }}>Record ID:</strong>{" "}
+                      <div className="text-slate-300 text-base leading-relaxed">
+                        <div className="mb-3">
+                          <strong className="text-gray-200">Record ID:</strong>{" "}
                           {(res.proof_json.record_id as string) ||
                             (res.proof_json.proof_id as string) ||
                             "N/A"}
                         </div>
-                        <div style={{ marginBottom: "12px" }}>
-                          <strong style={{ color: "#E5E7EB" }}>Issuer:</strong>{" "}
+                        <div className="mb-3">
+                          <strong className="text-gray-200">Issuer:</strong>{" "}
                           {(res.proof_json.issuer as string) || "N/A"}
                         </div>
-                        <div style={{ marginBottom: "12px" }}>
-                          <strong style={{ color: "#E5E7EB" }}>Issued at:</strong>{" "}
+                        <div className="mb-3">
+                          <strong className="text-gray-200">Issued at:</strong>{" "}
                           {(res.proof_json.issued_at as string) || "N/A"}
                         </div>
                         <div>
-                          <strong style={{ color: "#E5E7EB" }}>Status:</strong>{" "}
+                          <strong className="text-gray-200">Status:</strong>{" "}
                           {(res.proof_json.status as string) || "closed"}
                         </div>
                       </div>

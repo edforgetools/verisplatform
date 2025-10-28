@@ -138,10 +138,10 @@ class ExternalServicesValidator {
       if (ENV.server.REGISTRY_BUCKET_STAGING) {
         try {
           await s3Client.send(
-              new HeadObjectCommand({
-                Bucket: ENV.server.REGISTRY_BUCKET_STAGING,
-                Key: "test-object"
-              }),
+            new HeadObjectCommand({
+              Bucket: ENV.server.REGISTRY_BUCKET_STAGING,
+              Key: "test-object",
+            }),
           );
           this.addResult("AWS S3 (Staging)", "success", "Staging bucket accessible", {
             bucket: ENV.server.REGISTRY_BUCKET_STAGING,
@@ -160,10 +160,10 @@ class ExternalServicesValidator {
       if (ENV.server.REGISTRY_BUCKET_PROD) {
         try {
           await s3Client.send(
-              new HeadObjectCommand({
-                Bucket: ENV.server.REGISTRY_BUCKET_PROD,
-                Key: "test-object"
-              }),
+            new HeadObjectCommand({
+              Bucket: ENV.server.REGISTRY_BUCKET_PROD,
+              Key: "test-object",
+            }),
           );
           this.addResult("AWS S3 (Production)", "success", "Production bucket accessible", {
             bucket: ENV.server.REGISTRY_BUCKET_PROD,

@@ -8,11 +8,9 @@
  * 4. Adds helper script to confirm current mode
  */
 
-import { stripe } from "./stripe";
 import { supabaseService } from "./db";
 import { logger } from "./logger";
 import { recordBillingEvent } from "./billing-service";
-import { BillingEvent } from "./pricing_rules";
 
 export interface BillingConfig {
   mode: "test" | "live";
@@ -90,7 +88,7 @@ export async function getUserBillingStatus(userId: string): Promise<{
 }> {
   const svc = supabaseService();
 
-  const { data: user, error: userError } = await svc
+  const { data: user } = await svc
     .from("app_users")
     .select("stripe_customer_id")
     .eq("user_id", userId)
@@ -117,7 +115,6 @@ export async function createProofWithBilling(
   request: ProofBillingRequest,
 ): Promise<ProofBillingResponse> {
   const { userId, file, project, customerEmail } = request;
-  const config = getBillingConfig();
 
   // Check if user has active subscription
   const billingStatus = await getUserBillingStatus(userId);
@@ -189,8 +186,6 @@ async function createCheckoutForProof(
   project?: string,
   customerEmail?: string,
 ): Promise<ProofBillingResponse> {
-  const config = getBillingConfig();
-
   // Create checkout session
   const checkoutResponse = await fetch("/api/stripe/create-checkout", {
     method: "POST",
@@ -309,7 +304,7 @@ export async function getBillingLogs(
     status: string;
     created_at: string;
     completed_at: string | null;
-    metadata: any;
+    metadata: Record<string, unknown>;
   }>
 > {
   const svc = supabaseService();
@@ -343,7 +338,7 @@ export function confirmStripeMode(): {
       ...config,
       isConfigured: true,
     };
-  } catch (error) {
+  } catch {
     return {
       mode: "test",
       priceId: "",

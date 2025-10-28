@@ -75,7 +75,7 @@ export async function isAdminUser(request: Request): Promise<boolean> {
     // Create a Supabase admin client to check user role
     const { supabaseAdmin } = await import("./supabaseAdmin");
     const supabase = supabaseAdmin();
-    
+
     const { data, error } = await supabase
       .from("app_users")
       .select("role")

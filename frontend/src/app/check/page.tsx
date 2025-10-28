@@ -37,7 +37,7 @@ export default function CheckPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(proofJson),
           });
-        } catch (parseError) {
+        } catch {
           setResult({
             valid: false,
             signer: "",
@@ -68,7 +68,7 @@ export default function CheckPage() {
 
       const data = await res.json();
       setResult(data);
-    } catch (error) {
+    } catch {
       setResult({
         valid: false,
         signer: "",
@@ -84,35 +84,19 @@ export default function CheckPage() {
   return (
     <Layout>
       <main>
-        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px" }}>
-          <h1
-            style={{
-              fontSize: "48px",
-              fontWeight: 600,
-              color: "#E5E7EB",
-              marginBottom: "8px",
-              marginTop: "96px",
-            }}
-          >
-            Check Delivery
-          </h1>
-          <p style={{ fontSize: "18px", color: "#CBD5E1", marginTop: "8px", marginBottom: "24px" }}>
+        <div className="max-w-4xl mx-auto px-4">
+          <h1 className="text-5xl font-semibold text-gray-200 mb-2 mt-24">Check Delivery</h1>
+          <p className="text-lg text-slate-300 mt-2 mb-6">
             Verify file integrity using file, record ID, or record.json.
           </p>
 
-          <form onSubmit={submit} style={{ display: "grid", gap: "24px" }}>
-            <div style={{ display: "grid", gap: "24px" }}>
+          <form onSubmit={submit} className="grid gap-6">
+            <div className="grid gap-6">
               {/* File Input */}
               <div>
                 <label
                   htmlFor="file-input"
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    marginBottom: "8px",
-                    color: "#E5E7EB",
-                  }}
+                  className="block text-sm font-medium mb-2 text-gray-200"
                 >
                   1. Upload file + record.json (Recommended)
                 </label>
@@ -120,15 +104,7 @@ export default function CheckPage() {
                   id="file-input"
                   type="file"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    backgroundColor: "#162133",
-                    padding: "12px",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #1E293B",
-                    color: "#CBD5E1",
-                  }}
+                  className="input"
                 />
               </div>
 
@@ -136,13 +112,7 @@ export default function CheckPage() {
               <div>
                 <label
                   htmlFor="json-input"
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    marginBottom: "8px",
-                    color: "#E5E7EB",
-                  }}
+                  className="block text-sm font-medium mb-2 text-gray-200"
                 >
                   2. Paste record.json
                 </label>
@@ -152,17 +122,7 @@ export default function CheckPage() {
                   placeholder='{"record_id": "..."}'
                   value={pastedJson}
                   onChange={(e) => setPastedJson(e.target.value)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    backgroundColor: "#162133",
-                    padding: "12px",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #1E293B",
-                    color: "#CBD5E1",
-                    fontFamily: "monospace",
-                    fontSize: "14px",
-                  }}
+                  className="textarea"
                 />
               </div>
 
@@ -170,13 +130,7 @@ export default function CheckPage() {
               <div>
                 <label
                   htmlFor="record-input"
-                  style={{
-                    display: "block",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    marginBottom: "8px",
-                    color: "#E5E7EB",
-                  }}
+                  className="block text-sm font-medium mb-2 text-gray-200"
                 >
                   3. Record ID lookup
                 </label>
@@ -186,94 +140,64 @@ export default function CheckPage() {
                   placeholder="Enter record ID"
                   value={recordId}
                   onChange={(e) => setRecordId(e.target.value)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    backgroundColor: "#162133",
-                    padding: "12px",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #1E293B",
-                    color: "#CBD5E1",
-                  }}
+                  className="input"
                 />
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading || (!file && !recordId.trim() && !pastedJson.trim())}
-              className="flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none"
-              style={{
-                backgroundColor:
+            <div className="mt-8 flex items-center justify-center">
+              <button
+                type="submit"
+                disabled={loading || (!file && !recordId.trim() && !pastedJson.trim())}
+                className={`btn-submit ${
                   loading || (!file && !recordId.trim() && !pastedJson.trim())
-                    ? "#162133"
-                    : "#00B67A",
-                color: "white",
-                borderRadius: "0.75rem",
-                cursor:
-                  loading || (!file && !recordId.trim() && !pastedJson.trim())
-                    ? "not-allowed"
-                    : "pointer",
-                border: "none",
-              }}
-            >
-              {loading ? "Checking..." : "Check Delivery"}
-            </button>
+                    ? "bg-slate-900 cursor-not-allowed"
+                    : "bg-emerald-500 cursor-pointer"
+                }`}
+              >
+                {loading ? "Checking..." : "Check Delivery"}
+              </button>
+            </div>
           </form>
 
           {/* Results Panel */}
           {result && (
             <div
-              style={{
-                marginTop: "24px",
-                padding: "16px",
-                borderRadius: "0.75rem",
-                backgroundColor: "#162133",
-                border: result.valid ? "1px solid #00B67A" : "1px solid #ef4444",
-                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              }}
+              className={`mt-6 p-4 rounded-xl bg-slate-900 shadow-md ${
+                result.valid ? "border-emerald-500" : "border-red-500"
+              } border`}
               role="region"
               aria-live="assertive"
+              aria-atomic="true"
               aria-label="Verification result"
             >
               {result.valid ? (
                 <div>
-                  <p
-                    style={{
-                      fontSize: "16px",
-                      color: "#00B67A",
-                      fontWeight: 500,
-                    }}
-                  >
+                  <p className="text-base text-emerald-500 font-medium">
                     ✅ Delivery confirmed — file matches record.
                   </p>
                   {result.signer && (
-                    <p style={{ fontSize: "14px", color: "#CBD5E1" }}>
-                      Verified by: {result.signer}
-                    </p>
+                    <p className="text-sm text-slate-300">Verified by: {result.signer}</p>
                   )}
                   {result.issued_at && (
-                    <p style={{ fontSize: "14px", color: "#CBD5E1" }}>
+                    <p className="text-sm text-slate-300">
                       Issued at: {new Date(result.issued_at).toLocaleString()}
                     </p>
                   )}
                 </div>
               ) : (
                 <div>
-                  <div style={{ marginTop: "12px" }}>
+                  <div className="mt-3">
                     {result.errors && result.errors.length > 0 ? (
-                      <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                      <ul className="m-0 pl-5">
                         {result.errors.map((error, idx) => (
-                          <li
-                            key={idx}
-                            style={{ fontSize: "14px", color: "#CBD5E1", marginTop: "8px" }}
-                          >
+                          <li key={idx} className="text-sm text-slate-300 mt-2">
                             {error}
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p style={{ fontSize: "14px", color: "#ef4444" }}>Verification failed.</p>
+                      <p className="text-sm text-red-500">Verification failed.</p>
                     )}
                   </div>
                 </div>

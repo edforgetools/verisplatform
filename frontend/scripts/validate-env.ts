@@ -22,7 +22,7 @@ config({ path: ".env.local" });
 const createBuildTimeSchema = (isCI: boolean) => {
   const baseSchema = {
     // Required for all environments
-    NEXT_PUBLIC_SUPABASE_URL: isCI 
+    NEXT_PUBLIC_SUPABASE_URL: isCI
       ? z.string().min(1, "Supabase URL required")
       : z.string().url("Invalid Supabase URL"),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: isCI
@@ -43,7 +43,7 @@ const createBuildTimeSchema = (isCI: boolean) => {
     VERIS_SIGNING_PUBLIC_KEY: isCI
       ? z.string().min(1, "Veris signing public key required")
       : z.string().min(100, "Veris signing public key too short"),
-  
+
     // CRON authentication (at least one required)
     CRON_JOB_TOKEN: isCI
       ? z.string().min(1, "CRON token required").optional()
@@ -51,7 +51,7 @@ const createBuildTimeSchema = (isCI: boolean) => {
     CRON_SECRET: isCI
       ? z.string().min(1, "CRON secret required").optional()
       : z.string().min(16, "CRON secret must be at least 16 characters").optional(),
-    
+
     // Optional for development, but validated if present
     NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
     NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
@@ -67,46 +67,53 @@ const createBuildTimeSchema = (isCI: boolean) => {
     AWS_ROLE_ARN: z.string().startsWith("arn:aws:iam::", "Invalid AWS role ARN format").optional(),
     REGISTRY_S3_BUCKET: z.string().min(1, "Registry S3 bucket required").optional(),
     REGISTRY_S3_STAGING_BUCKET: z.string().min(1, "Registry S3 staging bucket required").optional(),
-    REGISTRY_S3_PRODUCTION_BUCKET: z.string().min(1, "Registry S3 production bucket required").optional(),
+    REGISTRY_S3_PRODUCTION_BUCKET: z
+      .string()
+      .min(1, "Registry S3 production bucket required")
+      .optional(),
     REGISTRY_S3_PREFIX: z.string().optional(),
     ARWEAVE_GATEWAY_URL: z.string().url("Invalid Arweave gateway URL").optional(),
     ARWEAVE_WALLET_JSON: z.string().optional(),
     SENTRY_DSN: z.string().url("Invalid Sentry DSN").optional(),
   };
 
-  return z.object(baseSchema).refine(
-    (v) => {
-      // At least one CRON authentication method must be provided
-      return !!(v.CRON_JOB_TOKEN || v.CRON_SECRET);
-    },
-    { 
-      message: "Either CRON_JOB_TOKEN or CRON_SECRET must be provided",
-      path: ["CRON_JOB_TOKEN"]
-    },
-  ).refine(
-    (v) => {
-      // If Redis REST is configured, both URL and token are required
-      if (v.UPSTASH_REDIS_REST_URL || v.UPSTASH_REDIS_REST_TOKEN) {
-        return !!(v.UPSTASH_REDIS_REST_URL && v.UPSTASH_REDIS_REST_TOKEN);
-      }
-      return true;
-    },
-    {
-      message: "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required when using Upstash Redis REST",
-      path: ["UPSTASH_REDIS_REST_URL"]
-    }
-  );
+  return z
+    .object(baseSchema)
+    .refine(
+      (v) => {
+        // At least one CRON authentication method must be provided
+        return !!(v.CRON_JOB_TOKEN || v.CRON_SECRET);
+      },
+      {
+        message: "Either CRON_JOB_TOKEN or CRON_SECRET must be provided",
+        path: ["CRON_JOB_TOKEN"],
+      },
+    )
+    .refine(
+      (v) => {
+        // If Redis REST is configured, both URL and token are required
+        if (v.UPSTASH_REDIS_REST_URL || v.UPSTASH_REDIS_REST_TOKEN) {
+          return !!(v.UPSTASH_REDIS_REST_URL && v.UPSTASH_REDIS_REST_TOKEN);
+        }
+        return true;
+      },
+      {
+        message:
+          "Both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required when using Upstash Redis REST",
+        path: ["UPSTASH_REDIS_REST_URL"],
+      },
+    );
 };
 
 function validateEnvironment() {
   // Check if we're in CI environment
-  const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-  
+  const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+
   console.log("🔍 Validating environment variables...");
   if (isCI) {
     console.log("🏗️  Running in CI mode with relaxed validation");
   }
-  
+
   const envVars = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -142,12 +149,12 @@ function validateEnvironment() {
   if (!result.success) {
     console.error("❌ Environment validation failed:");
     console.error("");
-    
+
     result.error.issues.forEach((error: any) => {
-      const path = error.path.join('.');
+      const path = error.path.join(".");
       console.error(`  • ${path}: ${error.message}`);
     });
-    
+
     console.error("");
     console.error("💡 Make sure to:");
     console.error("  1. Copy env.example to .env.local");
@@ -155,30 +162,32 @@ function validateEnvironment() {
     console.error("  3. Generate signing keys with: npm run generate-keys");
     console.error("");
     console.error("📖 See env.example for detailed instructions");
-    
+
     process.exit(1);
   }
 
   console.log("✅ Environment validation passed");
-  
+
   // Show which optional variables are configured
   const optionalVars = [
-    'NEXT_PUBLIC_STRIPE_MODE',
-    'NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID', 
-    'NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID',
-    'NEXT_PUBLIC_SITE_URL',
-    'UPSTASH_REDIS_URL',
-    'REDIS_URL',
-    'UPSTASH_REDIS_REST_URL',
-    'AWS_REGION',
-    'REGISTRY_S3_BUCKET',
-    'ARWEAVE_GATEWAY_URL',
-    'SENTRY_DSN'
+    "NEXT_PUBLIC_STRIPE_MODE",
+    "NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID",
+    "NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID",
+    "NEXT_PUBLIC_SITE_URL",
+    "UPSTASH_REDIS_URL",
+    "REDIS_URL",
+    "UPSTASH_REDIS_REST_URL",
+    "AWS_REGION",
+    "REGISTRY_S3_BUCKET",
+    "ARWEAVE_GATEWAY_URL",
+    "SENTRY_DSN",
   ];
-  
-  const configuredOptional = optionalVars.filter(varName => envVars[varName as keyof typeof envVars]);
+
+  const configuredOptional = optionalVars.filter(
+    (varName) => envVars[varName as keyof typeof envVars],
+  );
   if (configuredOptional.length > 0) {
-    console.log(`📋 Optional features configured: ${configuredOptional.join(', ')}`);
+    console.log(`📋 Optional features configured: ${configuredOptional.join(", ")}`);
   }
 }
 

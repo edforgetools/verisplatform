@@ -97,7 +97,7 @@ export async function writeProofBlob(blob: RegistryBlob): Promise<RegistryWriteR
       ContentType: blob.contentType || "application/octet-stream",
       CacheControl: "immutable", // Set immutable cache control as requested
       Metadata: blob.metadata || {},
-    } as any);
+    });
 
     const result = await s3Client.send(command);
 
@@ -155,7 +155,7 @@ export async function readProofBlob(key: string): Promise<RegistryReadResult> {
 
     // Convert the stream to a buffer
     const chunks: Uint8Array[] = [];
-    const stream = result.Body as any;
+    const stream = result.Body as AsyncIterable<Uint8Array>;
 
     for await (const chunk of stream) {
       chunks.push(chunk);

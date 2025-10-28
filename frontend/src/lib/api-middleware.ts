@@ -2,7 +2,7 @@
  * API middleware utilities for request handling, logging, and error management
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getRequestId, createRequestContext } from "./request-id";
 import { createRequestLogger, loggers } from "./logger";
 import { capture } from "./observability";
@@ -140,12 +140,11 @@ export function withRateLimit<T extends unknown[]>(
 
     // TODO: Implement actual rate limiting logic with Redis
     // For now, this is a placeholder
-    const clientId = request.headers.get("x-forwarded-for") || "unknown";
+    const _clientId = request.headers.get("x-forwarded-for") || "unknown";
 
     requestLogger.debug(
       {
         event: "rate_limit_check",
-        clientId: "[REDACTED]",
         limit,
         windowMs,
       },
@@ -254,7 +253,6 @@ export function withPerformanceMonitoring<T extends unknown[]>(
   return withApiMiddleware(async (request: NextRequest, ...args: T): Promise<Response> => {
     const startTime = Date.now();
     const requestId = getRequestId(request);
-    const requestLogger = createRequestLogger(requestId);
 
     try {
       const response = await handler(request, ...args);

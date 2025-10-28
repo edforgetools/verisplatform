@@ -1,13 +1,13 @@
-import { supabaseAdmin } from './supabaseAdmin';
-import { Billing } from './db-types';
+import { supabaseAdmin } from "./supabaseAdmin";
+import { Billing } from "./db-types";
 
 export type Feature =
-  | 'create_proof'
-  | 'generate_certificate'
-  | 'telemetry_tracking'
-  | 'create_checkout';
+  | "create_proof"
+  | "generate_certificate"
+  | "telemetry_tracking"
+  | "create_checkout";
 
-export type Tier = 'free' | 'pro' | 'team';
+export type Tier = "free" | "pro" | "team";
 
 export interface EntitlementConfig {
   [key: string]: {
@@ -45,36 +45,32 @@ export const ENTITLEMENT_CONFIG: EntitlementConfig = {
  * @param feature - The feature to check entitlement for
  * @returns Promise<boolean> - True if user is entitled, false otherwise
  */
-export async function isEntitled(
-  userId: string,
-  feature: Feature,
-): Promise<boolean> {
+export async function isEntitled(userId: string, feature: Feature): Promise<boolean> {
   try {
     // Get user's billing information
     const { data: billing, error } = await supabaseAdmin()
-      .from('billing')
-      .select('tier, status')
-      .eq('user_id', userId)
+      .from("billing")
+      .select("tier, status")
+      .eq("user_id", userId)
       .single();
 
     if (error || !billing) {
       // If no billing record exists, assume free tier
-      const tier: Tier = 'free';
+      const tier: Tier = "free";
       return ENTITLEMENT_CONFIG[feature]?.[tier] ?? false;
     }
 
     // Check if subscription is active
-    const isActive =
-      billing.status === 'active' || billing.status === 'trialing';
-    if (!isActive && billing.tier !== 'free') {
+    const isActive = billing.status === "active" || billing.status === "trialing";
+    if (!isActive && billing.tier !== "free") {
       // If subscription is not active and not free tier, deny access
       return false;
     }
 
-    const tier = (billing.tier as Tier) || 'free';
+    const tier = (billing.tier as Tier) || "free";
     return ENTITLEMENT_CONFIG[feature]?.[tier] ?? false;
   } catch (error) {
-    console.error('Error checking entitlement:', error);
+    console.error("Error checking entitlement:", error);
     // On error, default to denying access for security
     return false;
   }
@@ -87,15 +83,10 @@ export async function isEntitled(
  * @param feature - The feature to check entitlement for
  * @throws Error if user is not entitled
  */
-export async function assertEntitled(
-  userId: string,
-  feature: Feature,
-): Promise<void> {
+export async function assertEntitled(userId: string, feature: Feature): Promise<void> {
   const entitled = await isEntitled(userId, feature);
   if (!entitled) {
-    throw new Error(
-      `User ${userId} is not entitled to use feature: ${feature}`,
-    );
+    throw new Error(`User ${userId} is not entitled to use feature: ${feature}`);
   }
 }
 
@@ -107,27 +98,26 @@ export async function assertEntitled(
 export async function getUserTier(userId: string): Promise<Tier> {
   try {
     const { data: billing, error } = await supabaseAdmin()
-      .from('billing')
-      .select('tier, status')
-      .eq('user_id', userId)
+      .from("billing")
+      .select("tier, status")
+      .eq("user_id", userId)
       .single();
 
     if (error || !billing) {
-      return 'free';
+      return "free";
     }
 
     // Check if subscription is active
-    const isActive =
-      billing.status === 'active' || billing.status === 'trialing';
-    if (!isActive && billing.tier !== 'free') {
+    const isActive = billing.status === "active" || billing.status === "trialing";
+    if (!isActive && billing.tier !== "free") {
       // If subscription is not active and not free tier, fall back to free
-      return 'free';
+      return "free";
     }
 
-    return (billing.tier as Tier) || 'free';
+    return (billing.tier as Tier) || "free";
   } catch (error) {
-    console.error('Error getting user tier:', error);
-    return 'free';
+    console.error("Error getting user tier:", error);
+    return "free";
   }
 }
 
@@ -139,9 +129,9 @@ export async function getUserTier(userId: string): Promise<Tier> {
 export async function getUserBilling(userId: string): Promise<Billing | null> {
   try {
     const { data: billing, error } = await supabaseAdmin()
-      .from('billing')
-      .select('*')
-      .eq('user_id', userId)
+      .from("billing")
+      .select("*")
+      .eq("user_id", userId)
       .single();
 
     if (error || !billing) {
@@ -150,7 +140,7 @@ export async function getUserBilling(userId: string): Promise<Billing | null> {
 
     return billing;
   } catch (error) {
-    console.error('Error getting user billing:', error);
+    console.error("Error getting user billing:", error);
     return null;
   }
 }

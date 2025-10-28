@@ -1,7 +1,44 @@
 @import "tailwindcss";
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+  line-height: 1.6;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Custom gradient background */
+.bg-gradient-veris {
+  background: linear-gradient(to bottom, #0e1726, #101828);
+}
+
+/* Reusable component patterns */
+.btn-primary {
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none bg-emerald-500 text-white rounded-xl no-underline;
+}
+
+.btn-secondary {
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none bg-slate-900 text-slate-300 rounded-xl no-underline border border-slate-800;
+}
+
+.btn-submit {
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none rounded-xl border-none text-white;
+}
+
+.card {
+  @apply bg-slate-900 rounded-xl p-8 border border-slate-800;
+}
+
+.input {
+  @apply block w-full bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300;
+}
+
+.textarea {
+  @apply block w-full bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300 font-mono text-sm;
 }
 
 /* Keyboard accessibility: visible focus states */

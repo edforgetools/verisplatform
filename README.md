@@ -20,6 +20,30 @@ make test
 cd frontend && pnpm dev
 ```
 
+## CI/CD
+
+Continuous Integration is configured with the following workflows:
+
+- **e2e.yml** - End-to-end tests with Playwright
+- **web_quality.yml** - Lighthouse performance audits and accessibility tests
+- **content_guard.yml** - Content validation and schema checks
+- **release_gate.yml** - Release gate requiring 3 consecutive green runs
+
+### Local Testing
+
+Test your changes locally before pushing:
+
+```bash
+# Start development server
+cd frontend && npm run dev
+
+# Run e2e tests
+npm run test:e2e
+
+# Run Lighthouse audit
+npx lighthouse http://localhost:3000 --view
+```
+
 ## Architecture
 
 - **Frontend**: Next.js application (`frontend/`)

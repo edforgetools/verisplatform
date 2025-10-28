@@ -215,14 +215,20 @@ function createEnv() {
   // Handle validation errors
   if (!clientEnv.success) {
     const errors = clientEnv.error.issues
-      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .map(
+        (err: { path: (string | number)[]; message: string }) =>
+          `${err.path.join(".")}: ${err.message}`,
+      )
       .join("\n");
     throw new Error(`Client environment validation failed:\n${errors}`);
   }
 
   if (!serverEnv.success) {
     const errors = serverEnv.error.issues
-      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .map(
+        (err: { path: (string | number)[]; message: string }) =>
+          `${err.path.join(".")}: ${err.message}`,
+      )
       .join("\n");
     throw new Error(`Server environment validation failed:\n${errors}`);
   }
@@ -253,14 +259,17 @@ try {
 
     if (!clientEnv.success) {
       const errors = clientEnv.error.issues
-        .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+        .map(
+          (err: { path: (string | number)[]; message: string }) =>
+            `${err.path.join(".")}: ${err.message}`,
+        )
         .join("\n");
       throw new Error(`Client environment validation failed:\n${errors}`);
     }
 
     ENV = {
       client: clientEnv.data,
-      server: {} as any, // Server env not available on client
+      server: {} as ReturnType<typeof createEnv>["server"], // Server env not available on client
     };
   }
 } catch (error) {

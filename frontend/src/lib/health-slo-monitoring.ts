@@ -40,7 +40,7 @@ export interface HealthCheck {
   status: "healthy" | "degraded" | "unhealthy";
   responseTimeMs: number;
   lastChecked: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   error?: string;
 }
 
@@ -52,7 +52,7 @@ export interface SLOStatus {
   window: string;
   trend: "improving" | "stable" | "degrading";
   lastBreach?: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
 }
 
 export interface SystemHealth {
@@ -117,7 +117,7 @@ async function checkDatabaseHealth(): Promise<HealthCheck> {
     const svc = supabaseService();
 
     // Test basic connectivity
-    const { data, error } = await svc.from("proofs").select("count").limit(1);
+    const { error } = await svc.from("proofs").select("count").limit(1);
 
     if (error) {
       return {
@@ -416,7 +416,7 @@ export async function calculateSLOStatus(): Promise<SLOStatus[]> {
 
   try {
     // Get usage metrics
-    const usageMetrics = await getCurrentUsageMetrics();
+    await getCurrentUsageMetrics();
 
     // Calculate availability SLO
     slos.push(await calculateAvailabilitySLO());

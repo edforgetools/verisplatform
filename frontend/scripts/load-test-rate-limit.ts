@@ -88,8 +88,8 @@ async function runLoadTest(): Promise<void> {
     const status = result.rateLimited
       ? "🔴 RATE LIMITED"
       : result.success
-      ? "🟢 SUCCESS"
-      : `🟡 ${result.status}`;
+        ? "🟢 SUCCESS"
+        : `🟡 ${result.status}`;
 
     console.log(
       `Request ${requestNumber.toString().padStart(3)}: ${status} (${result.responseTime}ms)`,
