@@ -30,7 +30,7 @@ test.describe("E2E Flow: Checkout → Webhook → Issuance → S3 Write → Veri
   test("complete E2E flow: checkout → webhook → issuance → S3 write → verify", async ({ page }) => {
     // Step 1: Checkout Flow
     await page.goto("/billing");
-    await expect(page.locator("h1")).toContainText("Billing & Subscriptions");
+    await expect(page.locator("h1")).toContainText("Prototype Billing Screen");
 
     // Mock Stripe checkout session creation
     await page.route("**/api/stripe/create-checkout", async (route) => {

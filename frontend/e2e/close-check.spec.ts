@@ -13,6 +13,25 @@ test.describe("E2E: Close → Check", () => {
     await page.goto("/close");
     await expect(page.locator("h1")).toContainText("Close Delivery");
 
+    // Mock /api/close to ensure proof_json is returned so the JSON toggle exists
+    await page.route("**/api/close", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          url: "/proof/test-proof-id",
+          proof_json: {
+            record_id: "rec_test_123",
+            issuer: "did:web:veris.example",
+            issued_at: new Date().toISOString(),
+            status: "closed",
+            signature: "sig_test",
+            sha256: "hash_test",
+          },
+        }),
+      });
+    });
+
     // Step 2: Upload file to close delivery
     await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
 
