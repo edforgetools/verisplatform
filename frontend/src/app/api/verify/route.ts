@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseService } from "@/lib/db";
-import { verifyCanonicalProof as verifyProofSchema } from "@/lib/proof-schema";
+import { verifyCanonicalProof as verifyProofSchema, CanonicalProof } from "@/lib/proof-schema";
 import { withRateLimit } from "@/lib/rateLimit";
 import { capture } from "@/lib/observability";
 import { jsonOk, jsonErr } from "@/lib/http";
@@ -270,7 +270,7 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     try {
       // Try to load proof_json as canonical proof
       if (proof.proof_json && typeof proof.proof_json === "object") {
-        const canonicalProof = proof.proof_json as Record<string, unknown>;
+        const canonicalProof = proof.proof_json as unknown as CanonicalProof;
         if (canonicalProof.proof_id && canonicalProof.signature) {
           signatureVerified = verifyProofSchema(canonicalProof);
         }
