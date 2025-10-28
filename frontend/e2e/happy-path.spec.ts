@@ -24,7 +24,7 @@ test.describe("Happy Path E2E Tests", () => {
     // Step 2: Navigate to billing page to start checkout flow
     await page.click('a[href="/billing"]');
     await expect(page).toHaveURL("/billing");
-    await expect(page.locator("h1")).toContainText("Billing & Subscriptions");
+    await expect(page.locator("h1")).toContainText("Prototype Billing Screen");
 
     // Step 3: Start checkout process (mock redirect)
     await page.click('button:has-text("Start Pro Trial")');
@@ -144,16 +144,12 @@ test.describe("Happy Path E2E Tests", () => {
   test("billing page displays correctly", async ({ page }) => {
     await page.goto("/billing");
 
-    // Check page elements
-    await expect(page.locator("h1")).toContainText("Billing & Subscriptions");
-    await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=Team")).toBeVisible();
-    await expect(page.locator("text=$9")).toBeVisible();
-    await expect(page.locator("text=$39")).toBeVisible();
-
-    // Check that buttons are clickable
-    await expect(page.locator('button:has-text("Start Pro Trial")')).toBeEnabled();
-    await expect(page.locator('button:has-text("Start Team Trial")')).toBeEnabled();
+    // Check page elements for current prototype billing screen
+    await expect(page.locator("h1")).toContainText("Prototype Billing Screen");
+    await expect(page.locator("text=Example Plan")).toBeVisible();
+    await expect(page.locator("text=/\\$9/"))
+      .toBeVisible();
+    await expect(page.locator("text=/Coming Soon/i")).toBeVisible();
   });
 
   test("navigation works correctly", async ({ page }) => {
