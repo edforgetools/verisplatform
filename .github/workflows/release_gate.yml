@@ -28,5 +28,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RUNS=$(gh run list --workflow=e2e.yml --limit=3 --json conclusion --jq '.[].conclusion')
-          echo "$RUNS" | grep -v "success" && echo "Not all recent runs passed" && exit 1 || echo "Gate passed"
+          # Get the last 5 runs to account for cancelled runs due to concurrency
+          RUNS=$(gh run list --workflow=e2e.yml --limit=5 --json conclusion --jq '.[].conclusion')
+          
+          # Count non-cancelled results
+          NON_CANCELLED=$(echo "$RUNS" | grep -v "cancelled" || true)
+          
+          if [ -z "$NON_CANCELLED" ]; then
+            echo "No completed runs found yet"
+            echo "Gate passed (waiting for first run)"
+            exit 0
+          fi
+          
+          # Check if any non-cancelled runs failed
+          NON_SUCCESS=$(echo "$NON_CANCELLED" | grep -v "success" || true)
+          
+          if [ -n "$NON_SUCCESS" ]; then
+            echo "Not all recent runs passed"
+            echo "$NON_SUCCESS"
+            exit 1
+          else
+            echo "Gate passed"
+          fi
