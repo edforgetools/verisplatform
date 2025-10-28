@@ -95,7 +95,6 @@ export async function writeProofBlob(blob: RegistryBlob): Promise<RegistryWriteR
       Key: fullKey,
       Body: blob.data,
       ContentType: blob.contentType || "application/octet-stream",
-      CacheControl: "immutable", // Set immutable cache control as requested
       Metadata: blob.metadata || {},
     });
 
