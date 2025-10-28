@@ -28,8 +28,8 @@ export function SwaggerUI({ spec }: SwaggerUIProps) {
             dom_id: swaggerRef.current,
             deepLinking: true,
             presets: [
-              (SwaggerUIBundle as Record<string, unknown>).presets?.apis,
-              (SwaggerUIBundle as Record<string, unknown>).presets?.standalone,
+              (SwaggerUIBundle as unknown as Record<string, unknown>).presets?.apis,
+              (SwaggerUIBundle as unknown as Record<string, unknown>).presets?.standalone,
             ],
             plugins: [(SwaggerUIBundle as Record<string, unknown>).plugins?.DownloadUrl],
             layout: "StandaloneLayout",
