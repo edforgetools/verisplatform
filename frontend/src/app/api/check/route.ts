@@ -303,9 +303,9 @@ async function verifyFromDatabase(hash: string): Promise<VerificationResult> {
     try {
       // Try to load proof_json as canonical proof
       if (proof.proof_json && typeof proof.proof_json === "object") {
-        const canonicalProof = proof.proof_json as Record<string, unknown>;
+        const canonicalProof = proof.proof_json as unknown as CanonicalProof;
         if (canonicalProof.proof_id && canonicalProof.signature) {
-          signatureVerified = verifyProofSchema(canonicalProof as CanonicalProof);
+          signatureVerified = verifyProofSchema(canonicalProof);
         }
       }
     } catch {
