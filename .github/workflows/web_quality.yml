@@ -70,7 +70,10 @@ jobs:
           ROUTES=("/" "/close" "/check" "/billing")
           
           for route in "${ROUTES[@]}"; do
-            route_name=$(echo "$route" | sed 's/\//-/g' | sed 's/^-//' | sed 's/-$//' || echo "home")
+            route_name=$(echo "$route" | sed 's/\//-/g' | sed 's/^-//' | sed 's/-$//')
+            if [ -z "$route_name" ]; then
+              route_name="home"
+            fi
             echo "Running Lighthouse on: $route (output: lighthouse-$route_name)"
             
             lighthouse http://localhost:3000$route \
