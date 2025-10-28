@@ -186,6 +186,8 @@ async function createCheckoutForProof(
   project?: string,
   customerEmail?: string,
 ): Promise<ProofBillingResponse> {
+  const config = getBillingConfig();
+  
   // Create checkout session
   const checkoutResponse = await fetch("/api/stripe/create-checkout", {
     method: "POST",
