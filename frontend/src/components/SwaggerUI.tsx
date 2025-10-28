@@ -23,25 +23,12 @@ export function SwaggerUI({ spec }: SwaggerUIProps) {
 
         // Initialize Swagger UI
         if (typeof SwaggerUIBundle === "function") {
+          const bundle = SwaggerUIBundle as unknown as Record<string, unknown>;
           (SwaggerUIBundle as (config: Record<string, unknown>) => void)({
             spec: spec,
             dom_id: swaggerRef.current,
             deepLinking: true,
-            presets: [
-              ((SwaggerUIBundle as unknown) as Record<string, unknown>).presets as Record<string, unknown>,
-              ((SwaggerUIBundle as unknown) as Record<string, unknown>).presets as Record<string, unknown>,
-            ],
-            plugins: [(SwaggerUIBundle as Record<string, unknown>).plugins?.DownloadUrl],
             layout: "StandaloneLayout",
-            tryItOutEnabled: true,
-            requestInterceptor: (request: Record<string, unknown>) => {
-              // Add any custom request headers or modifications here
-              return request;
-            },
-            responseInterceptor: (response: Record<string, unknown>) => {
-              // Add any custom response handling here
-              return response;
-            },
           });
         }
       } catch (error) {
