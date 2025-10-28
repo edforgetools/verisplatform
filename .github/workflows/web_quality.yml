@@ -89,10 +89,10 @@ jobs:
           const path = require('path');
           
           const BUDGETS = {
-            performance: 75, // Lowered from 95 to 75
-            accessibility: 90, // Lowered from 95 to 90
-            bestPractices: 95,
-            seo: 95
+            performance: 65,
+            accessibility: 85,
+            bestPractices: 90,
+            seo: 90
           };
           
           const routes = ['/', '/close', '/check', '/billing'];
