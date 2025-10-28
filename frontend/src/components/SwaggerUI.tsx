@@ -23,7 +23,6 @@ export function SwaggerUI({ spec }: SwaggerUIProps) {
 
         // Initialize Swagger UI
         if (typeof SwaggerUIBundle === "function") {
-          const bundle = SwaggerUIBundle as unknown as Record<string, unknown>;
           (SwaggerUIBundle as (config: Record<string, unknown>) => void)({
             spec: spec,
             dom_id: swaggerRef.current,
