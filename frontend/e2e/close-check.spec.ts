@@ -39,7 +39,7 @@ test.describe("E2E: Close → Check", () => {
     await page.click('button:has-text("Close Delivery")');
 
     // Step 4: Wait for success banner
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('alert').filter({ hasText: 'Delivery Closed' })).toBeVisible({ timeout: 5000 });
 
     // Step 5: Extract JSON from the record
     await page.click('button:has-text("JSON")');
