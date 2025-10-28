@@ -60,7 +60,7 @@ jobs:
         run: npx wait-on http://localhost:3000
 
       - name: Install Lighthouse
-        run: npm install -g @lhci/cli@0.13.x
+        run: npm install -g @lhci/cli@0.13.x lighthouse
 
       - name: Run Lighthouse CI
         run: |

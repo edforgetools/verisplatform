@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { TestHelpers } from "./test-utils";
 
-test.describe.skip("Happy Path E2E Tests", () => {
+test.describe("Happy Path E2E Tests", () => {
   let helpers: TestHelpers;
 
   test.beforeEach(async ({ page }) => {
