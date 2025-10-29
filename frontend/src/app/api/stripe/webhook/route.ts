@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { supabaseService } from "@/lib/db";
-import { BillingInsert } from "@/lib/db-types";
+import { Database } from "@/lib/db-types";
 import { withRateLimit } from "@/lib/rateLimit";
 import { verifyWebhook } from "@/lib/stripe";
 import { capture } from "@/lib/observability";
@@ -121,7 +121,7 @@ async function handleStripeWebhook(req: NextRequest) {
         return jsonOk({ received: true }, "stripe-webhook");
       }
 
-      const billingRecord: BillingInsert = {
+      const billingRecord: Database["public"]["Tables"]["billing"]["Insert"] = {
         user_id: session.client_reference_id,
         stripe_subscription_id: session.subscription as string,
         status: "active",

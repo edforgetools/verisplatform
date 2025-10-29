@@ -1,0 +1,17 @@
+{
+  "dispute_evidence_format": "generic_court_submission",
+  "evidence_summary": {
+    "claim": "Delivery of digital asset '{{ delivery.file_name }}' on {{ delivery.delivered_at }}",
+    "proof_method": "SHA-256 cryptographic hash with Ed25519 digital signature",
+    "acceptance_proof": "Recipient accepted delivery on {{ acceptance.accepted_at }} from IP {{ acceptance.accepted_by_ip }}",
+    "verification": "Third-party verification available at {{ verification_instructions.verify_url }}",
+    "evidence_integrity": "All evidence cryptographically linked via hash {{ proof.sha256 }}"
+  },
+  "supporting_documents": [
+    "receipt.pdf - Human-readable proof certificate",
+    "receipt.json - Machine-verifiable canonical proof",
+    "acceptance.log.jsonl - Complete acceptance state log",
+    "verification_instructions.txt - How to independently verify"
+  ],
+  "instructions": "Present evidence-pack.zip as Exhibit A. Verification is independently reproducible."
+}

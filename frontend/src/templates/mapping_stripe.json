@@ -1,0 +1,16 @@
+{
+  "dispute_evidence_format": "stripe_v1",
+  "mapping": {
+    "product_description": "{{ delivery.file_name }} - {{ delivery.project_name }}",
+    "customer_communication": "Proof of delivery issued at {{ proof.issued_at }}. Acceptance recorded at {{ acceptance.accepted_at }}.",
+    "service_documentation": "SHA-256: {{ proof.sha256 }}\nSignature: {{ proof.signature }}\nIssuer: {{ proof.issuer }}",
+    "receipt": "{{ proof_url }}",
+    "customer_signature": "Digital acceptance recorded: {{ acceptance.accepted_by_ip }} at {{ acceptance.accepted_at }}",
+    "duplicate_charge_documentation": null,
+    "refund_policy": "Delivery verification available at {{ verification_instructions.verify_url }}",
+    "cancellation_policy": "N/A - service delivered and accepted",
+    "access_activity_log": "{{ acceptance.state_log | jsonify }}",
+    "shipping_documentation": "Digital delivery - hash: {{ proof.sha256 }}"
+  },
+  "instructions": "Upload receipt.pdf as 'service_documentation'. Include acceptance.log.jsonl as 'customer_communication'."
+}

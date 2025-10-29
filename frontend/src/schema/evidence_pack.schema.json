@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Veris Evidence Pack",
+  "description": "Portable proof receipt for dispute resolution and delivery verification",
+  "type": "object",
+  "required": [
+    "evidence_pack_version",
+    "proof",
+    "delivery",
+    "acceptance",
+    "verification_instructions"
+  ],
+  "properties": {
+    "evidence_pack_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "proof": {
+      "type": "object",
+      "required": ["proof_id", "sha256", "issued_at", "signature", "issuer"],
+      "properties": {
+        "proof_id": { "type": "string", "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "signature": { "type": "string", "pattern": "^ed25519:" },
+        "issuer": { "type": "string" },
+        "algorithm": { "type": "string", "const": "Ed25519" }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "required": ["file_name", "delivered_at", "delivered_by"],
+      "properties": {
+        "file_name": { "type": "string" },
+        "file_size_bytes": { "type": "integer", "minimum": 0 },
+        "mime_type": { "type": "string" },
+        "delivered_at": { "type": "string", "format": "date-time" },
+        "delivered_by": { "type": "string", "format": "email" },
+        "project_name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "required": ["status", "state_log"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["draft", "issued", "sent", "viewed_no_action", "accepted", "declined", "expired"]
+        },
+        "recipient_email": { "type": "string", "format": "email" },
+        "accepted_at": { "type": "string", "format": "date-time" },
+        "accepted_by_ip": { "type": "string" },
+        "accepted_by_user_agent": { "type": "string" },
+        "declined_at": { "type": "string", "format": "date-time" },
+        "declined_reason": { "type": "string" },
+        "state_log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["timestamp", "from_state", "to_state"],
+            "properties": {
+              "timestamp": { "type": "string", "format": "date-time" },
+              "from_state": { "type": "string" },
+              "to_state": { "type": "string" },
+              "actor_ip": { "type": "string" },
+              "actor_user_agent": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "content_credentials": {
+      "type": "object",
+      "description": "Optional C2PA metadata (degrades gracefully if stripped)",
+      "properties": {
+        "has_c2pa_manifest": { "type": "boolean" },
+        "manifest_url": { "type": "string", "format": "uri" },
+        "claim_generator": { "type": "string" },
+        "thumbnail_claim": { "type": "string" }
+      }
+    },
+    "verification_instructions": {
+      "type": "object",
+      "required": ["verify_url", "verify_methods"],
+      "properties": {
+        "verify_url": { "type": "string", "format": "uri" },
+        "verify_methods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["method", "description"],
+            "properties": {
+              "method": { "type": "string" },
+              "description": { "type": "string" },
+              "endpoint": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "dispute_mapping": {
+      "type": "object",
+      "description": "Mappings to payment processor evidence formats",
+      "properties": {
+        "stripe": { "type": "object" },
+        "paypal": { "type": "object" },
+        "generic": { "type": "object" }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "Additional supporting documents",
+      "items": {
+        "type": "object",
+        "required": ["file_name", "description"],
+        "properties": {
+          "file_name": { "type": "string" },
+          "description": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

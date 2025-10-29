@@ -81,8 +81,12 @@ test.describe("E2E: Close → Check", () => {
     await page.click('button:has-text("Check Delivery")');
 
     // Step 8: Verify result
-    await expect(page.getByRole('region', { name: 'Verification result' })).toBeVisible({ timeout: 5000 });
-    const resultText = await page.getByRole('region', { name: 'Verification result' }).textContent();
+    await expect(page.getByRole("region", { name: "Verification result" })).toBeVisible({
+      timeout: 5000,
+    });
+    const resultText = await page
+      .getByRole("region", { name: "Verification result" })
+      .textContent();
     expect(resultText).toBeTruthy();
   });
 });

@@ -12,7 +12,16 @@ import { logger } from "./logger";
 
 export interface UsageMetric {
   proof_id?: string;
-  event_type: "proof.create" | "proof.verify" | "proof.view" | "api.call";
+  event_type:
+    | "proof.create"
+    | "proof.verify"
+    | "proof.view"
+    | "api.call"
+    | "signoff.issued"
+    | "signoff.sent"
+    | "signoff.accepted"
+    | "signoff.declined"
+    | "evidence.export";
   timestamp: string;
   user_id?: string;
   metadata?: Record<string, unknown>;
@@ -432,4 +441,37 @@ export async function getCurrentUsageMetrics(): Promise<{
     this_week: weekStats,
     this_month: monthStats,
   };
+}
+
+/**
+ * Record sign-off events for monitoring
+ */
+export async function recordSignOffEvent(
+  event: "issued" | "sent" | "accepted" | "declined",
+  proofId: string,
+  userId?: string,
+  metadata?: Record<string, unknown>,
+): Promise<void> {
+  await recordUsageMetric({
+    proof_id: proofId,
+    event_type: `signoff.${event}` as UsageMetric["event_type"],
+    timestamp: new Date().toISOString(),
+    user_id: userId,
+    metadata: {
+      ...metadata,
+      event,
+    },
+  });
+}
+
+export async function recordEvidenceExport(proofId: string, userId?: string): Promise<void> {
+  await recordUsageMetric({
+    proof_id: proofId,
+    event_type: "evidence.export",
+    timestamp: new Date().toISOString(),
+    user_id: userId,
+    metadata: {
+      export_type: "evidence_pack",
+    },
+  });
 }
