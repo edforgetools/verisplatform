@@ -22,6 +22,31 @@ test.describe("Sign-off flow", () => {
         }),
       });
     });
+
+    // Mock /api/proof/issue to handle proof issuance
+    await page.route("**/api/proof/issue", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: true,
+          status: "issued",
+        }),
+      });
+    });
+
+    // Mock /api/proof/send for sending sign-off requests
+    await page.route("**/api/proof/send*", async (route) => {
+      const requestBody = await route.request().json().catch(() => ({}));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: true,
+          signoff_url: `/signoff/${requestBody.proof_id || "test-proof-id"}`,
+        }),
+      });
+    });
   });
 
   test("complete sign-off acceptance", async ({ page }) => {
