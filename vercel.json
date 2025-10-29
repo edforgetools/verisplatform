@@ -1,7 +1,9 @@
 {
+  "version": 2,
   "buildCommand": "cd frontend && pnpm run build",
   "outputDirectory": "frontend/.next",
   "framework": "nextjs",
+  "installCommand": "npm install -g pnpm && pnpm install",
   "redirects": [
     {
       "source": "/(.*)",
