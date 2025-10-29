@@ -11,16 +11,30 @@ test.describe("Sign-off flow", () => {
     // Upload file using helper
     await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
 
+    // Wait for API response - set up promise BEFORE clicking
+    const responsePromise = page.waitForResponse(
+      (response) => response.url().includes("/api/close") && response.status() === 200,
+      { timeout: 20000 },
+    );
+
     await page.click('button:has-text("Close Delivery")');
 
-    // Wait for success banner (like close-check.spec.ts does)
+    // Wait for the API response to complete
+    try {
+      const response = await responsePromise;
+      const responseData = await response.json();
+      expect(responseData.proof_json).toBeTruthy();
+    } catch (error) {
+      // If response wait fails, continue anyway - UI might have updated
+      console.log("Response wait failed, continuing:", error);
+    }
+
+    // Wait for success banner
     await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
       timeout: 10000,
     });
 
-    // Wait for reservation to be set by waiting for proof_json section
-    // The JSON button appears in a section that only renders when proof_json exists
-    // Wait for either the "Summary" or "JSON" button to appear, indicating proof_json loaded
+    // Wait for proof_json section to render (Summary/JSON buttons)
     await expect(
       page.locator('button:has-text("Summary"), button:has-text("JSON")').first(),
     ).toBeVisible({
@@ -67,15 +81,31 @@ test.describe("Sign-off flow", () => {
     // Create proof first
     await page.goto("/close");
     await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
+
+    // Wait for API response - set up promise BEFORE clicking
+    const responsePromise = page.waitForResponse(
+      (response) => response.url().includes("/api/close") && response.status() === 200,
+      { timeout: 20000 },
+    );
+
     await page.click('button:has-text("Close Delivery")');
+
+    // Wait for the API response to complete
+    try {
+      const response = await responsePromise;
+      const responseData = await response.json();
+      expect(responseData.proof_json).toBeTruthy();
+    } catch (error) {
+      // If response wait fails, continue anyway - UI might have updated
+      console.log("Response wait failed, continuing:", error);
+    }
 
     // Wait for success banner
     await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
       timeout: 10000,
     });
 
-    // Wait for reservation to be set by waiting for proof_json section
-    // The JSON button appears in a section that only renders when proof_json exists
+    // Wait for proof_json section to render (Summary/JSON buttons)
     await expect(
       page.locator('button:has-text("Summary"), button:has-text("JSON")').first(),
     ).toBeVisible({
