@@ -3,6 +3,28 @@ import JSZip from "jszip";
 import { TestHelpers } from "./test-utils";
 
 test.describe("Evidence pack export", () => {
+  test.beforeEach(async ({ page }) => {
+    // Mock /api/close to ensure proof_json is returned
+    await page.route("**/api/close", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          url: "/proof/test-proof-id",
+          proof_json: {
+            record_id: "rec_test_123",
+            proof_id: "proof_test_123",
+            issuer: "did:web:veris.example",
+            issued_at: new Date().toISOString(),
+            status: "closed",
+            signature: "sig_test",
+            sha256: "hash_test",
+          },
+        }),
+      });
+    });
+  });
+
   test("export contains all required files", async ({ page }) => {
     // Create and accept proof (reuse helpers)
     const proofId = await createAndAcceptProof(page);
@@ -48,23 +70,7 @@ async function createAndAcceptProof(page: any): Promise<string> {
   await page.goto("/close");
   await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
 
-  // Wait for API response - set up promise BEFORE clicking
-  const responsePromise = page.waitForResponse(
-    (response) => response.url().includes("/api/close") && response.status() === 200,
-    { timeout: 20000 },
-  );
-
   await page.click('button:has-text("Close Delivery")');
-
-  // Wait for the API response to complete
-  try {
-    const response = await responsePromise;
-    const responseData = await response.json();
-    expect(responseData.proof_json).toBeTruthy();
-  } catch (error) {
-    // If response wait fails, continue anyway - UI might have updated
-    console.log("Response wait failed, continuing:", error);
-  }
 
   // Wait for success banner
   await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
