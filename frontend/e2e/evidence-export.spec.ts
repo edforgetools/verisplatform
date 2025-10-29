@@ -48,11 +48,14 @@ async function createAndAcceptProof(page: any): Promise<string> {
   await page.goto("/close");
   await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
   await page.click('button:has-text("Close Delivery")');
-  
+
   // Wait for success banner
   await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
     timeout: 10000,
   });
+  
+  // Wait for JSON button to be visible
+  await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
   
   // Extract proof ID from JSON
   await page.click('button:has-text("JSON")');
@@ -61,8 +64,8 @@ async function createAndAcceptProof(page: any): Promise<string> {
   const record = JSON.parse(jsonText!);
   const proofId = record.proof_json?.proof_id || record.proof_json?.record_id;
   expect(proofId).toBeTruthy();
-  
-  // Close JSON view to see sign-off controls  
+
+  // Close JSON view to see sign-off controls
   await page.click('button:has-text("JSON")');
 
   // Issue and send

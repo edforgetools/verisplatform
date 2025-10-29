@@ -18,11 +18,14 @@ test.describe("Sign-off flow", () => {
       timeout: 10000,
     });
 
+    // Wait for JSON button to be visible (proof_json section renders)
+    await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
+
     // Extract proof ID from JSON view (after success)
     await page.click('button:has-text("JSON")');
     const jsonText = await page.locator("pre").textContent();
     expect(jsonText).toBeTruthy();
-    
+
     // Close JSON view to see sign-off controls
     await page.click('button:has-text("JSON")');
 
@@ -59,17 +62,20 @@ test.describe("Sign-off flow", () => {
     await page.goto("/close");
     await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
     await page.click('button:has-text("Close Delivery")');
-    
+
     // Wait for success banner
     await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
       timeout: 10000,
     });
     
+    // Wait for JSON button to appear
+    await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
+    
     // Extract proof ID from JSON
     await page.click('button:has-text("JSON")');
     const jsonText = await page.locator("pre").textContent();
     expect(jsonText).toBeTruthy();
-    
+
     // Close JSON view
     await page.click('button:has-text("JSON")');
 
