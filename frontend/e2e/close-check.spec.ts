@@ -64,7 +64,14 @@ test.describe("E2E: Close → Check", () => {
     });
 
     // Step 5: Extract JSON from the record
-    await page.click('button:has-text("JSON")');
+    // Wait for reservation to be set by waiting for proof_json section
+    // The JSON button appears in a section that only renders when proof_json exists
+    await expect(
+      page.locator('button:has-text("Summary"), button:has-text("JSON")').first(),
+    ).toBeVisible({
+      timeout: 15000,
+    });
+    await page.getByRole("button", { name: "JSON" }).click();
     const jsonText = await page.locator("pre").textContent();
     expect(jsonText).toBeTruthy();
     const record = JSON.parse(jsonText!);

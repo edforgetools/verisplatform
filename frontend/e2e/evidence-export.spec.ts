@@ -54,11 +54,16 @@ async function createAndAcceptProof(page: any): Promise<string> {
     timeout: 10000,
   });
 
-  // Wait for JSON button to be visible
-  await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
+  // Wait for reservation to be set by waiting for proof_json section
+  // The JSON button appears in a section that only renders when proof_json exists
+  await expect(
+    page.locator('button:has-text("Summary"), button:has-text("JSON")').first(),
+  ).toBeVisible({
+    timeout: 15000,
+  });
 
   // Extract proof ID from JSON
-  await page.click('button:has-text("JSON")');
+  await page.getByRole("button", { name: "JSON" }).click();
   const jsonText = await page.locator("pre").textContent();
   expect(jsonText).toBeTruthy();
   const record = JSON.parse(jsonText!);
@@ -66,7 +71,7 @@ async function createAndAcceptProof(page: any): Promise<string> {
   expect(proofId).toBeTruthy();
 
   // Close JSON view to see sign-off controls
-  await page.click('button:has-text("JSON")');
+  await page.getByRole("button", { name: "JSON" }).click();
 
   // Issue and send
   await page.click('button:has-text("Issue Proof")');

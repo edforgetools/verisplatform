@@ -209,6 +209,9 @@ export default function CheckPage() {
                 borderColor: "rgba(255, 255, 255, 0.1)",
                 background: "rgba(255, 255, 255, 0.05)",
               }}
+              role="region"
+              aria-live="polite"
+              aria-label="Verification result"
             >
               <div
                 className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium"
