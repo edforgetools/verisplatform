@@ -1,21 +1,15 @@
 import { test, expect } from "@playwright/test";
-import fs from "fs";
-import path from "path";
+import { TestHelpers } from "./test-utils";
 
 test.describe("Sign-off flow", () => {
   test("complete sign-off acceptance", async ({ page }) => {
+    const helpers = new TestHelpers(page);
+    
     // 1. Create proof
     await page.goto("/close");
 
-    // Upload file
-    const fileInput = page.locator('input[type="file"]');
-    const fixturesDir = path.join(process.cwd(), "test-fixtures");
-    const samplePath = path.join(fixturesDir, "sample.pdf");
-    if (!fs.existsSync(fixturesDir)) fs.mkdirSync(fixturesDir, { recursive: true });
-    if (!fs.existsSync(samplePath)) {
-      fs.writeFileSync(samplePath, "Sample PDF placeholder for E2E tests\n");
-    }
-    await fileInput.setInputFiles(samplePath);
+    // Upload file using helper
+    await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
 
     await page.click('button:has-text("Close Delivery")');
 
@@ -50,16 +44,11 @@ test.describe("Sign-off flow", () => {
   });
 
   test("decline with reason", async ({ page }) => {
-    // Create proof first (reuse from above or create helper)
+    const helpers = new TestHelpers(page);
+    
+    // Create proof first
     await page.goto("/close");
-    const fileInput = page.locator('input[type="file"]');
-    const fixturesDir = path.join(process.cwd(), "test-fixtures");
-    const samplePath = path.join(fixturesDir, "sample.pdf");
-    if (!fs.existsSync(fixturesDir)) fs.mkdirSync(fixturesDir, { recursive: true });
-    if (!fs.existsSync(samplePath)) {
-      fs.writeFileSync(samplePath, "Sample PDF placeholder for E2E tests\n");
-    }
-    await fileInput.setInputFiles(samplePath);
+    await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
     await page.click('button:has-text("Close Delivery")');
     await page.waitForSelector('[data-testid="proof-id"]');
 

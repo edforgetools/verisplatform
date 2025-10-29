@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
-import fs from "fs";
-import path from "path";
 import JSZip from "jszip";
+import { TestHelpers } from "./test-utils";
 
 test.describe("Evidence pack export", () => {
   test("export contains all required files", async ({ page }) => {
@@ -43,20 +42,15 @@ test.describe("Evidence pack export", () => {
 
 // Helper function to create and accept a proof
 async function createAndAcceptProof(page: any): Promise<string> {
+  const helpers = new TestHelpers(page);
+  
   // Create proof
   await page.goto("/close");
-  const fileInput = page.locator('input[type="file"]');
-  // Ensure sample PDF exists in CI
-  const fixturesDir = path.join(process.cwd(), "test-fixtures");
-  const samplePath = path.join(fixturesDir, "sample.pdf");
-  if (!fs.existsSync(fixturesDir)) fs.mkdirSync(fixturesDir, { recursive: true });
-  if (!fs.existsSync(samplePath)) {
-    // Minimal placeholder content; app only needs a file to hash/upload
-    fs.writeFileSync(samplePath, "Sample PDF placeholder for E2E tests\n");
-  }
-  await fileInput.setInputFiles(samplePath);
-  await page.click('button:has-text("Create Proof")');
-  await page.waitForSelector("text=/Proof ID:/");
+  await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
+  await page.click('button:has-text("Close Delivery")');
+  
+  // Wait for proof creation
+  await page.waitForSelector('[data-testid="proof-id"]', { timeout: 30000 });
 
   const proofId = await page.locator('[data-testid="proof-id"]').textContent();
 
