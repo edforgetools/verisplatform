@@ -84,7 +84,7 @@ export default function ClosePage() {
     }
   };
 
-  const handleSendSignOffRequest = async () => {
+  const _handleSendSignOffRequest = async () => {
     if (!proofId || !recipientEmail) return;
 
     try {
