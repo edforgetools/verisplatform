@@ -47,3 +47,10 @@ next-env.d.ts
 *.pem
 *.key
 .ed25519*
+
+# Test artifacts
+test-results/
+playwright-report/
+.playwright/
+lighthouse-*.html
+lighthouse-*.json
