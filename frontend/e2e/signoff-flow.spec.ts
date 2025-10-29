@@ -4,7 +4,7 @@ import { TestHelpers } from "./test-utils";
 test.describe("Sign-off flow", () => {
   test("complete sign-off acceptance", async ({ page }) => {
     const helpers = new TestHelpers(page);
-    
+
     // 1. Create proof
     await page.goto("/close");
 
@@ -13,9 +13,18 @@ test.describe("Sign-off flow", () => {
 
     await page.click('button:has-text("Close Delivery")');
 
-    // Wait for proof creation and sign-off flow to appear
-    await page.waitForSelector('[data-testid="proof-id"]');
-    const proofId = await page.locator('[data-testid="proof-id"]').textContent();
+    // Wait for success banner (like close-check.spec.ts does)
+    await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Extract proof ID from JSON view (after success)
+    await page.click('button:has-text("JSON")');
+    const jsonText = await page.locator("pre").textContent();
+    expect(jsonText).toBeTruthy();
+    
+    // Close JSON view to see sign-off controls
+    await page.click('button:has-text("JSON")');
 
     // 2. Issue proof
     await page.click('button:has-text("Issue Proof")');
@@ -45,12 +54,24 @@ test.describe("Sign-off flow", () => {
 
   test("decline with reason", async ({ page }) => {
     const helpers = new TestHelpers(page);
-    
+
     // Create proof first
     await page.goto("/close");
     await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
     await page.click('button:has-text("Close Delivery")');
-    await page.waitForSelector('[data-testid="proof-id"]');
+    
+    // Wait for success banner
+    await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
+      timeout: 10000,
+    });
+    
+    // Extract proof ID from JSON
+    await page.click('button:has-text("JSON")');
+    const jsonText = await page.locator("pre").textContent();
+    expect(jsonText).toBeTruthy();
+    
+    // Close JSON view
+    await page.click('button:has-text("JSON")');
 
     // Issue and send
     await page.click('button:has-text("Issue Proof")');

@@ -43,16 +43,27 @@ test.describe("Evidence pack export", () => {
 // Helper function to create and accept a proof
 async function createAndAcceptProof(page: any): Promise<string> {
   const helpers = new TestHelpers(page);
-  
+
   // Create proof
   await page.goto("/close");
   await helpers.mockFileUpload('input[type="file"]', "Test delivery file content");
   await page.click('button:has-text("Close Delivery")');
   
-  // Wait for proof creation
-  await page.waitForSelector('[data-testid="proof-id"]', { timeout: 30000 });
-
-  const proofId = await page.locator('[data-testid="proof-id"]').textContent();
+  // Wait for success banner
+  await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
+    timeout: 10000,
+  });
+  
+  // Extract proof ID from JSON
+  await page.click('button:has-text("JSON")');
+  const jsonText = await page.locator("pre").textContent();
+  expect(jsonText).toBeTruthy();
+  const record = JSON.parse(jsonText!);
+  const proofId = record.proof_json?.proof_id || record.proof_json?.record_id;
+  expect(proofId).toBeTruthy();
+  
+  // Close JSON view to see sign-off controls  
+  await page.click('button:has-text("JSON")');
 
   // Issue and send
   await page.click('button:has-text("Issue Proof")');
