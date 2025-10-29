@@ -1,125 +1,19 @@
-# Veris API Documentation
+# API Reference
 
-## Authentication
+## POST /api/proofs/create
 
-For Q1, user authentication is handled via `x-user-id` header for simplicity. Future versions will use proper JWT tokens.
+Creates a new cryptographic proof for a file.
 
-## Proof Creation
-
-### POST /api/proof/create
-
-Creates a cryptographic proof for an uploaded file.
-
-**Request:**
-
-- Method: `POST`
-- Content-Type: `multipart/form-data`
-- Headers: `x-user-id: <uuid>`
-
-**Form Data:**
-
-- `file`: File to create proof for
-- `user_id`: User UUID
-- `project`: Optional project name
-
-**Response:**
+**Request Body:**
 
 ```json
 {
-  "id": "uuid",
-  "hash_prefix": "ABCD-EFGH",
-  "timestamp": "2025-01-01T00:00:00.000Z",
-  "url": "/proof/uuid"
-}
-```
-
-**Example:**
-
-```bash
-curl -F "file=@document.pdf" \
-     -F "user_id=123e4567-e89b-12d3-a456-426614174000" \
-     -F "project=My Project" \
-     -H "x-user-id: 123e4567-e89b-12d3-a456-426614174000" \
-     http://localhost:3000/api/proof/create
-```
-
-## Proof Retrieval
-
-### GET /api/proof/[id]
-
-Retrieves proof data by ID.
-
-**Response:**
-
-```json
-{
-  "id": "uuid",
-  "user_id": "uuid",
-  "file_name": "document.pdf",
-  "version": 1,
-  "hash_full": "sha256_hash",
-  "hash_prefix": "ABCD-EFGH",
-  "signature": "base64_signature",
-  "timestamp": "2025-01-01T00:00:00.000Z",
-  "project": "My Project",
-  "visibility": "public",
-  "anchor_txid": null,
-  "created_at": "2025-01-01T00:00:00.000Z"
-}
-```
-
-## File Verification
-
-### POST /api/proof/verify
-
-Verifies a file against a stored proof.
-
-**Request:**
-
-- Method: `POST`
-- Content-Type: `multipart/form-data`
-
-**Form Data:**
-
-- `file`: File to verify
-- `id`: Proof ID to verify against
-
-**Response:**
-
-```json
-{
-  "verified": true,
-  "expected": "expected_hash",
-  "got": "actual_hash",
-  "timestamp": "2025-01-01T00:00:00.000Z"
-}
-```
-
-## Certificate Download
-
-### GET /api/proof/[id]/certificate
-
-Downloads a PDF certificate for the proof.
-
-**Response:**
-
-- Content-Type: `application/pdf`
-- Body: PDF file
-
-## Billing
-
-### POST /api/stripe/create-checkout
-
-Creates a Stripe checkout session.
-
-**Request:**
-
-```json
-{
-  "userId": "uuid",
-  "priceId": "price_xxx",
-  "successUrl": "https://app.veris.dev/success",
-  "cancelUrl": "https://app.veris.dev/cancel"
+  "file": "base64-encoded-file-content",
+  "user_id": "user-identifier",
+  "metadata": {
+    "file_name": "example.txt",
+    "project": "project-name"
+  }
 }
 ```
 
@@ -127,49 +21,109 @@ Creates a Stripe checkout session.
 
 ```json
 {
-  "url": "https://checkout.stripe.com/..."
+  "success": true,
+  "proof_id": "proof-hash",
+  "proof_url": "/proof/proof-hash",
+  "created_at": "2024-01-01T12:00:00.000Z"
 }
 ```
 
-### POST /api/stripe/webhook
+**Error Responses:**
 
-Handles Stripe webhook events for subscription management.
+- `400` - Invalid request body or missing required fields
+- `401` - Authentication required
+- `429` - Rate limit exceeded
+
+## GET /api/verify
+
+Verifies a cryptographic proof.
+
+**Query Parameters:**
+
+- `hash` - The proof hash to verify
+
+**Response:**
+
+```json
+{
+  "valid": true,
+  "signer": "signer-fingerprint",
+  "issued_at": "2024-01-01T12:00:00.000Z",
+  "latency_ms": 150,
+  "errors": []
+}
+```
+
+**Error Responses:**
+
+- `400` - Missing hash parameter
+- `404` - Proof not found
+- `429` - Rate limit exceeded
+
+## POST /api/stripe/webhook
+
+Handles Stripe webhook events for billing and subscription management.
 
 **Headers:**
 
-- `stripe-signature`: Stripe signature header
+- `stripe-signature` - Stripe webhook signature for verification
 
-## Telemetry
+**Supported Events:**
 
-### POST /api/telemetry
+- `checkout.session.completed` - New subscription created
+- `customer.subscription.updated` - Subscription status changed
+- `customer.subscription.deleted` - Subscription cancelled
+- `invoice.payment_failed` - Payment failed
 
-Tracks usage metrics for pilot program.
-
-**Request:**
-
-```json
-{
-  "event": "proof_created",
-  "value": 1,
-  "meta": { "file_size": 1024 },
-  "userId": "uuid"
-}
-```
-
-## Error Responses
-
-All endpoints return appropriate HTTP status codes:
-
-- `400`: Bad Request
-- `401`: Unauthorized
-- `402`: Payment Required
-- `404`: Not Found
-- `500`: Internal Server Error
-
-Error response format:
+**Response:**
 
 ```json
 {
-  "error": "Error message"
+  "received": true,
+  "eventId": "evt_xxx",
+  "eventType": "checkout.session.completed"
 }
 ```
+
+**Error Responses:**
+
+- `400` - Invalid webhook signature or malformed request
+- `500` - Internal server error during processing
+
+## GET /api/internal/status
+
+Internal system status and health check endpoint.
+
+**Headers:**
+
+- `x-internal-key` - Internal authentication key
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "response_time_ms": 50,
+  "environment": "production",
+  "metrics": {
+    "issued_count": 1250,
+    "verify_success": 1198,
+    "latency_p50": 120,
+    "latency_p95": 450
+  },
+  "last_webhook": "2024-01-01T11:45:00.000Z",
+  "last_s3_write": "2024-01-01T11:50:00.000Z",
+  "checks": {
+    "database": "pass",
+    "redis": "pass",
+    "s3": "pass",
+    "stripe": "pass"
+  }
+}
+```
+
+**Error Responses:**
+
+- `401` - Unauthorized (invalid internal key)
+- `500` - Internal server error

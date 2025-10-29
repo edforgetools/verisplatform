@@ -67,10 +67,10 @@ test.describe("Sign-off flow", () => {
     await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
       timeout: 10000,
     });
-    
+
     // Wait for JSON button to appear
     await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
-    
+
     // Extract proof ID from JSON
     await page.click('button:has-text("JSON")');
     const jsonText = await page.locator("pre").textContent();

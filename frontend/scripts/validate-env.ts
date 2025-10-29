@@ -107,8 +107,8 @@ const createBuildTimeSchema = (isCI: boolean) => {
 
 function validateEnvironment() {
   // Check if we're in CI or Vercel environment (relaxed validation)
-  const isCI = 
-    process.env.CI === "true" || 
+  const isCI =
+    process.env.CI === "true" ||
     process.env.GITHUB_ACTIONS === "true" ||
     process.env.VERCEL === "1" ||
     !!process.env.VERCEL_ENV;

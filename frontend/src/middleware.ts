@@ -59,10 +59,7 @@ export async function middleware(req: Request) {
         const { success } = await limiter.limit(`api:${ip}`);
 
         if (!success) {
-          response = NextResponse.json(
-            { error: "Too Many Requests" },
-            { status: 429 }
-          );
+          response = NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
         } else {
           response = NextResponse.next();
         }
@@ -73,38 +70,29 @@ export async function middleware(req: Request) {
     response.headers.set("X-DNS-Prefetch-Control", "on");
     response.headers.set(
       "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload"
+      "max-age=63072000; includeSubDomains; preload",
     );
     response.headers.set("X-Frame-Options", "SAMEORIGIN");
     response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set(
-      "Referrer-Policy",
-      "strict-origin-when-cross-origin"
-    );
-    response.headers.set(
-      "Permissions-Policy",
-      "camera=(), microphone=(), geolocation=()"
-    );
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
     return response;
   } catch (error) {
     // If there's any error in middleware, just continue without rate limiting
     console.warn("Middleware error:", error);
     const response = NextResponse.next();
-    
+
     // Still add security headers even on error
     response.headers.set("X-DNS-Prefetch-Control", "on");
     response.headers.set(
       "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload"
+      "max-age=63072000; includeSubDomains; preload",
     );
     response.headers.set("X-Frame-Options", "SAMEORIGIN");
     response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set(
-      "Referrer-Policy",
-      "strict-origin-when-cross-origin"
-    );
-    
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
     return response;
   }
 }

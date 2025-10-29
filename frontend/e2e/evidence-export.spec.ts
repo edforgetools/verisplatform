@@ -53,10 +53,10 @@ async function createAndAcceptProof(page: any): Promise<string> {
   await expect(page.getByRole("alert").filter({ hasText: "Delivery Closed" })).toBeVisible({
     timeout: 10000,
   });
-  
+
   // Wait for JSON button to be visible
   await page.waitForSelector('button:has-text("JSON")', { timeout: 10000 });
-  
+
   // Extract proof ID from JSON
   await page.click('button:has-text("JSON")');
   const jsonText = await page.locator("pre").textContent();

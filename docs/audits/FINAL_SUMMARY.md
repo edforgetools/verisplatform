@@ -1,7 +1,7 @@
 # Final Audit Summary
 
-**Completed:** $(date)
-**Branch:** chore/audit-decruft
+**Completed:** 2025-10-29
+**Branch:** chore/audit-decruft-fixes
 
 ## What Was Done
 
