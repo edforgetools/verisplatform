@@ -270,7 +270,29 @@ export default function ClosePage() {
                       {acceptanceStatus === "issued" && (
                         <>
                           <button
-                            onClick={() => setShowSignOffModal(true)}
+                            onClick={async () => {
+                              if (!proofId || !recipientEmail) {
+                                alert("Please enter recipient email");
+                                return;
+                              }
+                              try {
+                                const response = await fetch("/api/proof/send", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    proof_id: proofId,
+                                    recipient_email: recipientEmail,
+                                  }),
+                                });
+                                if (response.ok) {
+                                  const data = await response.json();
+                                  setSignOffUrl(data.signoff_url);
+                                  setAcceptanceStatus("sent");
+                                }
+                              } catch (error) {
+                                console.error("Error sending sign-off request:", error);
+                              }
+                            }}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
                           >
                             Send Sign-Off Request
