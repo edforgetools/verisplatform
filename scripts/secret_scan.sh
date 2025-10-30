@@ -36,7 +36,7 @@ if command_exists gitleaks; then
         --report-path="$REPORTS_DIR/gitleaks-report.json" \
         --report-format=json \
         --no-git \
-        --verbose 2>&1 | tee "$REPORTS_DIR/gitleaks-output.txt"; then
+        > "$REPORTS_DIR/gitleaks-output.txt" 2>&1; then
         echo "✅ gitleaks: No secrets detected"
     else
         EXIT_CODE=$?
