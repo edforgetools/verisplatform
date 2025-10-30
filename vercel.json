@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "pnpm exec next build",
+  "buildCommand": "corepack enable && corepack pnpm exec next build",
   "rootDirectory": "frontend",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install -g pnpm && cd .. && pnpm install && cd frontend",
+  "installCommand": "cd .. && corepack enable && corepack pnpm install --frozen-lockfile",
   "redirects": [
     {
       "source": "/(.*)",

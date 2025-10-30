@@ -44,8 +44,8 @@ CHANGELOG.md
 .env.development
 .env.test
 
-# Package manager lockfiles (Vercel will install from package.json)
-pnpm-lock.yaml
+# Package manager lockfiles - Keep pnpm-lock.yaml for monorepo support
+# pnpm-lock.yaml - NEEDED for frozen-lockfile installs
 yarn.lock
 package-lock.json
 
