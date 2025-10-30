@@ -1,23 +1,18 @@
 #!/usr/bin/env tsx
-
 /**
  * Environment validation script for build-time validation
  * This script ensures that all required environment variables are present
  * and properly formatted before the build process continues.
  */
-
 import { z } from "zod";
 import { config } from "dotenv";
-
 // Load environment variables from .env.local if it exists
 config({ path: ".env.local" });
-
 // =============================================================================
 // BUILD-TIME ENVIRONMENT SCHEMA
 // =============================================================================
 // This schema defines the minimum required environment variables for a successful build
 // Some variables are optional for development but required for production
-
 // Create different schemas for CI vs local development
 const createBuildTimeSchema = (isCI: boolean) => {
   const baseSchema = {
@@ -43,7 +38,6 @@ const createBuildTimeSchema = (isCI: boolean) => {
     VERIS_SIGNING_PUBLIC_KEY: isCI
       ? z.string().min(1, "Veris signing public key required")
       : z.string().min(100, "Veris signing public key too short"),
-
     // CRON authentication (at least one required)
     CRON_JOB_TOKEN: isCI
       ? z.string().min(1, "CRON token required").optional()
@@ -51,7 +45,6 @@ const createBuildTimeSchema = (isCI: boolean) => {
     CRON_SECRET: isCI
       ? z.string().min(1, "CRON secret required").optional()
       : z.string().min(16, "CRON secret must be at least 16 characters").optional(),
-
     // Optional for development, but validated if present
     NEXT_PUBLIC_STRIPE_MODE: z.enum(["test", "live"]).optional(),
     NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: z.string().optional(),
@@ -76,7 +69,6 @@ const createBuildTimeSchema = (isCI: boolean) => {
     ARWEAVE_WALLET_JSON: z.string().optional(),
     SENTRY_DSN: z.string().url("Invalid Sentry DSN").optional(),
   };
-
   return z
     .object(baseSchema)
     .refine(
@@ -104,7 +96,6 @@ const createBuildTimeSchema = (isCI: boolean) => {
       },
     );
 };
-
 function validateEnvironment() {
   // Check if we're in CI or Vercel environment (relaxed validation)
   // Also check for Vercel preview deployments specifically
@@ -114,23 +105,19 @@ function validateEnvironment() {
     process.env.CI === "true" ||
     process.env.GITHUB_ACTIONS === "true" ||
     isVercel;
-  
   // Skip validation entirely for Vercel preview deployments to avoid blocking PRs
   if (isVercelPreview) {
     console.log("🚀 Vercel preview deployment detected - skipping environment validation");
     return;
   }
-
   console.log("🔍 Validating environment variables...");
   if (isCI) {
     console.log("🏗️  Running in CI mode with relaxed validation");
   }
-
   const envVars = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     SUPABASE_SERVICE_ROLE_KEY:
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.supabaseservicekey,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     VERIS_SIGNING_PRIVATE_KEY: process.env.VERIS_SIGNING_PRIVATE_KEY,
     VERIS_SIGNING_PUBLIC_KEY: process.env.VERIS_SIGNING_PUBLIC_KEY,
@@ -154,19 +141,15 @@ function validateEnvironment() {
     ARWEAVE_WALLET_JSON: process.env.ARWEAVE_WALLET_JSON,
     SENTRY_DSN: process.env.SENTRY_DSN,
   };
-
   const buildTimeSchema = createBuildTimeSchema(isCI);
   const result = buildTimeSchema.safeParse(envVars);
-
   if (!result.success) {
     console.error("❌ Environment validation failed:");
     console.error("");
-
     result.error.issues.forEach((error: any) => {
       const path = error.path.join(".");
       console.error(`  • ${path}: ${error.message}`);
     });
-
     console.error("");
     console.error("💡 Make sure to:");
     console.error("  1. Copy env.example to .env.local");
@@ -174,12 +157,9 @@ function validateEnvironment() {
     console.error("  3. Generate signing keys with: npm run generate-keys");
     console.error("");
     console.error("📖 See env.example for detailed instructions");
-
     process.exit(1);
   }
-
   console.log("✅ Environment validation passed");
-
   // Show which optional variables are configured
   const optionalVars = [
     "NEXT_PUBLIC_STRIPE_MODE",
@@ -194,7 +174,6 @@ function validateEnvironment() {
     "ARWEAVE_GATEWAY_URL",
     "SENTRY_DSN",
   ];
-
   const configuredOptional = optionalVars.filter(
     (varName) => envVars[varName as keyof typeof envVars],
   );
@@ -202,10 +181,8 @@ function validateEnvironment() {
     console.log(`📋 Optional features configured: ${configuredOptional.join(", ")}`);
   }
 }
-
 // Run validation if this script is executed directly
 if (require.main === module) {
   validateEnvironment();
 }
-
 export { validateEnvironment };
