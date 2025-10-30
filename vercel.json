@@ -1,9 +1,4 @@
 {
-  "version": 2,
-  "buildCommand": "cd frontend && pnpm exec next build",
-  "outputDirectory": "frontend/.next",
-  "framework": "nextjs",
-  "installCommand": "pnpm install --frozen-lockfile",
   "redirects": [
     {
       "source": "/(.*)",
