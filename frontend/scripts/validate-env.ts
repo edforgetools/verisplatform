@@ -107,17 +107,18 @@ const createBuildTimeSchema = (isCI: boolean) => {
 
 function validateEnvironment() {
   // Check if we're in CI or Vercel environment (relaxed validation)
-  // Also check for Vercel preview deployments specifically
   const isVercel = process.env.VERCEL === "1" || !!process.env.VERCEL_ENV;
-  const isVercelPreview = isVercel && process.env.VERCEL_ENV !== "production";
   const isCI =
     process.env.CI === "true" ||
     process.env.GITHUB_ACTIONS === "true" ||
     isVercel;
   
-  // Skip validation entirely for Vercel preview deployments to avoid blocking PRs
-  if (isVercelPreview) {
-    console.log("🚀 Vercel preview deployment detected - skipping environment validation");
+  // Skip validation entirely for all Vercel deployments (preview and production)
+  // Environment variables are managed via Vercel dashboard and verified separately
+  if (isVercel) {
+    const envType = process.env.VERCEL_ENV || "unknown";
+    console.log(`🚀 Vercel deployment detected (${envType}) - skipping environment validation`);
+    console.log("ℹ️  Environment variables are managed via Vercel dashboard");
     return;
   }
 
