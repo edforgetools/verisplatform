@@ -47,7 +47,7 @@
     "canonical-json": "^0.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "commander": "^14.0.1",
+    "commander": "^14.0.2",
     "dotenv": "^17.2.3",
     "ioredis": "^5.8.2",
     "js-yaml": "^4.1.0",
