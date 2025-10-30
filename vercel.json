@@ -4,7 +4,7 @@
   "rootDirectory": "frontend",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install -g pnpm && pnpm install",
+  "installCommand": "npm install -g pnpm && cd .. && pnpm install",
   "redirects": [
     {
       "source": "/(.*)",
