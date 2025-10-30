@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm exec next build",
+  "buildCommand": "npx next build",
   "rootDirectory": "frontend",
   "outputDirectory": ".next",
   "framework": "nextjs",
