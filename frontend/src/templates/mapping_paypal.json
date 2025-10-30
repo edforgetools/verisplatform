@@ -1,0 +1,12 @@
+{
+  "dispute_evidence_format": "paypal_seller_response",
+  "mapping": {
+    "tracking_info": "Proof ID: {{ proof.proof_id }}",
+    "proof_of_delivery": "Delivered at {{ delivery.delivered_at }}. Accepted at {{ acceptance.accepted_at }}. Verification: {{ verification_instructions.verify_url }}",
+    "proof_of_fulfillment": "SHA-256 hash: {{ proof.sha256 }}\nEd25519 signature: {{ proof.signature }}",
+    "return_policy": "Digital goods - verified delivery via cryptographic proof",
+    "invoice_or_receipt": "{{ proof_url }}",
+    "note_to_buyer": "Your acceptance was recorded on {{ acceptance.accepted_at }} from IP {{ acceptance.accepted_by_ip }}. Verify at any time: {{ verification_instructions.verify_url }}"
+  },
+  "instructions": "Upload evidence-pack.zip. Include receipt.pdf and acceptance.log.jsonl."
+}

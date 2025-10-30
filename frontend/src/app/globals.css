@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+:root {
+  --color-background: #0b1220;
+  --color-text-default: #e6edf7;
+  --color-text-muted: #98a2b3;
+  --color-primary: #22c55e;
+  --color-destructive: #ef4444;
+  --color-divider: rgba(255, 255, 255, 0.12);
+}
+
 body {
   font-feature-settings:
     "rlig" 1,
@@ -9,42 +18,105 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
-}
-
-/* Custom gradient background */
-.bg-gradient-veris {
-  background: linear-gradient(to bottom, #0e1726, #101828);
+  background: var(--color-background);
+  color: var(--color-text-default);
 }
 
 /* Reusable component patterns */
 .btn-primary {
-  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none bg-emerald-500 text-white rounded-xl no-underline;
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none rounded-xl no-underline;
+  background: var(--color-primary);
+  color: #000;
+  transition: filter 0.15s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(0.95);
 }
 
 .btn-secondary {
-  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none bg-slate-900 text-slate-300 rounded-xl no-underline border border-slate-800;
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none rounded-xl no-underline;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-submit {
-  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none rounded-xl border-none text-white;
+  @apply flex items-center justify-center h-10 md:h-11 px-5 md:px-6 text-base font-medium leading-none rounded-xl border-none;
+  color: white;
 }
 
 .card {
-  @apply bg-slate-900 rounded-xl p-8 border border-slate-800;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  @apply rounded-xl p-6 md:p-8;
 }
 
 .input {
-  @apply block w-full bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300;
+  @apply block w-full p-3 rounded-xl text-base;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-default);
 }
 
 .textarea {
-  @apply block w-full bg-slate-900 p-3 rounded-xl border border-slate-800 text-slate-300 font-mono text-sm;
+  @apply block w-full p-3 rounded-xl font-mono text-sm;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-default);
 }
 
 /* Keyboard accessibility: visible focus states */
 *:focus-visible {
-  outline: 2px solid theme("colors.emerald.500");
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  background-color: var(--color-background);
+}
+
+/* Skip link - accessible positioning */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #22c55e;
+  color: #000;
+  padding: 8px 16px;
+  z-index: 9999;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 /* Respect prefers-reduced-motion */

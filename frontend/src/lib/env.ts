@@ -236,12 +236,32 @@ function createEnv() {
 // Export validated environment variables
 // Handle test environment by providing default values
 let ENV: ReturnType<typeof createEnv>;
+
+// Skip validation if explicitly requested (e.g., during Vercel build)
+// VERCEL is set to "1" during Vercel builds
+// Skip validation on Vercel to allow build-time static analysis without secrets
+const skipValidation =
+  process.env.SKIP_ENV_VALIDATION === "1" || process.env.VERCEL === "1";
+
 try {
-  // Only validate server environment on the server side
-  if (typeof window === "undefined") {
+  if (skipValidation) {
+    // During build or when explicitly skipped, provide placeholder values
+    ENV = {
+      client: {
+        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key",
+        NEXT_PUBLIC_STRIPE_MODE: (process.env.NEXT_PUBLIC_STRIPE_MODE as "live" | "test") || "test",
+        NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID: process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_ID || "placeholder-pro-price",
+        NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID: process.env.NEXT_PUBLIC_TEAM_MONTHLY_PRICE_ID || "placeholder-team-price",
+        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || "https://placeholder.com",
+      },
+      server: {} as ReturnType<typeof createEnv>["server"],
+    };
+  } else if (typeof window === "undefined") {
+    // Server-side: validate full environment
     ENV = createEnv();
   } else {
-    // On client side, only validate client environment
+    // Client-side: only validate client environment
     const clientEnv = clientSchema.safeParse({
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

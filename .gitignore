@@ -8,3 +8,27 @@ frontend/.env*
 .supabase
 .next
 frontend/.next
+
+# Backups and temp files
+.backups/
+*.backup
+*.bak
+*.bak[0-9]
+*.old
+*.tmp
+
+# Audit outputs (reports are transient)
+docs/audits/npm-audit.json
+docs/audits/sbom.json
+docs/audits/outdated.json
+docs/audits/licenses.json
+docs/audits/licenses.md
+docs/audits/eslint-report.txt
+docs/audits/typescript-errors.txt
+docs/audits/dead-code.json
+docs/audits/dead-code.md
+docs/audits/circular-deps.json
+docs/audits/services.json
+docs/audits/services.md
+docs/audits/duplication/
+docs/audits/security/

@@ -106,8 +106,27 @@ const createBuildTimeSchema = (isCI: boolean) => {
 };
 
 function validateEnvironment() {
+  // Check if we're in Vercel environment (most reliable detection)
+  const isVercel = 
+    process.env.VERCEL === "1" || 
+    process.env.VERCEL_ENV !== undefined ||
+    process.env.VERCEL_URL !== undefined;
+    
   // Check if we're in CI environment
-  const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+  const isCI =
+    process.env.CI === "true" ||
+    process.env.GITHUB_ACTIONS === "true";
+  
+  // Skip validation entirely for all Vercel deployments (preview and production)
+  // Environment variables are managed via Vercel dashboard and verified separately
+  if (isVercel) {
+    const envType = process.env.VERCEL_ENV || "unknown";
+    console.log(`🚀 Vercel deployment detected (${envType}) - skipping environment validation`);
+    console.log(`ℹ️  Environment variables are managed via Vercel dashboard`);
+    console.log(`ℹ️  VERCEL=${process.env.VERCEL}, VERCEL_ENV=${process.env.VERCEL_ENV}, VERCEL_URL=${process.env.VERCEL_URL ? "set" : "unset"}`);
+    process.exit(0); // Explicitly exit with success
+    return;
+  }
 
   console.log("🔍 Validating environment variables...");
   if (isCI) {

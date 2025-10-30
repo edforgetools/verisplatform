@@ -1,93 +1,165 @@
 import Link from "next/link";
 import { Layout } from "@/components/Layout";
 
+// A/B test variants for headlines
+const HEADLINE_VARIANTS = {
+  a: {
+    h1: "Proof of Delivery, verifiable.",
+    subtitle:
+      "Hash, timestamp, and sign every delivery. Capture acceptance. Export evidence for banks and platforms.",
+  },
+  b: {
+    h1: "Verifiable proof you delivered, exactly.",
+    subtitle:
+      "Hash, timestamp, and sign every delivery. Capture acceptance. Export evidence for banks and platforms.",
+  },
+};
+
 export default function Home() {
+  // Select variant (can use A/B test cookie or randomize)
+  const variant = HEADLINE_VARIANTS.a; // or .b
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4">
-        {/* Hero block (compressed) - mt-6 from Top Bar */}
-        <div className="text-center mt-6">
-          <p className="text-lg text-slate-300 mb-2 leading-relaxed">
-            When work is done, Veris records the moment of completion.
-          </p>
-          <h1 className="text-5xl font-bold text-white mt-2 leading-tight">
-            Verifiable Delivery Records
+        {/* Hero block - pt-10 md:pt-14, max-width 68ch */}
+        <section className="text-center pt-10 md:pt-14" aria-labelledby="hero-heading">
+          <h1
+            id="hero-heading"
+            className="text-5xl font-bold text-white leading-tight"
+            style={{ maxWidth: "68ch", margin: "0 auto" }}
+          >
+            {variant.h1}
           </h1>
-          <p className="text-lg text-slate-300 mt-3 leading-relaxed">
-            A verifiable record when work is complete.
+          <p
+            className="text-lg mt-3 leading-relaxed"
+            style={{ color: "#E6EDF7", maxWidth: "68ch", margin: "0.75rem auto 0" }}
+          >
+            {variant.subtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
-            <Link href="/close" className="btn-primary">
-              Close Delivery
+          <div
+            className="mt-6 flex flex-wrap gap-3 justify-center"
+            role="group"
+            aria-label="Primary actions"
+          >
+            <Link
+              href="/close"
+              className="btn-primary"
+              aria-label="Navigate to close delivery page"
+            >
+              Create proof + request sign-off
             </Link>
-            <Link href="/check" className="btn-secondary">
-              Check Delivery
+            <Link
+              href="/check"
+              className="btn-secondary"
+              aria-label="Navigate to check delivery page"
+            >
+              Verify a file
             </Link>
           </div>
-        </div>
+        </section>
 
-        {/* Steps row - mt-6 from CTAs, gap-6 between items */}
-        <div className="flex flex-col md:flex-row justify-center items-center mt-6 gap-6">
+        {/* Trust Explainer Bullets */}
+        <section className="mt-16 grid md:grid-cols-3 gap-6 mb-12">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-900 mx-auto mb-4 flex items-center justify-center">
-              <div className="text-emerald-500 text-2xl">1</div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-200 mb-1">Close Delivery</h3>
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Hash the file
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              SHA-256 creates unique fingerprint
+            </p>
           </div>
-
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-900 mx-auto mb-4 flex items-center justify-center">
-              <div className="text-emerald-500 text-2xl">2</div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-200 mb-1">Record Closure</h3>
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Timestamp the proof
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              Cryptographically signed with Ed25519
+            </p>
           </div>
-
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-900 mx-auto mb-4 flex items-center justify-center">
-              <div className="text-emerald-500 text-2xl">3</div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-200 mb-1">Check Delivery</h3>
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Link to exact version
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              No ambiguity about what was delivered
+            </p>
           </div>
-        </div>
-
-        {/* Composite About+FAQ card - mt-6 from steps */}
-        <div className="card text-center mt-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-200 mb-4">About this MVP</h2>
-          <p className="text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Veris is a public proof‑of‑concept that demonstrates verifiable closure of digital
-            deliveries. Records here are temporary and may be purged. Checking deliveries is free
-            and public.
-          </p>
-
-          {/* Divider inside card */}
-          <div className="border-t border-slate-800 mt-6 pt-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-3">Micro FAQ</h3>
-            <div className="text-left max-w-2xl mx-auto">
-              <div className="mb-4">
-                <h4 className="text-base font-semibold text-gray-200 mb-1">
-                  What does Close Delivery do?
-                </h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Creates a verifiable record of completion.
-                </p>
-              </div>
-              <div className="mb-4">
-                <h4 className="text-base font-semibold text-gray-200 mb-1">Is my file uploaded?</h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  No, only a local hash is stored.
-                </p>
-              </div>
-              <div>
-                <h4 className="text-base font-semibold text-gray-200 mb-1">
-                  How long do records last?
-                </h4>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Seven days in this public prototype.
-                </p>
-              </div>
-            </div>
+          <div className="text-center">
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Record acceptance
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              Capture recipient sign-off with IP and timestamp
+            </p>
           </div>
-        </div>
+          <div className="text-center">
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Verify anywhere
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              Works even if metadata is stripped
+            </p>
+          </div>
+          <div className="text-center">
+            <h3 className="font-semibold mb-2" style={{ color: "#E6EDF7" }}>
+              Optional Content Credentials
+            </h3>
+            <p className="text-sm" style={{ color: "#E6EDF7" }}>
+              Always verifiable by hash
+            </p>
+          </div>
+        </section>
+
+        {/* Objection Handling Section */}
+        <section className="mt-16 card p-8 rounded-lg">
+          <h2 className="text-2xl font-bold mb-6" style={{ color: "#E6EDF7" }}>
+            Common Questions
+          </h2>
+
+          <div className="space-y-4">
+            <details className="cursor-pointer">
+              <summary className="font-semibold" style={{ color: "#E6EDF7" }}>
+                Will this help with chargebacks?
+              </summary>
+              <p className="mt-2 text-sm" style={{ color: "#E6EDF7" }}>
+                Yes. Evidence packs export in formats aligned to card-network guidelines (Stripe,
+                PayPal). Shows clear proof of delivery and acceptance.
+              </p>
+            </details>
+
+            <details className="cursor-pointer">
+              <summary className="font-semibold" style={{ color: "#E6EDF7" }}>
+                What if metadata is stripped?
+              </summary>
+              <p className="mt-2 text-sm" style={{ color: "#E6EDF7" }}>
+                Hash verification works even without metadata. We use SHA-256 content hashing, not
+                file metadata. Your proof remains verifiable regardless of file transformations.
+              </p>
+            </details>
+
+            <details className="cursor-pointer">
+              <summary className="font-semibold" style={{ color: "#E6EDF7" }}>
+                Is acceptance legally clear?
+              </summary>
+              <p className="mt-2 text-sm" style={{ color: "#E6EDF7" }}>
+                Yes. Recipient explicitly accepts the exact file hash and timestamp. We record IP
+                address, user agent, and exact acceptance time for dispute evidence.
+              </p>
+            </details>
+
+            <details className="cursor-pointer">
+              <summary className="font-semibold" style={{ color: "#E6EDF7" }}>
+                How is this different from Content Credentials?
+              </summary>
+              <p className="mt-2 text-sm" style={{ color: "#E6EDF7" }}>
+                Content Credentials (C2PA) are optional enhancement. Our core verification uses
+                SHA-256 + Ed25519, which works even if C2PA metadata is stripped. We support both
+                approaches.
+              </p>
+            </details>
+          </div>
+        </section>
       </div>
     </Layout>
   );

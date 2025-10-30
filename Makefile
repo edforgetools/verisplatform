@@ -1,75 +1,66 @@
-# Veris MVP Makefile
-# Per docs/mvp.md §9
+.PHONY: help audit-all audit-secrets audit-deps audit-licenses audit-dead audit-circular audit-dup audit-bundle audit-eslint audit-ts audit-services clean-reports
 
-.PHONY: help bootstrap schema:lint issue verify demo test lh a11y release
-
-# Default target
 help:
-	@echo "Veris MVP Targets:"
-	@echo "  bootstrap          - Install deps, set up env"
-	@echo "  schema:lint        - Validate schema file"
-	@echo "  issue              - CLI issuance against sample file, writes proof.json"
-	@echo "  verify             - Calls POST /api/verify on proof.json"
-	@echo "  demo               - Issues public demo proof for staging"
-	@echo "  test               - Unit + e2e orchestration"
-	@echo "  lh                 - Run Lighthouse budgets locally"
-	@echo "  a11y               - Run axe+pa11y locally"
-	@echo "  release            - Runs release_gate preflight locally"
+	@echo "Veris Audit Commands:"
+	@echo "  make audit:all       - Run all audits"
+	@echo "  make audit:secrets   - Scan for secrets"
+	@echo "  make audit:deps      - Check dependencies"
+	@echo "  make audit:licenses  - License compliance"
+	@echo "  make audit:dead      - Dead code detection"
+	@echo "  make audit:circular  - Circular dependencies"
+	@echo "  make audit:dup       - Code duplication"
+	@echo "  make audit:bundle    - Bundle size analysis"
+	@echo "  make audit:eslint    - Linting"
+	@echo "  make audit:ts        - TypeScript checks"
+	@echo "  make audit:services  - External services"
+	@echo "  make clean:reports   - Clean audit reports"
 
-# Bootstrap phase
-bootstrap:
-	@echo "Installing dependencies..."
-	cd frontend && pnpm install
-	@echo "Bootstrap complete"
+audit\:all: audit\:secrets audit\:deps audit\:licenses audit\:dead audit\:circular audit\:dup audit\:eslint audit\:ts
+	@echo "✅ All audits complete"
 
-# Schema validation
-schema:lint:
-	@echo "Validating schema..."
-	python3 -m json.tool frontend/src/schema/proof.schema.json > /dev/null
-	@echo "Schema is valid JSON"
+audit\:secrets:
+	@echo "🔍 Scanning for secrets..."
+	@./scripts/secret_scan.sh || true
 
-# CLI issuance
-issue:
-	@echo "Issuing proof..."
-	cd frontend && pnpm run mint:mock
+audit\:deps:
+	@echo "🔍 Auditing dependencies..."
+	@cd frontend && npm audit --json > ../docs/audits/npm-audit.json 2>&1 || true
+	@cd frontend && npm ls --json > ../docs/audits/sbom.json 2>&1 || true
+	@cd frontend && npm outdated --json > ../docs/audits/outdated.json 2>&1 || true
 
-# Verify proof
-verify:
-	@echo "Verifying proof..."
-	cd frontend && curl -X POST http://localhost:3000/api/verify -H "Content-Type: application/json" -d @proof.json
+audit\:licenses:
+	@echo "🔍 Checking licenses..."
+	@cd frontend && npx license-checker --json --out ../docs/audits/licenses.json
+	@cd frontend && npx license-checker --summary > ../docs/audits/licenses.md
 
-# Demo proof
-demo:
-	@echo "Issuing demo proof..."
-	cd frontend && pnpm run mint:demo
+audit\:dead:
+	@echo "🔍 Detecting dead code..."
+	@npx tsx scripts/dead_code.ts || true
 
-# Tests
-test:
-	@echo "Running tests..."
-	cd frontend && pnpm test
+audit\:circular:
+	@echo "🔍 Checking circular dependencies..."
+	@cd frontend && npx madge --circular --json src > ../docs/audits/circular-deps.json 2>&1 || true
 
-# Lighthouse
-lh:
-	@echo "Running Lighthouse..."
-	cd frontend && pnpm run lighthouse
+audit\:dup:
+	@echo "🔍 Checking code duplication..."
+	@cd frontend && npx jscpd src --reporters json --output ../docs/audits/duplication/ 2>&1 || true
 
-# A11y
-a11y:
-	@echo "Running accessibility tests..."
-	cd frontend && pnpm run a11y
+audit\:bundle:
+	@echo "🔍 Analyzing bundle..."
+	@cd frontend && ANALYZE=true npm run build 2>&1 || true
 
-# Release
-release:
-	@echo "Running release preflight..."
-	cd frontend && pnpm run test:ci && pnpm run test:e2e
-	@echo "Release checks passed"
+audit\:eslint:
+	@echo "🔍 Running ESLint..."
+	@cd frontend && npm run lint > ../docs/audits/eslint-report.txt 2>&1 || true
 
-# Ed25519 integration testing (MVP §2.1)
-test-ed25519:
-	@echo "Testing Ed25519 integration..."
-	cd frontend && VERIS_ED25519_PRIVATE_KEY="$$(grep VERIS_ED25519_PRIVATE_KEY .env.local | cut -d'"' -f2)" \
-	VERIS_ED25519_PUBLIC_KEY="$$(grep VERIS_ED25519_PUBLIC_KEY .env.local | cut -d'"' -f2)" \
-	VERIS_ISSUER="$$(grep VERIS_ISSUER .env.local | cut -d'"' -f2)" \
-	npx tsx scripts/test-ed25519-integration.ts
+audit\:ts:
+	@echo "🔍 Running TypeScript checks..."
+	@cd frontend && npm run typecheck 2> ../docs/audits/typescript-errors.txt || true
 
-.PHONY: test-ed25519
+audit\:services:
+	@echo "🔍 Auditing external services..."
+	@npx tsx scripts/services_audit.ts || true
+
+clean\:reports:
+	@echo "🧹 Cleaning audit reports..."
+	@rm -rf docs/audits/npm-audit.json docs/audits/sbom.json docs/audits/outdated.json docs/audits/licenses.* docs/audits/eslint-report.txt docs/audits/typescript-errors.txt

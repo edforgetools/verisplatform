@@ -1,9 +1,7 @@
 {
-  "version": 2,
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/.next",
-  "installCommand": "cd frontend && npm install",
-  "framework": "nextjs",
+  "buildCommand": "pnpm run build:vercel",
+  "installCommand": "pnpm install",
+  "outputDirectory": ".next",
   "redirects": [
     {
       "source": "/(.*)",

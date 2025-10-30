@@ -14,9 +14,9 @@ This module provides server-side entitlement checks for subscription-based featu
 ### Basic Entitlement Check
 
 ```typescript
-import { isEntitled } from '@/lib/entitlements';
+import { isEntitled } from "@/lib/entitlements";
 
-const canCreateProof = await isEntitled(userId, 'create_proof');
+const canCreateProof = await isEntitled(userId, "create_proof");
 if (canCreateProof) {
   // User can create proofs
 }
@@ -25,24 +25,21 @@ if (canCreateProof) {
 ### Asserting Entitlements
 
 ```typescript
-import { assertEntitled } from '@/lib/entitlements';
+import { assertEntitled } from "@/lib/entitlements";
 
 try {
-  await assertEntitled(userId, 'generate_certificate');
+  await assertEntitled(userId, "generate_certificate");
   // User is entitled, proceed with certificate generation
 } catch (error) {
   // User is not entitled, return 403 error
-  return NextResponse.json(
-    { error: 'Insufficient permissions' },
-    { status: 403 },
-  );
+  return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
 }
 ```
 
 ### Getting User Tier
 
 ```typescript
-import { getUserTier } from '@/lib/entitlements';
+import { getUserTier } from "@/lib/entitlements";
 
 const tier = await getUserTier(userId);
 // Returns: 'free' | 'pro' | 'team'

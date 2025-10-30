@@ -1,0 +1,27 @@
+# Veris Code Owners
+#
+# These owners will be automatically requested for review when
+# someone opens a pull request that modifies code in a directory.
+
+# Default owner for everything
+* @edforgetools
+
+# Frontend
+/frontend/ @edforgetools
+
+# Backend/API
+/frontend/src/app/api/ @edforgetools
+
+# Infrastructure
+/.github/ @edforgetools
+/scripts/ @edforgetools
+/supabase/ @edforgetools
+
+# Documentation
+/docs/ @edforgetools
+*.md @edforgetools
+
+# Configuration
+package.json @edforgetools
+pnpm-lock.yaml @edforgetools
+tsconfig.json @edforgetools

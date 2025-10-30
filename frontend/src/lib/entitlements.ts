@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "./supabaseAdmin";
-import { Billing } from "./db-types";
+import { Database } from "./db-types";
 
 export type Feature =
   | "create_proof"
@@ -124,9 +124,11 @@ export async function getUserTier(userId: string): Promise<Tier> {
 /**
  * Gets detailed billing information for a user
  * @param userId - The user's UUID
- * @returns Promise<Billing | null> - The user's billing information
+ * @returns Promise<Database['public']['Tables']['billing']['Row'] | null> - The user's billing information
  */
-export async function getUserBilling(userId: string): Promise<Billing | null> {
+export async function getUserBilling(
+  userId: string,
+): Promise<Database["public"]["Tables"]["billing"]["Row"] | null> {
   try {
     const { data: billing, error } = await supabaseAdmin()
       .from("billing")

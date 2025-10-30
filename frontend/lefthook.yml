@@ -1,0 +1,20 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{js,ts,tsx}"
+      run: pnpm lint {staged_files}
+    typecheck:
+      run: pnpm typecheck
+    secrets:
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks protect --staged --verbose
+        else
+          echo "⚠️  gitleaks not installed, skipping secret scan"
+        fi
+
+pre-push:
+  commands:
+    tests:
+      run: pnpm test
