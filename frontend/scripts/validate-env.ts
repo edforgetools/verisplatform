@@ -129,7 +129,6 @@ function validateEnvironment() {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL,
     REDIS_URL: process.env.REDIS_URL,
-    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     AWS_REGION: process.env.AWS_REGION,
     AWS_ROLE_ARN: process.env.AWS_ROLE_ARN,
