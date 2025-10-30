@@ -236,9 +236,13 @@ function createEnv() {
 // Export validated environment variables
 // Handle test environment by providing default values
 let ENV: ReturnType<typeof createEnv>;
+
+// Skip validation if explicitly requested (e.g., during Vercel build)
+const skipValidation = process.env.SKIP_ENV_VALIDATION === "1";
+
 try {
   // Only validate server environment on the server side
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" && !skipValidation) {
     ENV = createEnv();
   } else {
     // On client side, only validate client environment
