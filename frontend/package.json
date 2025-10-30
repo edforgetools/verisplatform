@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "tsx scripts/validate-env.ts && next build",
+    "build:vercel": "SKIP_ENV_VALIDATION=1 next build",
     "build:validate": "tsx scripts/validate-env.ts",
     "start": "next start",
     "lint": "eslint",
