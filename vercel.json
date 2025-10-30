@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npx next build",
+  "buildCommand": "pnpm exec next build",
   "rootDirectory": "frontend",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install -g pnpm && cd .. && pnpm install",
+  "installCommand": "npm install -g pnpm && cd .. && pnpm install && cd frontend",
   "redirects": [
     {
       "source": "/(.*)",
