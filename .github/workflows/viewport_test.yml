@@ -47,13 +47,10 @@ jobs:
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
           CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
 
-      # Rely on Playwright webServer from playwright.config.ts
-
-      - name: Run viewport tests
-        run: |
-          cd frontend
-          pnpm exec playwright test e2e/viewport.spec.ts
+      - name: Start production server
+        run: cd frontend && pnpm start &
         env:
+          NODE_ENV: production
           NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -62,3 +59,15 @@ jobs:
           VERIS_SIGNING_PRIVATE_KEY: ${{ secrets.VERIS_SIGNING_PRIVATE_KEY }}
           VERIS_SIGNING_PUBLIC_KEY: ${{ secrets.VERIS_SIGNING_PUBLIC_KEY }}
           CRON_JOB_TOKEN: ${{ secrets.CRON_JOB_TOKEN || 'fake-cron-token-for-ci-testing-12345' }}
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run viewport tests
+        run: |
+          cd frontend
+          # Use CI config that doesn't start webServer
+          pnpm exec playwright test e2e/viewport.spec.ts --config playwright.config.ci.ts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://fxdzaspfxwvihrbxgjyh.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4ZHphc3BmeHd2aWhyYnhnanloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzODAyMzAsImV4cCI6MjA3Njk1NjIzMH0._wpAZG92z3pFoRvscCcyoA3QWfimkajXvIFUFAIFKKE
