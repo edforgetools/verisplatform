@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd frontend && pnpm run build:vercel",
+  "buildCommand": "pnpm run build:vercel",
   "installCommand": "pnpm install",
-  "outputDirectory": "frontend/.next",
+  "outputDirectory": ".next",
   "redirects": [
     {
       "source": "/(.*)",
