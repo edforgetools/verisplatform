@@ -238,7 +238,11 @@ function createEnv() {
 let ENV: ReturnType<typeof createEnv>;
 
 // Skip validation if explicitly requested (e.g., during Vercel build)
-const skipValidation = process.env.SKIP_ENV_VALIDATION === "1";
+// VERCEL is set to "1" during Vercel builds
+// VERCEL_ENV is the deployment environment (production, preview, development)
+const skipValidation =
+  process.env.SKIP_ENV_VALIDATION === "1" ||
+  (process.env.VERCEL === "1" && process.env.NODE_ENV === "production");
 
 try {
   // Only validate server environment on the server side
