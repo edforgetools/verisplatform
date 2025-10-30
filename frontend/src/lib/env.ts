@@ -239,10 +239,9 @@ let ENV: ReturnType<typeof createEnv>;
 
 // Skip validation if explicitly requested (e.g., during Vercel build)
 // VERCEL is set to "1" during Vercel builds
-// VERCEL_ENV is the deployment environment (production, preview, development)
+// Skip validation on Vercel to allow build-time static analysis without secrets
 const skipValidation =
-  process.env.SKIP_ENV_VALIDATION === "1" ||
-  (process.env.VERCEL === "1" && process.env.NODE_ENV === "production");
+  process.env.SKIP_ENV_VALIDATION === "1" || process.env.VERCEL === "1";
 
 try {
   if (skipValidation) {
